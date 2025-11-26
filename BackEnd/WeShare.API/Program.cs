@@ -1,6 +1,11 @@
+using Microsoft.EntityFrameworkCore;
 using WeShare.API;
+using WeShare.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
+
+var connectionStrings = builder.Configuration.GetConnectionString("DefaultConnection");
+builder.Services.AddDbContext<WeShareDbContext>(options => options.UseNpgsql(connectionStrings, b => b.MigrationsAssembly("WeShare.Infrastructure")));
 
 // Add services to the container.
 
