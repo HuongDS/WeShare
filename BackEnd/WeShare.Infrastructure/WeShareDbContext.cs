@@ -22,7 +22,7 @@ namespace WeShare.Infrastructure
         public DbSet<WeShare.Core.Entities.Task> Tasks { get; set; }
         public DbSet<Transaction> Transactions { get; set; }
         public DbSet<TransactionSplit> TransactionSplits { get; set; }
-
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -106,6 +106,16 @@ namespace WeShare.Infrastructure
                  .WithMany()
                  .HasForeignKey(t => t.AssigneeId)
                  .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<RefreshToken>(entity =>
+            {
+                entity.HasKey(rt => rt.Id);
+
+                entity.HasOne(rt => rt.User)
+                .WithMany()
+                .HasForeignKey(rt => rt.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
             });
         }
     }

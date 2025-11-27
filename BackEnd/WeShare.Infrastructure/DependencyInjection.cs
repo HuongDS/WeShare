@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using WeShare.Core.Interfaces;
+using WeShare.Infrastructure.Repositories;
 
 namespace WeShare.Infrastructure
 {
@@ -11,6 +13,7 @@ namespace WeShare.Infrastructure
     {
         public static IServiceCollection AddInfrastructureDI(this IServiceCollection services)
         {
+            services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             return services;
         }
     }
