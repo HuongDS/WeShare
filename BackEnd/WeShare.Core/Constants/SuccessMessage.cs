@@ -1,0 +1,15 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace WeShare.Core.Constants
+{
+    public class SuccessMessage
+    {
+        // Auth
+        public static string REGISTER_SUCCESSFULLY = "Register Successfully.";
+        public static string LOGIN_SUCCESSFULLY = "Login Successfully.";
+    }
+}

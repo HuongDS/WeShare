@@ -1,0 +1,70 @@
+﻿using System.Net;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using WeShare.Core.Constants;
+using WeShare.Core.Dtos.Auth;
+using WeShare.Core.Dtos.Share;
+using WeShare.Core.Interfaces;
+using WeShare.Infrastructure.Services;
+
+namespace WeShare.API.Controllers
+{
+    [Route("api/[controller]")]
+    [ApiController]
+    public class AuthController : ControllerBase
+    {
+        private readonly IAuthServices _authServices;
+
+        public AuthController(IAuthServices authServices)
+        {
+            _authServices = authServices;
+        }
+
+        [HttpPost("register")]
+        public async Task<IActionResult> RegisterAsync([FromBody] RegisterDto data)
+        {
+            try
+            {
+                var res = await _authServices.RegisterAsync(data);
+                return Ok(new ResponseDto<AuthResponseDto>
+                {
+                    Data = res,
+                    Status = (int)HttpStatusCode.OK,
+                    Message = SuccessMessage.REGISTER_SUCCESSFULLY
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseDto<object>
+                {
+                    Status = (int)HttpStatusCode.BadRequest,
+                    Message = ex.Message,
+                    Data = null
+                });
+            }
+        }
+        [HttpPost("login")]
+        public async Task<IActionResult> LoginAsync([FromBody] LoginDto data)
+        {
+            try
+            {
+                var res = await _authServices.LoginAsync(data);
+                return Ok(new ResponseDto<AuthResponseDto>
+                {
+                    Data = res,
+                    Status = (int)HttpStatusCode.OK,
+                    Message = SuccessMessage.LOGIN_SUCCESSFULLY
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseDto<object>
+                {
+                    Status = (int)HttpStatusCode.BadRequest,
+                    Message = ex.Message,
+                    Data = null
+                });
+            }
+        }
+    }
+}
