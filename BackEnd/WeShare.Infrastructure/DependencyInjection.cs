@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using WeShare.Core.Interfaces;
 using WeShare.Infrastructure.Repositories;
+using WeShare.Infrastructure.Services;
 
 namespace WeShare.Infrastructure
 {
@@ -15,6 +16,7 @@ namespace WeShare.Infrastructure
         {
             services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             services.AddScoped(typeof(IUnitOfWork), typeof(UnitOfWork));
+            services.AddScoped<IAuthServices, AuthServices>();
             return services;
         }
     }
