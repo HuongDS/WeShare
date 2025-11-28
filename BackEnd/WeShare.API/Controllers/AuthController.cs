@@ -66,5 +66,51 @@ namespace WeShare.API.Controllers
                 });
             }
         }
+        [HttpPost("login-google")]
+        public async Task<IActionResult> LoginGoogleAsync([FromBody] string idToken)
+        {
+            try
+            {
+                var response = await _authServices.LoginGoogleAsync(idToken);
+                return Ok(new ResponseDto<AuthResponseDto>
+                {
+                    Data = response,
+                    Status = (int)HttpStatusCode.OK,
+                    Message = SuccessMessage.LOGIN_SUCCESSFULLY
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseDto<object>
+                {
+                    Status = (int)HttpStatusCode.BadRequest,
+                    Message = ex.Message,
+                    Data = null
+                });
+            }
+        }
+        [HttpPost("refresh-token")]
+        public async Task<IActionResult> RefreshTokenAsync([FromBody] string refreshToken)
+        {
+            try
+            {
+                var res = await _authServices.RefreshTokenAsync(refreshToken);
+                return Ok(new ResponseDto<AuthResponseDto>
+                {
+                    Status = (int)HttpStatusCode.OK,
+                    Message = SuccessMessage.REFRESH_SUCCESSFULLY,
+                    Data = res
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseDto<object>
+                {
+                    Status = (int)HttpStatusCode.BadRequest,
+                    Message = ex.Message,
+                    Data = null
+                });
+            }
+        }
     }
 }

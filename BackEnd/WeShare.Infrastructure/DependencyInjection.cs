@@ -16,7 +16,6 @@ namespace WeShare.Infrastructure
         {
             services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             services.AddScoped(typeof(IUnitOfWork), typeof(UnitOfWork));
-            services.AddScoped<IAuthServices, AuthServices>();
             return services;
         }
     }
