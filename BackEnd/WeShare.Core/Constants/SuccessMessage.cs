@@ -11,5 +11,6 @@ namespace WeShare.Core.Constants
         // Auth
         public static string REGISTER_SUCCESSFULLY = "Register Successfully.";
         public static string LOGIN_SUCCESSFULLY = "Login Successfully.";
+        public static string REFRESH_SUCCESSFULLY = "Refresh Token Successfully.";
     }
 }
