@@ -12,6 +12,8 @@ namespace WeShare.Core.Interfaces
     {
         Task<AuthResponseDto> LoginAsync(LoginDto data);
         Task<AuthResponseDto> LoginGoogleAsync(string idToken);
+        Task<bool> LogoutAsync(string refreshToken);
+        Task<bool> LogoutForceAsync(int userId);
         Task<AuthResponseDto> RefreshTokenAsync(string oldRt);
         Task<AuthResponseDto> RegisterAsync(RegisterDto data);
     }

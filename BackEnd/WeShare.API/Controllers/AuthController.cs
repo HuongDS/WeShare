@@ -112,5 +112,27 @@ namespace WeShare.API.Controllers
                 });
             }
         }
+        [HttpPost("logout")]
+        public async Task<IActionResult> LogOutAsync([FromBody] string refreshToken)
+        {
+            var res = await _authServices.LogoutAsync(refreshToken);
+            return Ok(new ResponseDto<bool>
+            {
+                Status = (int)HttpStatusCode.OK,
+                Message = SuccessMessage.LOG_OUT_SUCCESSFULLY,
+                Data = res
+            });
+        }
+        [HttpPost("logout-force")]
+        public async Task<IActionResult> LogOutForce([FromBody] int userId)
+        {
+            var res = await _authServices.LogoutForceAsync(userId);
+            return Ok(new ResponseDto<bool>
+            {
+                Status = (int)HttpStatusCode.OK,
+                Message = SuccessMessage.LOG_OUT_SUCCESSFULLY,
+                Data = res
+            });
+        }
     }
 }
