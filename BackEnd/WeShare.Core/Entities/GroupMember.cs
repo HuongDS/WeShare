@@ -13,7 +13,7 @@ namespace WeShare.Core.Entities
     {
         public int UserId { get; set; }
         public int GroupId { get; set; }
-        public GroupTypeEnum Role { get; set; }
+        public GroupRoleEnum Role { get; set; }
 
         [Column(TypeName = "decimal(18,2)")]
         public decimal Balance { get; set; }

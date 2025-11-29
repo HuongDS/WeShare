@@ -21,4 +21,8 @@
     <ProjectReference Include="..\WeShare.Core\WeShare.Core.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Dtos\Group\" />
+  </ItemGroup>
+
 </Project>
