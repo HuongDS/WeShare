@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using WeShare.Core.Constants;
@@ -113,6 +114,7 @@ namespace WeShare.API.Controllers
             }
         }
         [HttpPost("logout")]
+        [Authorize]
         public async Task<IActionResult> LogOutAsync([FromBody] string refreshToken)
         {
             var res = await _authServices.LogoutAsync(refreshToken);
@@ -124,9 +126,20 @@ namespace WeShare.API.Controllers
             });
         }
         [HttpPost("logout-force")]
-        public async Task<IActionResult> LogOutForce([FromBody] int userId)
+        [Authorize]
+        public async Task<IActionResult> LogOutForce()
         {
-            var res = await _authServices.LogoutForceAsync(userId);
+            var userId = User.FindFirst("id")?.Value;
+            if (userId is null)
+            {
+                return BadRequest(new ResponseDto<bool>
+                {
+                    Status = (int)HttpStatusCode.BadRequest,
+                    Message = ErrorMessage.LOG_OUT_FAILED,
+                    Data = false
+                });
+            }
+            var res = await _authServices.LogoutForceAsync(int.Parse(userId));
             return Ok(new ResponseDto<bool>
             {
                 Status = (int)HttpStatusCode.OK,

@@ -19,5 +19,6 @@ namespace WeShare.Core.Constants
         public static string ALERT_INVALID_LOGIN = "Anomalous access detected. Please log in again.";
         public static string USER_NOT_FOUND = "User not found! PLease try again.";
         public static string LOGIN_FAILED = "Login Failed! PLease try again.";
+        public static string LOG_OUT_FAILED = "Logout Failed! PLease try again.";
     }
 }
