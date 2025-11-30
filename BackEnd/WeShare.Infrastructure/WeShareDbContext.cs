@@ -117,6 +117,10 @@ namespace WeShare.Infrastructure
                 .HasForeignKey(rt => rt.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
             });
+
+            modelBuilder.Entity<Group>()
+                .Property(g => g.Id)
+                .UseHiLo("group_hilo_sequence");
         }
     }
 }

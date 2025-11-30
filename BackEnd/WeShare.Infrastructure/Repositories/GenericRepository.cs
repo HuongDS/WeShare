@@ -11,8 +11,8 @@ namespace WeShare.Infrastructure.Repositories
 {
     public class GenericRepository<T> : IGenericRepository<T> where T : class, IEntity
     {
-        private readonly WeShareDbContext _context;
-        private readonly DbSet<T> _dbSet;
+        public readonly WeShareDbContext _context;
+        public readonly DbSet<T> _dbSet;
 
         public GenericRepository(WeShareDbContext context)
         {
@@ -47,6 +47,15 @@ namespace WeShare.Infrastructure.Repositories
                 _dbSet.Attach(entity);
             }
             _dbSet.Remove(entity);
+        }
+        public async Task Delete(int id)
+        {
+            var entities = await _dbSet.Where(e => e.Id == id).ToListAsync();
+            var entity = entities.FirstOrDefault();
+            if (entity != null)
+            {
+                _dbSet.Remove(entity);
+            }
         }
         public async Task<int> CountAsync(Expression<Func<T, bool>> predicate)
         {
