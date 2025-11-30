@@ -147,6 +147,33 @@ namespace WeShare.Infrastructure.Services
 
             return await GenerateAuthResponse(user);
         }
+        public async Task<bool> LogoutAsync(string refreshToken)
+        {
+            var rtRepo = _unitOfWork.Repository<RefreshToken>();
+            var storedRTokens = await rtRepo.FindAsync(rt => rt.Token == refreshToken);
+            var storedToken = storedRTokens.FirstOrDefault();
+            if (storedToken is null)
+            {
+                return true;
+            }
+            storedToken.IsRevoked = true;
+            storedToken.IsUsed = true;
+            rtRepo.Update(storedToken);
+            await _unitOfWork.CompleteAsync();
+            return true;
+        }
+        public async Task<bool> LogoutForceAsync(int userId)
+        {
+            var rtRepo = _unitOfWork.Repository<RefreshToken>();
+            var storedTokens = await rtRepo.FindAsync(rt => rt.UserId == userId && !rt.IsRevoked && rt.ExpiryDate > DateTime.UtcNow);
+            foreach (var item in storedTokens)
+            {
+                item.IsRevoked = true;
+                rtRepo.Update(item);
+            }
+            await _unitOfWork.CompleteAsync();
+            return true;
+        }
         private (string TokenString, string Id) GenerateJwtToken(User user)
         {
             var jwtHandler = new JwtSecurityTokenHandler();

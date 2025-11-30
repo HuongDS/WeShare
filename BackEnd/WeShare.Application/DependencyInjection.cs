@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using WeShare.Application.Interfaces;
+using WeShare.Application.Services;
 using WeShare.Application.Validators;
 using WeShare.Core.Interfaces;
 using WeShare.Infrastructure.Services;
@@ -17,6 +18,7 @@ namespace WeShare.Application
         {
             services.AddScoped<IGoogleValidator, GoogleValidator>();
             services.AddScoped<IAuthServices, AuthServices>();
+            services.AddScoped<IGroupServices, GroupServices>();
             return services;
         }
     }

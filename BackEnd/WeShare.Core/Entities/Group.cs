@@ -13,9 +13,9 @@ namespace WeShare.Core.Entities
         public int Id { get; set; }
         public string Name { get; set; }
         public GroupTypeEnum Type { get; set; }
-        public ICollection<GroupMember> GroupMembers { get; set; }
-        public ICollection<Transaction> Transactions { get; set; }
-        public ICollection<GroupDebt> GroupDebts { get; set; }
-        public ICollection<Event> Events { get; set; }
+        public ICollection<GroupMember>? GroupMembers { get; set; }
+        public ICollection<Transaction>? Transactions { get; set; }
+        public ICollection<GroupDebt>? GroupDebts { get; set; }
+        public ICollection<Event>? Events { get; set; }
     }
 }

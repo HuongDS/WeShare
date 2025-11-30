@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WeShare.Infrastructure;
@@ -11,9 +12,11 @@ using WeShare.Infrastructure;
 namespace WeShare.Infrastructure.Migrations
 {
     [DbContext(typeof(WeShareDbContext))]
-    partial class WeShareDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251129105737_updateTableGroups")]
+    partial class updateTableGroups
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -21,9 +24,6 @@ namespace WeShare.Infrastructure.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
-
-            modelBuilder.HasSequence("group_hilo_sequence")
-                .IncrementsBy(10);
 
             modelBuilder.Entity("WeShare.Core.Entities.Event", b =>
                 {
@@ -62,7 +62,7 @@ namespace WeShare.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseHiLo(b.Property<int>("Id"), "group_hilo_sequence");
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Name")
                         .IsRequired()
