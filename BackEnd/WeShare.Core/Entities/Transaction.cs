@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WeShare.Core.Enums;
 using WeShare.Core.Interfaces;
 
 namespace WeShare.Core.Entities
@@ -19,6 +20,7 @@ namespace WeShare.Core.Entities
         public string? Description { get; set; }
         public int? TaskId { get; set; }
         public DateTime? Created_At { get; set; }
+        public SplitStrategyEnum SplitStrategy { get; set; }
         public Group Group { get; set; }
 
         [ForeignKey("PayerId")]

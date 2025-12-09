@@ -19,6 +19,7 @@ namespace WeShare.Application
             services.AddScoped<IGoogleValidator, GoogleValidator>();
             services.AddScoped<IAuthServices, AuthServices>();
             services.AddScoped<IGroupServices, GroupServices>();
+            services.AddScoped<IUserServices, UserServices>();
             return services;
         }
     }

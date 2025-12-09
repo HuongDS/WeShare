@@ -27,5 +27,9 @@ namespace WeShare.Core.Constants
         // Group
         public static string GROUP_NOT_FOUND = "Group not found! Please try again.";
         public static string YOU_HAVE_NO_RIGHT_TO_DO_THIS_ACTION = "You have no right to this action!";
+
+        // User
+        public static string USER_PROFILE_NOT_FOUND = "User profile not found! Please try again.";
+        public static string UNAUTHORIZED_ACTION = "You are not authorized to perform this action!";
     }
 }
