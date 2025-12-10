@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 using AutoMapper;
 using WeShare.Application.Dtos.Group;
 using WeShare.Application.Dtos.GroupMember;
+using WeShare.Application.Dtos.Task;
+using WeShare.Application.Dtos.Transaction;
+using WeShare.Application.Dtos.TransactionSplit;
 using WeShare.Application.Dtos.User;
 using WeShare.Core.Dtos.Auth;
 using WeShare.Core.Entities;
@@ -44,6 +47,15 @@ namespace WeShare.Core.Mappings
                  .ForMember(dest => dest.Events, opt => opt.Ignore());
             CreateMap<User, UserViewDto>();
             CreateMap<UpdateUserDto, User>();
+            CreateMap<Transaction, TransactionViewDto>()
+                .ForMember(dest => dest.Payer, opt => opt.Ignore())
+                .ForMember(dest => dest.Task, opt => opt.Ignore())
+                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.Created_At))
+                .ForMember(dest => dest.TransactionSplits, opt => opt.Ignore());
+            CreateMap<CreateTransactionDto, Transaction>();
+            CreateMap<TransactionSplitCreateDto, TransactionSplit>();
+            CreateMap<TransactionSplit, TransactionSplitViewDto>();
+            CreateMap<Entities.Task, TaskViewDto>();
         }
     }
 }

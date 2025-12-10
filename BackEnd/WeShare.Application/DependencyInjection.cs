@@ -20,6 +20,8 @@ namespace WeShare.Application
             services.AddScoped<IAuthServices, AuthServices>();
             services.AddScoped<IGroupServices, GroupServices>();
             services.AddScoped<IUserServices, UserServices>();
+            services.AddScoped<ITransactionServices, TransactionServices>();
+            services.AddScoped<ITransactionSplitServices, TransactionSplitServices>();
             return services;
         }
     }

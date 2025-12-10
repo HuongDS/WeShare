@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using WeShare.Application.Dtos.Group;
+using WeShare.Application.Dtos.Other;
 using WeShare.Application.Interfaces;
 using WeShare.Application.Services;
 using WeShare.Core.Constants;
@@ -23,8 +24,8 @@ namespace WeShare.API.Controllers
             _groupServices = groupServices;
         }
 
-        [HttpGet("group")]
-        public async Task<IActionResult> GetGroupAsync([FromQuery] int groupId)
+        [HttpGet("{groupId}")]
+        public async Task<IActionResult> GetGroupAsync([FromRoute] int groupId)
         {
             try
             {
@@ -47,8 +48,8 @@ namespace WeShare.API.Controllers
             }
         }
 
-        [HttpGet("groups")]
-        public async Task<IActionResult> GetGroupsAsync()
+        [HttpGet("groups/{pageSize}/{pageIndex}")]
+        public async Task<IActionResult> GetGroupsAsync(int pageSize, int pageIndex)
         {
             try
             {
@@ -62,8 +63,8 @@ namespace WeShare.API.Controllers
                         Data = false
                     });
                 }
-                var res = await _groupServices.GetAllByUserIdAsync(int.Parse(userId));
-                return Ok(new ResponseDto<IEnumerable<GroupViewDto>>
+                var res = await _groupServices.GetAllByUserIdAsync(int.Parse(userId), pageSize, pageIndex);
+                return Ok(new ResponseDto<PageResultDto<GroupViewDto>>
                 {
                     Status = (int)HttpStatusCode.OK,
                     Message = SuccessMessage.GET_GROUP_SUCCESSFULLY,
@@ -81,7 +82,7 @@ namespace WeShare.API.Controllers
             }
         }
         [HttpPost]
-        public async Task<IActionResult> CreateGroupAsync(CreateGroupDto data)
+        public async Task<IActionResult> CreateGroupAsync([FromBody] CreateGroupDto data)
         {
             try
             {
@@ -114,7 +115,7 @@ namespace WeShare.API.Controllers
             }
         }
         [HttpPost("add-members")]
-        public async Task<IActionResult> AddMembersAsync(AddOrRemoveMemberToGroupDto data)
+        public async Task<IActionResult> AddMembersAsync([FromBody] AddOrRemoveMemberToGroupDto data)
         {
             try
             {
@@ -137,7 +138,7 @@ namespace WeShare.API.Controllers
             }
         }
         [HttpDelete("members")]
-        public async Task<IActionResult> RemoveMemberToGroupAsync(AddOrRemoveMemberToGroupDto data)
+        public async Task<IActionResult> RemoveMemberToGroupAsync([FromBody] AddOrRemoveMemberToGroupDto data)
         {
             try
             {
@@ -160,7 +161,7 @@ namespace WeShare.API.Controllers
             }
         }
         [HttpPut]
-        public async Task<IActionResult> UpdateGroupAsync(UpdateGroupDto data)
+        public async Task<IActionResult> UpdateGroupAsync([FromBody] UpdateGroupDto data)
         {
             try
             {
@@ -182,8 +183,8 @@ namespace WeShare.API.Controllers
                 });
             }
         }
-        [HttpDelete("group")]
-        public async Task<IActionResult> DeleteGroupAsync(int groupId)
+        [HttpDelete("{groupId}")]
+        public async Task<IActionResult> DeleteGroupAsync([FromRoute] int groupId)
         {
             try
             {

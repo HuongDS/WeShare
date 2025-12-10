@@ -7,10 +7,12 @@ using System.Threading.Tasks;
 using AutoMapper;
 using WeShare.Application.Dtos.Group;
 using WeShare.Application.Dtos.GroupMember;
+using WeShare.Application.Dtos.Other;
 using WeShare.Application.Interfaces;
 using WeShare.Core.Constants;
 using WeShare.Core.Entities;
 using WeShare.Core.Interfaces;
+using WeShare.Core.Other;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using Group = WeShare.Core.Entities.Group;
 
@@ -55,16 +57,22 @@ namespace WeShare.Application.Services
             res.Members = _mapper.Map<IEnumerable<GroupMemberViewDto>>(memberInGroups);
             return res;
         }
-        public async Task<IEnumerable<GroupViewDto>> GetAllByUserIdAsync(int userId)
+        public async Task<Dtos.Other.PageResultDto<GroupViewDto>> GetAllByUserIdAsync(int userId, int pageSize, int pageIndex)
         {
-            var storedGroupIds = await _groupMemberRepository.GetByUserIdAsync(userId);
+            var storedGroupIds = await _groupMemberRepository.GetByUserIdAsync(userId, pageSize, pageIndex);
             var res = new List<GroupViewDto>();
-            foreach (var item in storedGroupIds)
+            foreach (var item in storedGroupIds.Items)
             {
                 var tmp = await GetByIdAsync(item);
                 res.Add(tmp);
             }
-            return res;
+            return new Dtos.Other.PageResultDto<GroupViewDto>
+            {
+                Items = res,
+                TotalItems = storedGroupIds.TotalItems,
+                PageIndex = pageIndex,
+                PageSize = pageSize
+            };
         }
         public async Task<GroupViewDto> AddMemberToGroupAsync(AddOrRemoveMemberToGroupDto data)
         {
