@@ -4,8 +4,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using WeShare.Core.Constants;
 using WeShare.Core.Entities;
 using WeShare.Core.Interfaces;
+using WeShare.Core.Other;
+using WeShare.Infrastructure.Extension;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace WeShare.Infrastructure.Repositories
@@ -22,9 +25,14 @@ namespace WeShare.Infrastructure.Repositories
         {
             return await _context.GroupMembers.Where(gm => gm.GroupId == groupId).ToListAsync();
         }
-        public async Task<IEnumerable<int>> GetByUserIdAsync(int userId)
+        public async Task<PageResultDto<int>> GetByUserIdAsync(int userId, int pageSize, int pageIndex)
         {
-            return await _context.GroupMembers.Where(gm => gm.UserId == userId).Select(gm => gm.GroupId).ToListAsync();
+            var query = _context.GroupMembers.Where(gm => gm.UserId == userId).Select(gm => gm.GroupId).AsQueryable();
+            return await PaginationExtension.PaginationAsync(query, pageSize, pageIndex);
+        }
+        public async Task<GroupMember?> GetByUserIdAsync(int userId)
+        {
+            return await _context.GroupMembers.FirstOrDefaultAsync(gm => gm.UserId == userId);
         }
         public async Task<GroupMember> AddAsync(int groupId, int memberId)
         {
@@ -66,6 +74,25 @@ namespace WeShare.Infrastructure.Repositories
         public async Task<GroupMember?> CheckUserInGroupAsync(int groupId, int userId)
         {
             return await _context.GroupMembers.FirstOrDefaultAsync(gm => gm.GroupId == groupId && gm.UserId == userId);
+        }
+        public async System.Threading.Tasks.Task RevertTransactionAsync(GroupMember data, decimal balance)
+        {
+            var entity = await _context.GroupMembers.FirstOrDefaultAsync(gm => gm.UserId == data.UserId && gm.GroupId == data.GroupId);
+            if (entity is null)
+            {
+                throw new Exception(ErrorMessage.GROUP_MEMBER_NOT_FOUND);
+            }
+            entity.Balance += balance;
+            _context.GroupMembers.Update(entity);
+        }
+        public async System.Threading.Tasks.Task UpdateBalancesRange(Dictionary<int, decimal> groupMemberIds)
+        {
+            var entities = await _context.GroupMembers.Where(gm => groupMemberIds.Keys.Contains(gm.UserId)).ToListAsync();
+            foreach (var entity in entities)
+            {
+                entity.Balance += groupMemberIds[entity.UserId];
+            }
+            _context.GroupMembers.UpdateRange(entities);
         }
     }
 }

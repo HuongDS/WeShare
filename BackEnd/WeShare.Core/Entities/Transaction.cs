@@ -21,6 +21,7 @@ namespace WeShare.Core.Entities
         public int? TaskId { get; set; }
         public DateTime? Created_At { get; set; }
         public SplitStrategyEnum SplitStrategy { get; set; }
+        public TransactionTypeEnum Type { get; set; }
         public Group Group { get; set; }
 
         [ForeignKey("PayerId")]

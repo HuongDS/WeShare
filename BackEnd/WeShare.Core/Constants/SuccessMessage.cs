@@ -26,5 +26,12 @@ namespace WeShare.Core.Constants
         public static string GET_USER_PROFILE_SUCCESSFULLY = "Get user profile successful!";
         public static string UPDATE_USER_PROFILE_SUCCESSFULLY = "Update user profile successful!";
         public static string UPDATE_PASSWORD_SUCCESSFULLY = "Update password successful!";
+
+        // Transaction
+        public static string ADD_TRANSACTION_SUCCESSFULLY = "Add transaction successful!";
+        public static string CHECK_USER_PAYER_OF_TRANSACTION_SUCCESSFULLY = "Check user payer of transaction successfully.";
+        public static string DELETE_TRANSACTION_SUCCESSFULLY = "Delete transaction successful!";
+        public static string GET_TRANSACTION_DETAIL_SUCCESSFULLY = "Get transaction detail successful!";
+        public static string UPDATE_TRANSACTION_SUCCESSFULLY = "Update transaction successful!";
     }
 }
