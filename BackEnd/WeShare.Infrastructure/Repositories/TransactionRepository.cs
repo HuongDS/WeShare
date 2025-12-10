@@ -32,7 +32,7 @@ namespace WeShare.Infrastructure.Repositories
         }
         public async Task<Transaction?> GetTransactionDetailsAsync(int transactionId)
         {
-            return await _dbSet.Include(t => t.Group).Include(t => t.TransactionSplits).FirstOrDefaultAsync(t => t.Id == transactionId);
+            return await _dbSet.Include(t => t.Group).Include(t => t.TransactionSplits).ThenInclude(t => t.Debtor).FirstOrDefaultAsync(t => t.Id == transactionId);
         }
     }
 }
