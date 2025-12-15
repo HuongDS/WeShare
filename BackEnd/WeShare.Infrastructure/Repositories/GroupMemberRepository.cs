@@ -94,5 +94,23 @@ namespace WeShare.Infrastructure.Repositories
             }
             _context.GroupMembers.UpdateRange(entities);
         }
+        public async System.Threading.Tasks.Task UpdateBalancesRange(int userId, decimal amount)
+        {
+            var entity = await _context.GroupMembers.FirstOrDefaultAsync(gm => gm.UserId == userId);
+            if (entity != null)
+            {
+                entity.Balance += amount;
+                _context.GroupMembers.Update(entity);
+            }
+        }
+        public async Task<decimal> GetBalanceInGroupAsync(int groupId, int userId)
+        {
+            var entity = await _context.GroupMembers.FirstOrDefaultAsync(gm => gm.GroupId == groupId && gm.UserId == userId);
+            if (entity is null)
+            {
+                throw new Exception(ErrorMessage.GROUP_MEMBER_NOT_FOUND);
+            }
+            return entity.Balance;
+        }
     }
 }

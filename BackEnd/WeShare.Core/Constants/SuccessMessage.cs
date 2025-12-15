@@ -33,5 +33,6 @@ namespace WeShare.Core.Constants
         public static string DELETE_TRANSACTION_SUCCESSFULLY = "Delete transaction successful!";
         public static string GET_TRANSACTION_DETAIL_SUCCESSFULLY = "Get transaction detail successful!";
         public static string UPDATE_TRANSACTION_SUCCESSFULLY = "Update transaction successful!";
+        public static string ADD_SETTLEMENT_SUCCESSFULLY = "Settle successful!";
     }
 }

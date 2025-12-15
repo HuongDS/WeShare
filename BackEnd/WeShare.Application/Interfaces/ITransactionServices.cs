@@ -10,6 +10,8 @@ namespace WeShare.Application.Interfaces
 {
     public interface ITransactionServices
     {
+        Task<IEnumerable<int>> CreateMultiSettlementAsyc(int userId, List<CreateSettlementDto> data);
+        Task<int> CreateSingleSettlementAsync(int userId, CreateSettlementDto data);
         Task<TransactionViewDto> CreateTransactionAsync(int userId, CreateTransactionDto data);
         Task<bool> DeleteTransactionAsync(int userId, int transactionId);
         Task<IEnumerable<int>> GetDebtIdsAsync(int transactionId);

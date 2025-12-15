@@ -34,5 +34,9 @@ namespace WeShare.Infrastructure.Repositories
         {
             return await _dbSet.Include(t => t.Group).Include(t => t.TransactionSplits).ThenInclude(t => t.Debtor).FirstOrDefaultAsync(t => t.Id == transactionId);
         }
+        public async System.Threading.Tasks.Task AddRangeAsync(List<Transaction> data)
+        {
+            await _dbSet.AddRangeAsync(data);
+        }
     }
 }

@@ -10,6 +10,7 @@ namespace WeShare.Core.Interfaces
 {
     public interface ITransactionRepository : IGenericRepository<Transaction>
     {
+        System.Threading.Tasks.Task AddRangeAsync(List<Transaction> data);
         Task<Transaction?> GetTransactionDetailsAsync(int transactionId);
         Task<PageResultDto<Transaction>> GetTransactionsByGroupIdAsync(int groupId, int pageSize, int pageIndex);
         Task<Transaction?> GetTransactionsByTaskIdAsync(int taskId);

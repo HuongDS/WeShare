@@ -74,14 +74,6 @@ namespace WeShare.Application.Services
             {
                 newTransactionSplits = CalculateSplitHelper.CalculateSplitAmount(data.Amount, data.DebtIds, data.Stategy, data.SplitAmounts);
             }
-            if (data.Type == Core.Enums.TransactionTypeEnum.EXPENSE)
-            {
-                newTransactionSplits = newTransactionSplits.ToDictionary(
-                    pair => pair.Key,
-                    pair => pair.Value * -1
-               );
-            }
-            await _groupMemberRepository.UpdateBalancesRange(newTransactionSplits);
             foreach (var split in newTransactionSplits)
             {
                 var transactionSplit = new TransactionSplit
@@ -90,8 +82,9 @@ namespace WeShare.Application.Services
                     DebtorId = split.Key,
                     OwedAmount = split.Value
                 };
+                await _groupMemberRepository.UpdateBalancesRange(split.Key, -split.Value);
                 await _transactionSplitRepository.CreateTransactionSplitAsync(transactionSplit);
-                if (split.Key != data.PayerId) await _groupDebtRepository.SyncGroupDebtAsync(data.GroupId, split.Key, data.PayerId, -split.Value);
+                if (split.Key != data.PayerId) await _groupDebtRepository.SyncGroupDebtAsync(data.GroupId, split.Key, data.PayerId, split.Value);
             }
             await _unitOfWork.CompleteAsync();
 
@@ -153,7 +146,7 @@ namespace WeShare.Application.Services
                 {
                     var tmp = oldTransactionSplits.FirstOrDefault(ts => ts.DebtorId == item.UserId);
                     if (tmp is null) continue;
-                    await _groupMemberRepository.RevertTransactionAsync(item, -tmp.OwedAmount);
+                    await _groupMemberRepository.RevertTransactionAsync(item, tmp.OwedAmount);
                 }
                 var payerGroupMember = await _groupMemberRepository.GetByUserIdAsync(transaction.PayerId);
                 if (payerGroupMember is null)
@@ -163,7 +156,7 @@ namespace WeShare.Application.Services
                 await _groupMemberRepository.RevertTransactionAsync(payerGroupMember, -transaction.Amount);
                 foreach (var item in oldTransactionSplits)
                 {
-                    if (item.DebtorId != transaction.PayerId) await _groupDebtRepository.SyncGroupDebtAsync(transaction.GroupId, item.DebtorId, item.Transaction.PayerId, item.OwedAmount);
+                    if (item.DebtorId != transaction.PayerId) await _groupDebtRepository.SyncGroupDebtAsync(transaction.GroupId, item.DebtorId, item.Transaction.PayerId, -item.OwedAmount);
                 }
                 await _transactionSplitRepository.DeleteTransactionAsync(transaction.Id);
 
@@ -179,12 +172,7 @@ namespace WeShare.Application.Services
                     newTransactionSplits = CalculateSplitHelper.CalculateSplitAmount(transaction.Amount, debtIds, data.Strategy, data.SplitAmounts);
 
                 }
-                newTransactionSplits = newTransactionSplits.ToDictionary(
-                     pair => pair.Key,
-                     pair => pair.Value * -1
-                );
                 payerGroupMember.Balance += transaction.Amount;
-                await _groupMemberRepository.UpdateBalancesRange(newTransactionSplits);
                 foreach (var split in newTransactionSplits)
                 {
                     var transactionSplit = new TransactionSplit
@@ -193,8 +181,9 @@ namespace WeShare.Application.Services
                         DebtorId = split.Key,
                         OwedAmount = split.Value
                     };
+                    await _groupMemberRepository.UpdateBalancesRange(split.Key, -split.Value);
                     await _transactionSplitRepository.CreateTransactionSplitAsync(transactionSplit);
-                    if (split.Key != transaction.PayerId) await _groupDebtRepository.SyncGroupDebtAsync(transaction.GroupId, split.Key, transaction.PayerId, -split.Value);
+                    if (split.Key != transaction.PayerId) await _groupDebtRepository.SyncGroupDebtAsync(transaction.GroupId, split.Key, transaction.PayerId, split.Value);
                 }
             }
             _transactionRepository.Update(transaction);
@@ -350,5 +339,58 @@ namespace WeShare.Application.Services
             return transactionSplits.Items.Select(ts => ts.DebtorId).ToList();
         }
 
+        public async Task<int> CreateSingleSettlementAsync(int userId, CreateSettlementDto data)
+        {
+            if (userId != data.PayerId)
+            {
+                throw new Exception(ErrorMessage.UNAUTHORIZED_ACTION);
+            }
+            if (data.Amount <= 0)
+            {
+                throw new Exception(ErrorMessage.TOTAL_AMOUNT_MUST_BE_GREATER_THAN_ZERO);
+            }
+            var newSettlement = _mapper.Map<Core.Entities.Transaction>(data);
+            var currBalance = await _groupMemberRepository.GetBalanceInGroupAsync(data.GroupId, data.ReceiverId);
+            if (data.Amount > currBalance)
+            {
+                throw new Exception(ErrorMessage.INSUFFICIENT_BALANCE);
+            }
+            await _groupMemberRepository.UpdateBalancesRange(data.PayerId, data.Amount);
+            await _groupMemberRepository.UpdateBalancesRange(data.ReceiverId, -data.Amount);
+            await _groupDebtRepository.SyncGroupDebtAsync(data.GroupId, data.PayerId, data.ReceiverId, -data.Amount);
+            await _transactionRepository.AddAsync(newSettlement);
+            await _transactionSplitRepository.CreateTransactionSplitAsync(new TransactionSplit
+            {
+                Transaction = newSettlement,
+                DebtorId = data.ReceiverId,
+                OwedAmount = data.Amount
+            });
+            await _unitOfWork.CompleteAsync();
+            return newSettlement.Id;
+        }
+
+        public async Task<IEnumerable<int>> CreateMultiSettlementAsyc(int userId, List<CreateSettlementDto> data)
+        {
+            if (!data.All(c => c.PayerId == userId))
+            {
+                throw new Exception(ErrorMessage.UNAUTHORIZED_ACTION);
+            }
+            if (data.Any(c => c.Amount <= 0))
+            {
+                throw new Exception(ErrorMessage.TOTAL_AMOUNT_MUST_BE_GREATER_THAN_ZERO);
+            }
+            var newTransactionList = new List<Core.Entities.Transaction>();
+            foreach (var item in data)
+            {
+                var tmp = _mapper.Map<Core.Entities.Transaction>(item);
+                newTransactionList.Add(tmp);
+                await _groupMemberRepository.UpdateBalancesRange(item.ReceiverId, -item.Amount);
+                await _groupMemberRepository.UpdateBalancesRange(item.PayerId, item.Amount);
+                await _groupDebtRepository.SyncGroupDebtAsync(item.GroupId, item.PayerId, item.ReceiverId, -item.Amount);
+            }
+            await _transactionRepository.AddRangeAsync(newTransactionList);
+            await _unitOfWork.CompleteAsync();
+            return newTransactionList.Select(t => t.Id).ToList();
+        }
     }
 }

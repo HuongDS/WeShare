@@ -233,5 +233,73 @@ namespace WeShare.API.Controllers
                 });
             }
         }
+
+        [HttpPost("single-settlement")]
+        public async Task<IActionResult> AddSettlement([FromBody] CreateSettlementDto data)
+        {
+            try
+            {
+                var userId = User.FindFirst("id")?.Value;
+                if (userId is null)
+                {
+                    return BadRequest(new ResponseDto<object>
+                    {
+                        Status = (int)HttpStatusCode.BadRequest,
+                        Message = ErrorMessage.UNAUTHORIZED_ACTION,
+                        Data = null
+                    });
+                }
+                var res = await _transactionServices.CreateSingleSettlementAsync(int.Parse(userId), data);
+                return Ok(new ResponseDto<int>
+                {
+                    Status = (int)HttpStatusCode.OK,
+                    Message = SuccessMessage.ADD_SETTLEMENT_SUCCESSFULLY,
+                    Data = res
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseDto<object>
+                {
+                    Status = (int)HttpStatusCode.BadRequest,
+                    Message = ex.Message,
+                    Data = null
+                });
+            }
+        }
+
+        [HttpPost("multi-settlement")]
+        public async Task<IActionResult> AddSettlement([FromBody] List<CreateSettlementDto> data)
+        {
+            try
+            {
+                var userId = User.FindFirst("id")?.Value;
+                if (userId is null)
+                {
+                    return BadRequest(new ResponseDto<object>
+                    {
+                        Status = (int)HttpStatusCode.BadRequest,
+                        Message = ErrorMessage.UNAUTHORIZED_ACTION,
+                        Data = null
+                    });
+                }
+                var res = await _transactionServices.CreateMultiSettlementAsyc(int.Parse(userId), data);
+                return Ok(new ResponseDto<IEnumerable<int>>
+                {
+                    Status = (int)HttpStatusCode.OK,
+                    Message = SuccessMessage.ADD_SETTLEMENT_SUCCESSFULLY,
+                    Data = res
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseDto<object>
+                {
+                    Status = (int)HttpStatusCode.BadRequest,
+                    Message = ex.Message,
+                    Data = null
+                });
+            }
+        }
     }
 }

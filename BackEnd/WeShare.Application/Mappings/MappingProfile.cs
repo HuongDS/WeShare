@@ -12,6 +12,7 @@ using WeShare.Application.Dtos.TransactionSplit;
 using WeShare.Application.Dtos.User;
 using WeShare.Core.Dtos.Auth;
 using WeShare.Core.Entities;
+using WeShare.Core.Enums;
 
 namespace WeShare.Core.Mappings
 {
@@ -56,6 +57,10 @@ namespace WeShare.Core.Mappings
             CreateMap<TransactionSplitCreateDto, TransactionSplit>();
             CreateMap<TransactionSplit, TransactionSplitViewDto>();
             CreateMap<Entities.Task, TaskViewDto>();
+            CreateMap<CreateSettlementDto, Transaction>()
+                .ForMember(dest => dest.Created_At, opt => opt.MapFrom(src => DateTime.UtcNow))
+                .ForMember(dest => dest.SplitStrategy, opt => opt.MapFrom(src => SplitStrategyEnum.OTHER))
+                .ForMember(dest => dest.Type, opt => opt.MapFrom(src => TransactionTypeEnum.PAYMENT));
         }
     }
 }
