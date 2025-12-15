@@ -10,6 +10,7 @@ namespace WeShare.Core.Enums
     {
         EQUALLY,
         EXACTLY,
-        PERCENTAGE
+        PERCENTAGE,
+        OTHER
     }
 }

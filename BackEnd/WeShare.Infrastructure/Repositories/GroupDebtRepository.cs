@@ -36,6 +36,10 @@ namespace WeShare.Infrastructure.Repositories
                 entity.Updated_At = DateTime.UtcNow;
                 _context.GroupDebts.Update(entity);
             }
+            if (entity.Amount <= 0)
+            {
+                _context.GroupDebts.Remove(entity);
+            }
         }
     }
 }
