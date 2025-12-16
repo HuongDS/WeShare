@@ -287,7 +287,7 @@ namespace WeShare.API.Controllers
                 return Ok(new ResponseDto<IEnumerable<int>>
                 {
                     Status = (int)HttpStatusCode.OK,
-                    Message = SuccessMessage.ADD_SETTLEMENT_SUCCESSFULLY,
+                    Message = SuccessMessage.ADD_SETTLEMENTS_SUCCESSFULLY,
                     Data = res
                 });
             }

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
+using WeShare.Application.Dtos.Event;
 using WeShare.Application.Dtos.Group;
 using WeShare.Application.Dtos.GroupMember;
 using WeShare.Application.Dtos.Task;
@@ -13,6 +14,7 @@ using WeShare.Application.Dtos.User;
 using WeShare.Core.Dtos.Auth;
 using WeShare.Core.Entities;
 using WeShare.Core.Enums;
+using Task = WeShare.Core.Entities.Task;
 
 namespace WeShare.Core.Mappings
 {
@@ -61,6 +63,10 @@ namespace WeShare.Core.Mappings
                 .ForMember(dest => dest.Created_At, opt => opt.MapFrom(src => DateTime.UtcNow))
                 .ForMember(dest => dest.SplitStrategy, opt => opt.MapFrom(src => SplitStrategyEnum.OTHER))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => TransactionTypeEnum.PAYMENT));
+            CreateMap<EventCreateDto, Event>();
+            CreateMap<Event, EventViewDto>();
+            CreateMap<Task, TaskViewDto>();
+            CreateMap<EventUpdateDto, Event>();
         }
     }
 }
