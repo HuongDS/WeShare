@@ -35,5 +35,11 @@ namespace WeShare.Core.Constants
         public static string UPDATE_TRANSACTION_SUCCESSFULLY = "Update transaction successful!";
         public static string ADD_SETTLEMENT_SUCCESSFULLY = "Settle successful!";
         public static string ADD_SETTLEMENTS_SUCCESSFULLY = "Settle all successful!";
+
+        // Event
+        public static string CREATE_EVENT_SUCCESSFULLY = "Create event successful!";
+        public static string GET_EVENT_SUCCESSFULLY = "Get event successful!";
+        public static string UPDATE_EVENT_SUCCESSFULLY = "Update event successful!";
+        public static string DELETE_EVENT_SUCCESSFULLY = "Delete event successful!";
     }
 }
