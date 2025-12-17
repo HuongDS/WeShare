@@ -30,9 +30,13 @@ namespace WeShare.Infrastructure.Repositories
             var query = _context.GroupMembers.Where(gm => gm.UserId == userId).Select(gm => gm.GroupId).AsQueryable();
             return await PaginationExtension.PaginationAsync(query, pageSize, pageIndex);
         }
-        public async Task<GroupMember?> GetByUserIdAsync(int userId)
+        public async Task<GroupMember?> GetGroupMemberAsync(int userId, int groupId)
         {
-            return await _context.GroupMembers.FirstOrDefaultAsync(gm => gm.UserId == userId);
+            return await _context.GroupMembers.FirstOrDefaultAsync(gm => gm.UserId == userId && gm.GroupId == groupId);
+        }
+        public async Task<IEnumerable<int>> GetGroupIdsAsync(int userId)
+        {
+            return await _context.GroupMembers.Where(gm => gm.UserId == userId).Select(gm => gm.GroupId).ToListAsync();
         }
         public async Task<GroupMember> AddAsync(int groupId, int memberId)
         {

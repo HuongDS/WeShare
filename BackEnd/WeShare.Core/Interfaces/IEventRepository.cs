@@ -10,6 +10,6 @@ namespace WeShare.Core.Interfaces
 {
     public interface IEventRepository : IGenericRepository<WeShare.Core.Entities.Event>
     {
-        Task<PageResultDto<Event>> GetWithPaginationAsync(int pageSize, int pageIndex, string key, DateTime? date, DateTime? time);
+        Task<PageResultDto<Event>> GetWithPaginationAsync(int pageSize, int pageIndex, string key, DateTime? date, DateTime? time, IEnumerable<int> groupIds);
     }
 }

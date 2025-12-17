@@ -16,9 +16,10 @@ namespace WeShare.Infrastructure.Repositories
         {
         }
 
-        public async Task<PageResultDto<Event>> GetWithPaginationAsync(int pageSize, int pageIndex, string key, DateTime? date, DateTime? time)
+        public async Task<PageResultDto<Event>> GetWithPaginationAsync(int pageSize, int pageIndex, string key, DateTime? date, DateTime? time, IEnumerable<int> groupIds)
         {
-            var query = _dbSet.Where(e => e.Name.Contains(key) ||
+            var query = _dbSet.Where(e => groupIds.Contains(e.GroupId));
+            query = query.Where(e => e.Name.Contains(key) ||
             (e.Description != null && e.Description.Contains(key)) ||
             (date.HasValue && e.Date == date.Value.Date) ||
             (time.HasValue && e.Time == time.Value)).AsQueryable();

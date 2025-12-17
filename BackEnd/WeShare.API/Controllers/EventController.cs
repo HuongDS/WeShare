@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using WeShare.Application.Dtos.Event;
@@ -11,6 +12,7 @@ namespace WeShare.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class EventController : ControllerBase
     {
         private readonly IEventServices _eventServices;
@@ -65,7 +67,7 @@ namespace WeShare.API.Controllers
                 });
             }
         }
-        [HttpGet("{groupId}")]
+        [HttpGet("/group/{groupId}")]
         public async Task<IActionResult> GetEventByGroupIdAsync([FromRoute] int groupId)
         {
             try
@@ -92,13 +94,23 @@ namespace WeShare.API.Controllers
         public async Task<IActionResult> GetAsync(
             [FromQuery] int pageSize,
             [FromQuery] int pageIndex,
-            [FromQuery] string? key,
-            [FromQuery] DateTime? date,
-            [FromQuery] DateTime? time)
+            [FromQuery] string key = "",
+            [FromQuery] DateTime? date = null,
+            [FromQuery] DateTime? time = null)
         {
             try
             {
-                var res = await _eventServices.GetAsync(pageSize, pageIndex, key, date, time);
+                var userId = User.FindFirst("id")!.Value;
+                if (userId is null)
+                {
+                    return BadRequest(new ResponseDto<bool>
+                    {
+                        Status = (int)HttpStatusCode.BadRequest,
+                        Message = ErrorMessage.SOME_THING_WENT_WRONG,
+                        Data = false
+                    });
+                }
+                var res = await _eventServices.GetAsync(int.Parse(userId), pageSize, pageIndex, key, date, time);
                 return Ok(new ResponseDto<PageResultDto<EventViewDto>>
                 {
                     Status = (int)HttpStatusCode.OK,

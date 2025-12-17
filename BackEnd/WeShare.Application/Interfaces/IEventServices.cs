@@ -12,7 +12,7 @@ namespace WeShare.Application.Interfaces
     {
         Task<EventViewDto> CreateEventAsync(EventCreateDto data);
         Task<bool> DeleteEventAsync(int eventId);
-        Task<PageResultDto<EventViewDto>> GetAsync(int pageSize, int pageIndex, string key, DateTime? date, DateTime? time);
+        Task<PageResultDto<EventViewDto>> GetAsync(int userId, int pageSize, int pageIndex, string key, DateTime? date, DateTime? time);
         Task<IEnumerable<EventViewDto>> GetByGroupIdAsync(int groupId);
         Task<EventViewDto> GetByIdAsync(int eventId);
         Task<EventViewDto> UpdateEventAsync(EventUpdateDto data);
