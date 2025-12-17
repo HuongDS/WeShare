@@ -18,7 +18,8 @@ namespace WeShare.Core.Interfaces
         Task<IEnumerable<GroupMember>> GetAsync(int groupId);
         Task<decimal> GetBalanceInGroupAsync(int groupId, int userId);
         Task<PageResultDto<int>> GetByUserIdAsync(int userId, int pageSize, int pageIndex);
-        Task<GroupMember?> GetByUserIdAsync(int userId);
+        Task<IEnumerable<int>> GetGroupIdsAsync(int userId);
+        Task<GroupMember?> GetGroupMemberAsync(int userId, int groupId);
         System.Threading.Tasks.Task RevertTransactionAsync(GroupMember data, decimal balance);
         GroupMember Update(GroupMember data);
         System.Threading.Tasks.Task UpdateBalancesRange(Dictionary<int, decimal> groupMemberIds);

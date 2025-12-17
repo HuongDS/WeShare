@@ -17,12 +17,14 @@ namespace WeShare.Application.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly IEventRepository _eventRepository;
+        private readonly IGroupMemberRepository _groupMemberRepository;
 
-        public EventServices(IUnitOfWork unitOfWork, IMapper mapper, IEventRepository eventRepository)
+        public EventServices(IUnitOfWork unitOfWork, IMapper mapper, IEventRepository eventRepository, IGroupMemberRepository groupMemberRepository)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _eventRepository = eventRepository;
+            _groupMemberRepository = groupMemberRepository;
         }
 
         public async Task<EventViewDto> GetByIdAsync(int eventId)
@@ -43,9 +45,10 @@ namespace WeShare.Application.Services
             return _mapper.Map<IEnumerable<EventViewDto>>(entities);
         }
 
-        public async Task<PageResultDto<EventViewDto>> GetAsync(int pageSize, int pageIndex, string key, DateTime? date, DateTime? time)
+        public async Task<PageResultDto<EventViewDto>> GetAsync(int userId, int pageSize, int pageIndex, string key, DateTime? date, DateTime? time)
         {
-            var result = await _eventRepository.GetWithPaginationAsync(pageSize, pageIndex, key, date, time);
+            var groupIds = await _groupMemberRepository.GetGroupIdsAsync(userId);
+            var result = await _eventRepository.GetWithPaginationAsync(pageSize, pageIndex, key, date, time, groupIds);
             var mappedItems = _mapper.Map<List<EventViewDto>>(result.Items);
             return new PageResultDto<EventViewDto>
             {
@@ -88,7 +91,8 @@ namespace WeShare.Application.Services
             {
                 throw new Exception(ErrorMessage.EVENT_NOT_FOUND);
             }
-            entity = _mapper.Map<Core.Entities.Event>(data);
+            //entity = _mapper.Map<Core.Entities.Event>(data); // create a new entity from data
+            _mapper.Map(data, entity); // map data to existing entity - dont create a new one
             _eventRepository.Update(entity);
             await _unitOfWork.CompleteAsync();
             return _mapper.Map<EventViewDto>(entity);

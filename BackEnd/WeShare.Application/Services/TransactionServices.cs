@@ -59,7 +59,7 @@ namespace WeShare.Application.Services
                 newTransaction.TaskId = data.TaskId.Value;
             }
             await _transactionRepository.AddAsync(newTransaction);
-            var payerMember = await _groupMemberRepository.GetByUserIdAsync(data.PayerId);
+            var payerMember = await _groupMemberRepository.GetGroupMemberAsync(data.PayerId, data.GroupId);
             if (payerMember is null)
             {
                 throw new Exception(ErrorMessage.GROUP_NOT_FOUND);
@@ -148,7 +148,7 @@ namespace WeShare.Application.Services
                     if (tmp is null) continue;
                     await _groupMemberRepository.RevertTransactionAsync(item, tmp.OwedAmount);
                 }
-                var payerGroupMember = await _groupMemberRepository.GetByUserIdAsync(transaction.PayerId);
+                var payerGroupMember = await _groupMemberRepository.GetGroupMemberAsync(transaction.PayerId, transaction.GroupId);
                 if (payerGroupMember is null)
                 {
                     throw new Exception(ErrorMessage.GROUP_MEMBER_NOT_FOUND);
@@ -311,7 +311,7 @@ namespace WeShare.Application.Services
 
             // revert
             var allTransactionSplits = transaction.TransactionSplits.ToList();
-            var paymentGroupMember = await _groupMemberRepository.GetByUserIdAsync(transaction.PayerId);
+            var paymentGroupMember = await _groupMemberRepository.GetGroupMemberAsync(transaction.PayerId, transaction.GroupId);
             if (paymentGroupMember is null)
             {
                 throw new Exception(ErrorMessage.GROUP_MEMBER_NOT_FOUND);
