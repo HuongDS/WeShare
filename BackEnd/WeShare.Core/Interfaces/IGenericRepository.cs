@@ -15,6 +15,7 @@ namespace WeShare.Core.Interfaces
         Task<IEnumerable<T>> FindAsync(System.Linq.Expressions.Expression<Func<T, bool>> predicate);
         Task<IEnumerable<T>> GetAllAsyns();
         Task<T?> GetByIdAsync(int id);
+        Task<Other.PageResultDto<T>> GetPagedAsync(int pageSize, int pageIndex, System.Linq.Expressions.Expression<Func<T, bool>> filter = null);
         void Update(T entity);
     }
 }

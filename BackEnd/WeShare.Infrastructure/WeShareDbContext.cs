@@ -23,6 +23,7 @@ namespace WeShare.Infrastructure
         public DbSet<Transaction> Transactions { get; set; }
         public DbSet<TransactionSplit> TransactionSplits { get; set; }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
+        public DbSet<TaskMember> TaskMembers { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -101,11 +102,6 @@ namespace WeShare.Infrastructure
                  .WithMany(ev => ev.Tasks)
                  .HasForeignKey(t => t.EventId)
                  .OnDelete(DeleteBehavior.Cascade);
-
-                e.HasOne(t => t.Assignee)
-                 .WithMany()
-                 .HasForeignKey(t => t.AssigneeId)
-                 .OnDelete(DeleteBehavior.Cascade);
             });
 
             modelBuilder.Entity<RefreshToken>(entity =>
@@ -121,6 +117,21 @@ namespace WeShare.Infrastructure
             modelBuilder.Entity<Group>()
                 .Property(g => g.Id)
                 .UseHiLo("group_hilo_sequence");
+
+            modelBuilder.Entity<TaskMember>(e =>
+            {
+                e.HasKey(tm => new { tm.TaskId, tm.UserId, tm.GroupId });
+
+                e.HasOne(tm => tm.Task)
+                 .WithMany(t => t.TaskMembers)
+                 .HasForeignKey(tm => tm.TaskId)
+                 .OnDelete(DeleteBehavior.Cascade);
+
+                e.HasOne(tm => tm.GroupMember)
+                 .WithMany(g => g.TaskMembers)
+                 .HasForeignKey(tm => new { tm.UserId, tm.GroupId })
+                 .OnDelete(DeleteBehavior.Cascade);
+            });
         }
     }
 }

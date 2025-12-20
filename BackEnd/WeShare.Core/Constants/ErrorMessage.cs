@@ -54,5 +54,11 @@ namespace WeShare.Core.Constants
 
         // Event
         public static string EVENT_NOT_FOUND = "Event not found! Please try again.";
+
+        // TaskMember
+        public static string TASK_MEMBER_NOT_FOUND = "Task member not found! Please try again.";
+
+        // Task
+        public static string TASK_NOT_FOUND = "Task not found! Please try again.";
     }
 }

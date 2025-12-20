@@ -6,6 +6,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using WeShare.Core.Interfaces;
+using WeShare.Core.Other;
+using WeShare.Infrastructure.Extension;
 
 namespace WeShare.Infrastructure.Repositories
 {
@@ -60,6 +62,15 @@ namespace WeShare.Infrastructure.Repositories
         public async Task<int> CountAsync(Expression<Func<T, bool>> predicate)
         {
             return await _dbSet.CountAsync(predicate);
+        }
+        public async Task<PageResultDto<T>> GetPagedAsync(int pageSize, int pageIndex, Expression<Func<T, bool>> filter = null)
+        {
+            var query = _dbSet.AsNoTracking();
+            if (filter != null)
+            {
+                query = query.Where(filter);
+            }
+            return await PaginationExtension.PaginationAsync(query, pageSize, pageIndex);
         }
     }
 }

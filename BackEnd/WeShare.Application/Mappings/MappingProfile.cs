@@ -67,6 +67,7 @@ namespace WeShare.Core.Mappings
             CreateMap<Event, EventViewDto>();
             CreateMap<Task, TaskViewDto>();
             CreateMap<EventUpdateDto, Event>();
+            CreateMap<TaskCreateDto, Task>();
         }
     }
 }
