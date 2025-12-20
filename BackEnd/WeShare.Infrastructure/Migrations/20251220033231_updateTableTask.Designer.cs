@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WeShare.Infrastructure;
@@ -11,9 +12,11 @@ using WeShare.Infrastructure;
 namespace WeShare.Infrastructure.Migrations
 {
     [DbContext(typeof(WeShareDbContext))]
-    partial class WeShareDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251220033231_updateTableTask")]
+    partial class updateTableTask
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -398,7 +401,7 @@ namespace WeShare.Infrastructure.Migrations
                         .IsRequired();
 
                     b.HasOne("WeShare.Core.Entities.GroupMember", "GroupMember")
-                        .WithMany("TaskMembers")
+                        .WithMany()
                         .HasForeignKey("UserId", "GroupId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -460,11 +463,6 @@ namespace WeShare.Infrastructure.Migrations
                     b.Navigation("GroupMembers");
 
                     b.Navigation("Transactions");
-                });
-
-            modelBuilder.Entity("WeShare.Core.Entities.GroupMember", b =>
-                {
-                    b.Navigation("TaskMembers");
                 });
 
             modelBuilder.Entity("WeShare.Core.Entities.Task", b =>
