@@ -11,10 +11,10 @@ namespace WeShare.Application.Interfaces
 {
     public interface ITaskServices
     {
-        Task<int> AddAsync(TaskCreateDto data);
+        Task<int> AddAsync(int userId, TaskCreateDto data);
         Task DeleteAsync(int taskId);
         Task<PageResultDto<TaskViewDto>> GetAsync(int pageSize, int pageIndex, string key, TaskStatusEnum? status);
         Task<TaskViewDto> GetByIdAsync(int taskId);
-        Task<int> UpdateAsync(TaskUpdateDto data);
+        Task<int> UpdateAsync(int userId, TaskUpdateDto data);
     }
 }

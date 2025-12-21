@@ -41,5 +41,12 @@ namespace WeShare.Core.Constants
         public static string GET_EVENT_SUCCESSFULLY = "Get event successful!";
         public static string UPDATE_EVENT_SUCCESSFULLY = "Update event successful!";
         public static string DELETE_EVENT_SUCCESSFULLY = "Delete event successful!";
+
+        // Task
+        public static string CREATE_TASK_SUCCESSFULLY = "Create task successful!";
+        public static string GET_TASK_SUCCESSFULLY = "Get task successful!";
+        public static string GET_TASKS_SUCCESSFULLY = "Get tasks successful!";
+        public static string UPDATE_TASK_SUCCESSFULLY = "Update task successful!";
+        public static string DELETE_TASK_SUCCESSFULLY = "Delete task successful!";
     }
 }
