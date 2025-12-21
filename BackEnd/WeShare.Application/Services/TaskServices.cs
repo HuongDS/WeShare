@@ -27,8 +27,19 @@ namespace WeShare.Application.Services
             _taskMemberRepository = taskMemberRepository;
         }
 
-        public async Task<int> AddAsync(TaskCreateDto data)
+        public async Task<int> AddAsync(int userId, TaskCreateDto data)
         {
+            var groupRepo = _unitOfWork.Repository<WeShare.Core.Entities.Group>();
+            var group = await groupRepo.GetByIdAsync(data.GroupId);
+            if (group == null)
+            {
+                throw new Exception(ErrorMessage.GROUP_NOT_FOUND);
+            }
+            var groupMember = group.GroupMembers?.FirstOrDefault(gm => gm.UserId == userId && gm.Role == GroupRoleEnum.Leader);
+            if (groupMember == null)
+            {
+                throw new Exception(ErrorMessage.YOU_HAVE_NO_RIGHT_TO_DO_THIS_ACTION);
+            }
             var taskRepo = _unitOfWork.Repository<WeShare.Core.Entities.Task>();
             var entity = _mapper.Map<WeShare.Core.Entities.Task>(data);
             await taskRepo.AddAsync(entity);
@@ -44,8 +55,19 @@ namespace WeShare.Application.Services
             return entity.Id;
         }
 
-        public async Task<int> UpdateAsync(TaskUpdateDto data)
+        public async Task<int> UpdateAsync(int userId, TaskUpdateDto data)
         {
+            var groupRepo = _unitOfWork.Repository<WeShare.Core.Entities.Group>();
+            var group = await groupRepo.GetByIdAsync(data.GroupId);
+            if (group == null)
+            {
+                throw new Exception(ErrorMessage.GROUP_NOT_FOUND);
+            }
+            var groupMember = group.GroupMembers?.FirstOrDefault(gm => gm.UserId == userId && gm.Role == GroupRoleEnum.Leader);
+            if (groupMember == null)
+            {
+                throw new Exception(ErrorMessage.YOU_HAVE_NO_RIGHT_TO_DO_THIS_ACTION);
+            }
             var taskRepo = _unitOfWork.Repository<WeShare.Core.Entities.Task>();
             var entity = await taskRepo.GetByIdAsync(data.TaskId);
             if (entity == null)

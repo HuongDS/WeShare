@@ -14,5 +14,6 @@ namespace WeShare.Application.Dtos.Task
         public string Title { get; set; }
         public string? Description { get; set; }
         public TaskStatusEnum Status { get; set; } = TaskStatusEnum.Created;
+        public int GroupId { get; set; }
     }
 }
