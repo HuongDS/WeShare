@@ -19,12 +19,14 @@ namespace WeShare.Application.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly ITaskMemberRepository _taskMemberRepository;
+        private readonly IGroupMemberRepository _groupMemberRepository;
 
-        public TaskServices(IUnitOfWork unitOfWork, IMapper mapper, ITaskMemberRepository taskMemberRepository)
+        public TaskServices(IUnitOfWork unitOfWork, IMapper mapper, ITaskMemberRepository taskMemberRepository, IGroupMemberRepository groupMemberRepository)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _taskMemberRepository = taskMemberRepository;
+            _groupMemberRepository = groupMemberRepository;
         }
 
         public async Task<int> AddAsync(int userId, TaskCreateDto data)
@@ -35,7 +37,8 @@ namespace WeShare.Application.Services
             {
                 throw new Exception(ErrorMessage.GROUP_NOT_FOUND);
             }
-            var groupMember = group.GroupMembers?.FirstOrDefault(gm => gm.UserId == userId && gm.Role == GroupRoleEnum.Leader);
+            var groupMembers = await _groupMemberRepository.GetAsync(data.GroupId);
+            var groupMember = groupMembers.FirstOrDefault(gm => gm.UserId == userId && gm.Role == GroupRoleEnum.Leader);
             if (groupMember == null)
             {
                 throw new Exception(ErrorMessage.YOU_HAVE_NO_RIGHT_TO_DO_THIS_ACTION);
@@ -63,7 +66,8 @@ namespace WeShare.Application.Services
             {
                 throw new Exception(ErrorMessage.GROUP_NOT_FOUND);
             }
-            var groupMember = group.GroupMembers?.FirstOrDefault(gm => gm.UserId == userId && gm.Role == GroupRoleEnum.Leader);
+            var groupMembers = await _groupMemberRepository.GetAsync(data.GroupId);
+            var groupMember = groupMembers.FirstOrDefault(gm => gm.UserId == userId && gm.Role == GroupRoleEnum.Leader);
             if (groupMember == null)
             {
                 throw new Exception(ErrorMessage.YOU_HAVE_NO_RIGHT_TO_DO_THIS_ACTION);
@@ -75,6 +79,20 @@ namespace WeShare.Application.Services
                 throw new Exception(ErrorMessage.TASK_NOT_FOUND);
             }
             entity = _mapper.Map(data, entity);
+            var oldTaskMembers = await _taskMemberRepository.GetByTaskIdAsync(data.TaskId);
+            if (oldTaskMembers == null)
+            {
+                throw new Exception(ErrorMessage.TASK_MEMBER_NOT_FOUND);
+            }
+            _taskMemberRepository.DeleteRangeAsync(oldTaskMembers);
+            var assignees = data.AssigneeIds.Select(a => new TaskMember
+            {
+                TaskId = entity.Id,
+                UserId = a,
+                GroupId = data.GroupId,
+                Status = data.Status,
+            });
+            await _taskMemberRepository.AddRangeAsync(assignees);
             taskRepo.Update(entity);
             await _unitOfWork.CompleteAsync();
             return entity.Id;

@@ -102,6 +102,9 @@ namespace WeShare.Infrastructure
                  .WithMany(ev => ev.Tasks)
                  .HasForeignKey(t => t.EventId)
                  .OnDelete(DeleteBehavior.Cascade);
+
+                e.Property(t => t.Id)
+                .UseHiLo("task_hilo_sequence");
             });
 
             modelBuilder.Entity<RefreshToken>(entity =>

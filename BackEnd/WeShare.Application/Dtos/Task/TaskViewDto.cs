@@ -16,6 +16,6 @@ namespace WeShare.Application.Dtos.Task
         public string Title { get; set; }
         public string? Description { get; set; }
         public TaskStatusEnum Status { get; set; }
-        public IEnumerable<TaskMember> TaskMembers { get; set; }
+        public IEnumerable<WeShare.Core.Entities.TaskMember> TaskMembers { get; set; }
     }
 }
