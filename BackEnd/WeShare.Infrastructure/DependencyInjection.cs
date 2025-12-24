@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using WeShare.Application.Interfaces;
+using WeShare.Application.Services;
 using WeShare.Core.Interfaces;
 using WeShare.Infrastructure.Repositories;
 using WeShare.Infrastructure.Services;
@@ -21,6 +23,8 @@ namespace WeShare.Infrastructure
             services.AddScoped(typeof(ITransactionSplitRepository), typeof(TransactionSplitRepository));
             services.AddScoped(typeof(IGroupDebtRepository), typeof(GroupDebtRepository));
             services.AddScoped(typeof(IEventRepository), typeof(EventRepository));
+            services.AddScoped(typeof(ITaskMemberRepository), typeof(TaskMemberRepository));
+            services.AddScoped(typeof(ITaskServices), typeof(TaskServices));
             return services;
         }
     }

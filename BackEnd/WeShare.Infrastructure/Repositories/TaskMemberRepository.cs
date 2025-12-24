@@ -36,6 +36,10 @@ namespace WeShare.Infrastructure.Repositories
         {
             _context.TaskMembers.Remove(data);
         }
+        public void DeleteRangeAsync(IEnumerable<TaskMember> data)
+        {
+            _context.TaskMembers.RemoveRange(data);
+        }
         public async Task<IEnumerable<TaskMember>> GetByTaskIdAsync(int taskId)
         {
             return await _context.TaskMembers.Where(tm => tm.TaskId == taskId).ToListAsync();

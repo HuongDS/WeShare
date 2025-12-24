@@ -13,6 +13,7 @@ namespace WeShare.Core.Interfaces
         System.Threading.Tasks.Task AddAsync(TaskMember data);
         System.Threading.Tasks.Task AddRangeAsync(IEnumerable<TaskMember> data);
         void DeleteAsync(TaskMember data);
+        void DeleteRangeAsync(IEnumerable<TaskMember> data);
         Task<IEnumerable<TaskMember>?> GetByGroupIdAsync(int groupId);
         Task<IEnumerable<TaskMember>> GetByTaskIdAsync(int taskId);
         Task<IEnumerable<TaskMember>> GetByUserIdAndStatusAsync(int userId, TaskStatusEnum status);

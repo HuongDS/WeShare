@@ -23,6 +23,7 @@ namespace WeShare.Application
             services.AddScoped<ITransactionServices, TransactionServices>();
             services.AddScoped<ITransactionSplitServices, TransactionSplitServices>();
             services.AddScoped<IEventServices, EventServices>();
+            services.AddScoped<ITaskServices, TaskServices>();
             return services;
         }
     }
