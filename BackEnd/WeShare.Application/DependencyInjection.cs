@@ -24,6 +24,8 @@ namespace WeShare.Application
             services.AddScoped<ITransactionSplitServices, TransactionSplitServices>();
             services.AddScoped<IEventServices, EventServices>();
             services.AddScoped<ITaskServices, TaskServices>();
+            services.AddScoped<IEmailServices, EmailServices>();
+            services.AddScoped<ICacheServices, CacheServices>();
             return services;
         }
     }
