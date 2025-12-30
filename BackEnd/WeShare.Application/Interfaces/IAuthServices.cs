@@ -15,6 +15,7 @@ namespace WeShare.Core.Interfaces
         Task<bool> LogoutAsync(string refreshToken);
         Task<bool> LogoutForceAsync(int userId);
         Task<AuthResponseDto> RefreshTokenAsync(string oldRt);
-        Task<AuthResponseDto> RegisterAsync(RegisterDto data);
+        Task<string> RegisterAsync(RegisterDto data);
+        Task<AuthResponseDto> VerifyRegisterOTP(string email, string otp);
     }
 }

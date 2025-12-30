@@ -48,5 +48,9 @@ namespace WeShare.Core.Constants
         public static string GET_TASKS_SUCCESSFULLY = "Get tasks successful!";
         public static string UPDATE_TASK_SUCCESSFULLY = "Update task successful!";
         public static string DELETE_TASK_SUCCESSFULLY = "Delete task successful!";
+
+        // Otp
+        public static string SEND_OTP_SUCCESSFULLY = "Send OTP successfully!";
+        public static string VERIFY_OTP_SUCCESSFULLY = "Verify OTP successfully!";
     }
 }

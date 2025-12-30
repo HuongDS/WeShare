@@ -9,8 +9,10 @@ namespace WeShare.Application.Interfaces
 {
     public interface IUserServices
     {
+        Task<UserViewDto> UpdatePassword(UpdatePasswordDto data);
         Task<UserViewDto> GetUserProfileAsync(int userId);
-        Task<UserViewDto> UpdatePasswordAsync(int userId, UpdatePasswordDto data);
+        Task<string> SendOTPForgotPassword(string email);
         Task<UserViewDto> UpdateUserProfileAsync(int userId, UpdateUserDto data);
+        Task<string> VerifyOTPForgotPassword(string email, string otp);
     }
 }

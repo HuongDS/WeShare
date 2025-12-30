@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using WeShare.Application.Dtos.User;
+using WeShare.Application.Helpers;
 using WeShare.Application.Interfaces;
 using WeShare.Core.Constants;
 using WeShare.Core.Entities;
@@ -16,11 +17,13 @@ namespace WeShare.Application.Services
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly ICacheServices _cacheServices;
 
-        public UserServices(IUnitOfWork unitOfWork, IMapper mapper)
+        public UserServices(IUnitOfWork unitOfWork, IMapper mapper, ICacheServices cacheServices)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _cacheServices = cacheServices;
         }
         public async Task<UserViewDto> GetUserProfileAsync(int userId)
         {
@@ -47,13 +50,17 @@ namespace WeShare.Application.Services
             await _unitOfWork.CompleteAsync();
             return _mapper.Map<UserViewDto>(user);
         }
-        public async Task<UserViewDto> UpdatePasswordAsync(int userId, UpdatePasswordDto data)
+        public async Task<UserViewDto> UpdatePassword(UpdatePasswordDto data)
         {
-            if (userId != data.UserId)
+            var key = $"reset-token-{data.Email}-{data.Code}";
+            var cachedOtp = await _cacheServices.GetAsync(key);
+            if (cachedOtp == null)
             {
                 throw new Exception(ErrorMessage.UNAUTHORIZED_ACTION);
             }
-            var user = await _unitOfWork.Repository<User>().GetByIdAsync(userId);
+            await _cacheServices.RemoveAsync(key);
+            var users = await _unitOfWork.Repository<User>().FindAsync(u => u.Email == data.Email);
+            var user = users.FirstOrDefault();
             if (user == null)
             {
                 throw new Exception(ErrorMessage.USER_NOT_FOUND);
@@ -66,6 +73,37 @@ namespace WeShare.Application.Services
             _unitOfWork.Repository<User>().Update(user);
             await _unitOfWork.CompleteAsync();
             return _mapper.Map<UserViewDto>(user);
+        }
+
+        public async Task<string> VerifyOTPForgotPassword(string email, string otp)
+        {
+            var key = $"forgot-password-otp-{email}-{otp}";
+            var cachedOtp = await _cacheServices.GetAsync(key);
+            if (cachedOtp == null)
+            {
+                throw new Exception(ErrorMessage.OTP_IS_INVALID);
+            }
+            await _cacheServices.RemoveAsync(key);
+
+            var newOtp = GenerateOTPHelper.GenerateOTP();
+            var newKey = $"reset-token-{email}-{newOtp}";
+            await _cacheServices.SetAsync(newKey, newOtp, 5);
+            return newOtp;
+        }
+
+        public async Task<string> SendOTPForgotPassword(string email)
+        {
+            var userRepo = _unitOfWork.Repository<User>();
+            var users = await userRepo.FindAsync(u => u.Email == email);
+            var user = users.FirstOrDefault();
+            if (user == null)
+            {
+                throw new Exception(ErrorMessage.USER_NOT_FOUND);
+            }
+            var otp = GenerateOTPHelper.GenerateOTP();
+            var key = $"forgot-password-otp-{user.Email}-{otp}";
+            await _cacheServices.SetAsync(key, otp, 5);
+            return AlertMessage.PLEASE_VERIFY_OTP_TO_RESET;
         }
     }
 }
