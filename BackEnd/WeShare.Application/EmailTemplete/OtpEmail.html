@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>Account verification WeShare</title>
+</head>
+<body style="font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0;">
+    <div style="max-width: 600px; margin: 20px auto; background-color: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        <div style="text-align: center; border-bottom: 1px solid #eeeeee; padding-bottom: 10px; margin-bottom: 20px;">
+            <h2 style="color: #333333; margin: 0;">WeShare App</h2>
+        </div>
+
+        <div style="color: #555555; line-height: 1.6;">
+            <p>Hi <strong>{{UserName}}</strong>,</p>
+            <p>You have just requested to register an account (or recover your password) at WeShare. Below is your one-time password (OTP):</p>
+
+            <div style="text-align: center; margin: 30px 0;">
+                <span style="font-size: 32px; font-weight: bold; letter-spacing: 5px; color: #4CAF50; background-color: #f0f8f0; padding: 10px 20px; border-radius: 5px; border: 1px dashed #4CAF50;">
+                    {{OTP_CODE}}
+                </span>
+            </div>
+
+            <p style="color: #e74c3c; font-size: 14px;"><strong>Warning:</strong> This code will expire after <strong>5 minutes</strong>.</p>
+            <p>If you are not fulfilling this request, please disregard this email.</p>
+        </div>
+
+        <div style="margin-top: 30px; padding-top: 10px; border-top: 1px solid #eeeeee; text-align: center; font-size: 12px; color: #999999;">
+            <p>&copy; 2025 WeShare Team. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>

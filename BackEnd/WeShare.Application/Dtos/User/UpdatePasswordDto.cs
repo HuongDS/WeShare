@@ -9,6 +9,7 @@ namespace WeShare.Application.Dtos.User
     public class UpdatePasswordDto
     {
         public string NewPassword { get; set; }
-        public int UserId { get; set; }
+        public string Email { get; set; }
+        public string Code { get; set; }
     }
 }

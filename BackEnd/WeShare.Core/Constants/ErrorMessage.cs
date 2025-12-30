@@ -23,6 +23,8 @@ namespace WeShare.Core.Constants
         public static string USER_NOT_FOUND = "User not found! PLease try again.";
         public static string LOGIN_FAILED = "Login Failed! PLease try again.";
         public static string LOG_OUT_FAILED = "Logout Failed! PLease try again.";
+        public static string REGISTER_FAILED = "Register Failed! PLease try again.";
+        public static string OTP_IS_INVALID = "OTP is invalid! Please try again.";
 
         // Group
         public static string GROUP_NOT_FOUND = "Group not found! Please try again.";

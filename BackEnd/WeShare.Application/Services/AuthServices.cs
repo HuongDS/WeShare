@@ -4,19 +4,23 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using WeShare.Application.Helpers;
 using WeShare.Application.Interfaces;
+using WeShare.Application.Services;
 using WeShare.Application.Validators;
 using WeShare.Core.Constants;
 using WeShare.Core.Constants.Regex;
 using WeShare.Core.Dtos.Auth;
 using WeShare.Core.Entities;
 using WeShare.Core.Interfaces;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace WeShare.Infrastructure.Services
 {
@@ -26,15 +30,18 @@ namespace WeShare.Infrastructure.Services
         private readonly IConfiguration _configuration;
         private readonly IMapper _mapper;
         private readonly IGoogleValidator _googleValidator;
+        private readonly ICacheServices _cacheServices;
 
-        public AuthServices(IUnitOfWork unitOfWork, IConfiguration configuration, IMapper mapper, IGoogleValidator googleValidator)
+        public AuthServices(IUnitOfWork unitOfWork, IConfiguration configuration, IMapper mapper, IGoogleValidator googleValidator,
+            ICacheServices cacheServices)
         {
             _unitOfWork = unitOfWork;
             _configuration = configuration;
             _mapper = mapper;
             _googleValidator = googleValidator;
+            _cacheServices = cacheServices;
         }
-        public async Task<AuthResponseDto> RegisterAsync(RegisterDto data)
+        public async Task<string> RegisterAsync(RegisterDto data)
         {
             var userRepo = _unitOfWork.Repository<User>();
 
@@ -51,12 +58,26 @@ namespace WeShare.Infrastructure.Services
             {
                 throw new Exception(ErrorMessage.EMAIL_INVALID);
             }
-            string hashPassword = BCrypt.Net.BCrypt.HashPassword(data.Password);
-            var newUser = _mapper.Map<User>(data);
+            var otp = GenerateOTPHelper.GenerateOTP();
+            var serializedData = JsonSerializer.Serialize(data);
+            await _cacheServices.SetAsync(data.Email, serializedData, 5);
+            return AlertMessage.PLEASE_VERIFY_OTP_TO_LOGIN;
+        }
+        public async Task<AuthResponseDto> VerifyRegisterOTP(string email, string otp)
+        {
+            var entity = await _cacheServices.GetAsync(email);
+            if (entity == null)
+            {
+                throw new Exception(ErrorMessage.OTP_IS_INVALID);
+            }
+            await _cacheServices.RemoveAsync(email);
+            var userRepo = _unitOfWork.Repository<User>();
+            var decryptEntity = JsonSerializer.Deserialize<RegisterDto>(entity);
+            string hashPassword = BCrypt.Net.BCrypt.HashPassword(decryptEntity.Password);
+            var newUser = _mapper.Map<User>(decryptEntity);
             newUser.PasswordHashed = hashPassword;
             await userRepo.AddAsync(newUser);
             await _unitOfWork.CompleteAsync();
-
             return await GenerateAuthResponse(newUser);
         }
         public async Task<AuthResponseDto> LoginAsync(LoginDto data)
@@ -125,26 +146,27 @@ namespace WeShare.Infrastructure.Services
                 throw new Exception(ErrorMessage.LOGIN_FAILED);
             }
             var email = payload.Email;
-            var firstName = payload.GivenName;
-            var lastName = payload.FamilyName;
-            var avatar = payload.Picture;
-
             var userRepo = _unitOfWork.Repository<User>();
             var users = await userRepo.FindAsync(x => x.Email == email);
             var user = users.FirstOrDefault();
             if (user is null)
             {
+                var firstName = payload.GivenName;
+                var lastName = payload.FamilyName;
+                var avatar = payload.Picture;
                 var defaultPassword = Guid.NewGuid().ToString("N").Substring(0, 10) + "W@1";
                 var registData = new RegisterDto
                 {
                     Email = email,
                     FullName = firstName + " " + lastName,
                     Avatar = avatar,
-                    Password = defaultPassword,
+                    Password = BCrypt.Net.BCrypt.HashPassword(defaultPassword),
                 };
-                return await RegisterAsync(registData);
+                var newUser = _mapper.Map<User>(registData);
+                await userRepo.AddAsync(newUser);
+                await _unitOfWork.CompleteAsync();
+                return await GenerateAuthResponse(newUser);
             }
-
             return await GenerateAuthResponse(user);
         }
         public async Task<bool> LogoutAsync(string refreshToken)

@@ -27,11 +27,34 @@ namespace WeShare.API.Controllers
             try
             {
                 var res = await _authServices.RegisterAsync(data);
-                return Ok(new ResponseDto<AuthResponseDto>
+                return Ok(new ResponseDto<string>
                 {
                     Data = res,
                     Status = (int)HttpStatusCode.OK,
                     Message = SuccessMessage.REGISTER_SUCCESSFULLY
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseDto<object>
+                {
+                    Status = (int)HttpStatusCode.BadRequest,
+                    Message = ex.Message,
+                    Data = null
+                });
+            }
+        }
+        [HttpPost("verify-otp")]
+        public async Task<IActionResult> VerifyRegisterOTP([FromQuery] string email, [FromQuery] string otp)
+        {
+            try
+            {
+                var res = await _authServices.VerifyRegisterOTP(email, otp);
+                return Ok(new ResponseDto<AuthResponseDto>
+                {
+                    Data = res,
+                    Status = (int)HttpStatusCode.OK,
+                    Message = SuccessMessage.VERIFY_OTP_SUCCESSFULLY,
                 });
             }
             catch (Exception ex)

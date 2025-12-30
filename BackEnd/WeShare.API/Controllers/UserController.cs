@@ -69,18 +69,68 @@ namespace WeShare.API.Controllers
                 });
             }
         }
-        [HttpPut("password")]
+        [HttpPost("forgot-password")]
+        [AllowAnonymous]
+        public async Task<IActionResult> ForgotPasword([FromBody] string email)
+        {
+            try
+            {
+                var res = await _userServices.SendOTPForgotPassword(email);
+                return Ok(new ResponseDto<string>
+                {
+                    Status = (int)HttpStatusCode.OK,
+                    Message = AlertMessage.PLEASE_VERIFY_OTP_TO_RESET,
+                    Data = res
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseDto<object>
+                {
+                    Status = (int)HttpStatusCode.BadRequest,
+                    Message = ex.Message,
+                    Data = null
+                });
+            }
+        }
+
+        [HttpPost("verify-forgot-password")]
+        [AllowAnonymous]
+        public async Task<IActionResult> VerifyForgotPassword([FromBody] string email, [FromBody] string otp)
+        {
+            try
+            {
+                var res = await _userServices.VerifyOTPForgotPassword(email, otp);
+                return Ok(new ResponseDto<string>
+                {
+                    Status = (int)HttpStatusCode.OK,
+                    Message = SuccessMessage.VERIFY_OTP_SUCCESSFULLY,
+                    Data = res
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseDto<object>
+                {
+                    Status = (int)HttpStatusCode.BadRequest,
+                    Message = ex.Message,
+                    Data = null
+                });
+            }
+        }
+
+        [HttpPut("update-password")]
+        [AllowAnonymous]
         public async Task<IActionResult> UpdatePassword([FromBody] UpdatePasswordDto data)
         {
             try
             {
-                var userId = int.Parse(User.FindFirst("id")?.Value ?? "0");
-                var updatedUserProfile = await _userServices.UpdatePasswordAsync(userId, data);
+                var res = await _userServices.UpdatePassword(data);
                 return Ok(new ResponseDto<UserViewDto>
                 {
                     Status = (int)HttpStatusCode.OK,
                     Message = SuccessMessage.UPDATE_PASSWORD_SUCCESSFULLY,
-                    Data = updatedUserProfile
+                    Data = res
                 });
             }
             catch (Exception ex)
