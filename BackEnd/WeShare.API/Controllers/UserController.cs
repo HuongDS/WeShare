@@ -96,11 +96,11 @@ namespace WeShare.API.Controllers
 
         [HttpPost("verify-forgot-password")]
         [AllowAnonymous]
-        public async Task<IActionResult> VerifyForgotPassword([FromBody] string email, [FromBody] string otp)
+        public async Task<IActionResult> VerifyForgotPassword([FromBody] VerifyForgotPasswordDto data)
         {
             try
             {
-                var res = await _userServices.VerifyOTPForgotPassword(email, otp);
+                var res = await _userServices.VerifyOTPForgotPassword(data.Email, data.Otp);
                 return Ok(new ResponseDto<string>
                 {
                     Status = (int)HttpStatusCode.OK,

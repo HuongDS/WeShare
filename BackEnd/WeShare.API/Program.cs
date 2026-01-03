@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using StackExchange.Redis;
 using WeShare.API;
 using WeShare.Infrastructure;
 
@@ -64,6 +65,7 @@ builder.Services.AddAuthentication(opt =>
             ClockSkew = TimeSpan.Zero
         };
     });
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp => ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("RedisConnection")));
 builder.Services.AddAppDI();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 

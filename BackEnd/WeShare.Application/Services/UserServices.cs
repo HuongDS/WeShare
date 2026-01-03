@@ -18,12 +18,14 @@ namespace WeShare.Application.Services
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
         private readonly ICacheServices _cacheServices;
+        private readonly IEmailServices _emailServices;
 
-        public UserServices(IUnitOfWork unitOfWork, IMapper mapper, ICacheServices cacheServices)
+        public UserServices(IUnitOfWork unitOfWork, IMapper mapper, ICacheServices cacheServices, IEmailServices emailServices)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _cacheServices = cacheServices;
+            _emailServices = emailServices;
         }
         public async Task<UserViewDto> GetUserProfileAsync(int userId)
         {
@@ -58,7 +60,6 @@ namespace WeShare.Application.Services
             {
                 throw new Exception(ErrorMessage.UNAUTHORIZED_ACTION);
             }
-            await _cacheServices.RemoveAsync(key);
             var users = await _unitOfWork.Repository<User>().FindAsync(u => u.Email == data.Email);
             var user = users.FirstOrDefault();
             if (user == null)
@@ -69,6 +70,7 @@ namespace WeShare.Application.Services
             {
                 throw new Exception(ErrorMessage.PASSWORD_IS_WEAK);
             }
+            await _cacheServices.RemoveAsync(key);
             user.PasswordHashed = BCrypt.Net.BCrypt.HashPassword(data.NewPassword);
             _unitOfWork.Repository<User>().Update(user);
             await _unitOfWork.CompleteAsync();
@@ -103,6 +105,7 @@ namespace WeShare.Application.Services
             var otp = GenerateOTPHelper.GenerateOTP();
             var key = $"forgot-password-otp-{user.Email}-{otp}";
             await _cacheServices.SetAsync(key, otp, 5);
+            await _emailServices.SendEmailAsync(user.Email, EmailSubjects.FORGOT_PASSWORD, $"Your OTP is: {otp}");
             return AlertMessage.PLEASE_VERIFY_OTP_TO_RESET;
         }
     }

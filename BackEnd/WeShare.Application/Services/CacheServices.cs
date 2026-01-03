@@ -12,7 +12,7 @@ namespace WeShare.Application.Services
     {
         private IDatabase _dbRedis;
 
-        public CacheServices(ConnectionMultiplexer redis)
+        public CacheServices(IConnectionMultiplexer redis)
         {
             _dbRedis = redis.GetDatabase();
         }

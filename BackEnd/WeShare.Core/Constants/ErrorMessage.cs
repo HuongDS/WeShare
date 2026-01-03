@@ -62,5 +62,9 @@ namespace WeShare.Core.Constants
 
         // Task
         public static string TASK_NOT_FOUND = "Task not found! Please try again.";
+
+        // Email
+        public static string EMAIL_SEND_FAILED = "Email sending failed! Please try again.";
+        public static string EMAIL_TEMPLATE_NOT_FOUND = "Email template not found! Please try again.";
     }
 }

@@ -31,7 +31,7 @@ namespace WeShare.API.Controllers
                 {
                     Data = res,
                     Status = (int)HttpStatusCode.OK,
-                    Message = SuccessMessage.REGISTER_SUCCESSFULLY
+                    Message = AlertMessage.PLEASE_VERIFY_OTP_TO_COMPLETE_REGISTERATION,
                 });
             }
             catch (Exception ex)
@@ -50,11 +50,11 @@ namespace WeShare.API.Controllers
             try
             {
                 var res = await _authServices.VerifyRegisterOTP(email, otp);
-                return Ok(new ResponseDto<AuthResponseDto>
+                return Ok(new ResponseDto<string>
                 {
                     Data = res,
                     Status = (int)HttpStatusCode.OK,
-                    Message = SuccessMessage.VERIFY_OTP_SUCCESSFULLY,
+                    Message = SuccessMessage.REGISTER_SUCCESSFULLY,
                 });
             }
             catch (Exception ex)
