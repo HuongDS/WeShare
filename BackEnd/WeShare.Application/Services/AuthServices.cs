@@ -31,15 +31,17 @@ namespace WeShare.Infrastructure.Services
         private readonly IMapper _mapper;
         private readonly IGoogleValidator _googleValidator;
         private readonly ICacheServices _cacheServices;
+        private readonly IEmailServices _emailServices;
 
         public AuthServices(IUnitOfWork unitOfWork, IConfiguration configuration, IMapper mapper, IGoogleValidator googleValidator,
-            ICacheServices cacheServices)
+            ICacheServices cacheServices, IEmailServices emailServices)
         {
             _unitOfWork = unitOfWork;
             _configuration = configuration;
             _mapper = mapper;
             _googleValidator = googleValidator;
             _cacheServices = cacheServices;
+            _emailServices = emailServices;
         }
         public async Task<string> RegisterAsync(RegisterDto data)
         {
@@ -60,17 +62,30 @@ namespace WeShare.Infrastructure.Services
             }
             var otp = GenerateOTPHelper.GenerateOTP();
             var serializedData = JsonSerializer.Serialize(data);
-            await _cacheServices.SetAsync(data.Email, serializedData, 5);
+            var key = $"register-otp-{data.Email}-{otp}";
+            await _cacheServices.SetAsync(key, serializedData, 5);
+
+            // Get email templete
+            var emailTempletePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "EmailTemplete", "OtpEmail.html");
+            if (!File.Exists(emailTempletePath))
+            {
+                throw new Exception(ErrorMessage.EMAIL_TEMPLATE_NOT_FOUND);
+            }
+            var htmlContent = await File.ReadAllTextAsync(emailTempletePath);
+            htmlContent = htmlContent.Replace("{{UserName}}", data.FullName);
+            htmlContent = htmlContent.Replace("{{OTP_CODE}}", otp);
+            await _emailServices.SendEmailAsync(data.Email, EmailSubjects.VERIFY_EMAIL, htmlContent);
             return AlertMessage.PLEASE_VERIFY_OTP_TO_LOGIN;
         }
-        public async Task<AuthResponseDto> VerifyRegisterOTP(string email, string otp)
+        public async Task<string> VerifyRegisterOTP(string email, string otp)
         {
-            var entity = await _cacheServices.GetAsync(email);
+            var key = $"register-otp-{email}-{otp}";
+            var entity = await _cacheServices.GetAsync(key);
             if (entity == null)
             {
                 throw new Exception(ErrorMessage.OTP_IS_INVALID);
             }
-            await _cacheServices.RemoveAsync(email);
+            await _cacheServices.RemoveAsync(key);
             var userRepo = _unitOfWork.Repository<User>();
             var decryptEntity = JsonSerializer.Deserialize<RegisterDto>(entity);
             string hashPassword = BCrypt.Net.BCrypt.HashPassword(decryptEntity.Password);
@@ -78,7 +93,17 @@ namespace WeShare.Infrastructure.Services
             newUser.PasswordHashed = hashPassword;
             await userRepo.AddAsync(newUser);
             await _unitOfWork.CompleteAsync();
-            return await GenerateAuthResponse(newUser);
+
+            var welcomeEmailTempletePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "EmailTemplete", "WelcomeEmail.html");
+            if (!File.Exists(welcomeEmailTempletePath))
+            {
+                throw new Exception(ErrorMessage.EMAIL_TEMPLATE_NOT_FOUND);
+            }
+            var htmlContent = await File.ReadAllTextAsync(welcomeEmailTempletePath);
+            htmlContent = htmlContent.Replace("{{UserName}}", newUser.FullName);
+            htmlContent = htmlContent.Replace("{{LoginLink}}", newUser.FullName);
+            await _emailServices.SendEmailAsync(newUser.Email, EmailSubjects.WELCOME_TO_WESHARE, htmlContent);
+            return SuccessMessage.REGISTER_SUCCESSFULLY;
         }
         public async Task<AuthResponseDto> LoginAsync(LoginDto data)
         {

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using StackExchange.Redis;
 using WeShare.Application.Interfaces;
 using WeShare.Application.Services;
 using WeShare.Application.Validators;
