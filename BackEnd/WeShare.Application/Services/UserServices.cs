@@ -47,7 +47,6 @@ namespace WeShare.Application.Services
             }
             user.FullName = data.FullName;
             user.Avatar = data.Avatar;
-            user.DefaultBankAccount = data.DefaultBankAccount;
             userRepo.Update(user);
             await _unitOfWork.CompleteAsync();
             return _mapper.Map<UserViewDto>(user);
@@ -107,6 +106,33 @@ namespace WeShare.Application.Services
             await _cacheServices.SetAsync(key, otp, 5);
             await _emailServices.SendEmailAsync(user.Email, EmailSubjects.FORGOT_PASSWORD, $"Your OTP is: {otp}");
             return AlertMessage.PLEASE_VERIFY_OTP_TO_RESET;
+        }
+
+        public async System.Threading.Tasks.Task UpdatePaymentInfor(int userId, UpdatePaymentDto data)
+        {
+            if (userId != data.UserId)
+            {
+                throw new Exception(ErrorMessage.UNAUTHORIZED_ACTION);
+            }
+
+            if (data.BankName.Length == 0 || data.BankBin.Length == 0 || data.BankAccount.Length == 0)
+            {
+                throw new Exception(ErrorMessage.SOME_THING_WENT_WRONG);
+            }
+
+            var userRepo = _unitOfWork.Repository<User>();
+            var user = await userRepo.GetByIdAsync(userId);
+            if (user == null)
+            {
+                throw new Exception(ErrorMessage.USER_NOT_FOUND);
+            }
+
+            user.BankName = data.BankName;
+            user.BankBin = data.BankBin;
+            user.DefaultBankAccount = data.BankAccount;
+
+            userRepo.Update(user);
+            await _unitOfWork.CompleteAsync();
         }
     }
 }

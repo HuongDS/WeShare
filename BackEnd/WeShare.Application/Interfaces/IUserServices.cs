@@ -14,5 +14,6 @@ namespace WeShare.Application.Interfaces
         Task<string> SendOTPForgotPassword(string email);
         Task<UserViewDto> UpdateUserProfileAsync(int userId, UpdateUserDto data);
         Task<string> VerifyOTPForgotPassword(string email, string otp);
+        Task UpdatePaymentInfor(int userId, UpdatePaymentDto data);
     }
 }

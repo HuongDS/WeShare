@@ -143,5 +143,30 @@ namespace WeShare.API.Controllers
                 });
             }
         }
+
+        [HttpPut("payment-infor")]
+        public async Task<IActionResult> UpdatePaymentInfor([FromBody] UpdatePaymentDto data)
+        {
+            try
+            {
+                var userId = User.FindFirst("id")?.Value;
+                await _userServices.UpdatePaymentInfor(int.Parse(userId), data);
+                return Ok(new ResponseDto<object>
+                {
+                    Status = (int)HttpStatusCode.OK,
+                    Message = SuccessMessage.UPDATE_PAYMENT_INFO_SUCCESSFULLY,
+                    Data = null
+                });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseDto<object>
+                {
+                    Status = (int)HttpStatusCode.BadRequest,
+                    Message = ex.Message,
+                    Data = null
+                });
+            }
+        }
     }
 }
