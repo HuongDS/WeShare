@@ -10,6 +10,5 @@ namespace WeShare.Application.Dtos.User
     {
         public string FullName { get; set; }
         public string? Avatar { get; set; }
-        public string? DefaultBankAccount { get; set; }
     }
 }
