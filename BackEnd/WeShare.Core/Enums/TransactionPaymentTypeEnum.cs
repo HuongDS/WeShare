@@ -6,10 +6,9 @@ using System.Threading.Tasks;
 
 namespace WeShare.Core.Enums
 {
-    public enum TransactionSplitStatusEnum
+    public enum TransactionPaymentTypeEnum
     {
-        NONE,
-        UNPAID,
-        DONE
+        CASH,
+        QR_CODE
     }
 }

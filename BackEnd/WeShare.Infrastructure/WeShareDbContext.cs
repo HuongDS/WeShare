@@ -24,6 +24,7 @@ namespace WeShare.Infrastructure
         public DbSet<TransactionSplit> TransactionSplits { get; set; }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
         public DbSet<TaskMember> TaskMembers { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -134,6 +135,19 @@ namespace WeShare.Infrastructure
                  .WithMany(g => g.TaskMembers)
                  .HasForeignKey(tm => new { tm.UserId, tm.GroupId })
                  .OnDelete(DeleteBehavior.Cascade);
+            });
+
+            modelBuilder.Entity<Notification>(n =>
+            {
+                n.HasKey(no => no.Id);
+
+                n.Property(n => n.Title).IsRequired().HasMaxLength(100);
+                n.Property(n => n.Message).IsRequired().HasMaxLength(500);
+                n.Property(n => n.IsRead).HasDefaultValue(false);
+                n.HasOne(no => no.Receiver)
+                    .WithMany()
+                    .HasForeignKey(no => no.ReceiveId)
+                    .OnDelete(DeleteBehavior.Cascade);
             });
         }
     }

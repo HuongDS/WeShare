@@ -49,6 +49,10 @@ namespace WeShare.Core.Constants
         public static string PAYER_NOT_FOUND = "Payer not found! Please try again.";
         public static string DEBTOR_EMPTY = "Debtor Ids cannot be empty! Please try again.";
         public static string TOTAL_AMOUNT_MUST_BE_GREATER_THAN_ZERO = "Total amount must be greater than zero.";
+        public static string TRANSACTION_IS_PENDING = "Transaction is still pending. Please complete it before updating.";
+        public static string TRANSACTION_IS_PENDING_CANNOT_BE_DELETED = "Transaction is still pending can not be deleted.";
+        public static string YOU_MUST_PROVIDE_EVIDENCE = "You must provide a evidence that you paid.";
+        public static string THIS_TRANSACTION_HAS_TYPE_EXPENSE = "This transaction has type expense !";
 
         // GroupMember
         public static string GROUP_MEMBER_NOT_FOUND = "Group member not found! Please try again.";
