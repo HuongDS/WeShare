@@ -23,18 +23,22 @@ namespace WeShare.Infrastructure.Repositories
         {
             _context = context;
         }
-        public async Task<PageResultDto<TransactionSplit>> GetByTransactionIdAsync(int transactionId, TransactionSplitStatusEnum? status, int pageSize, int pageIndex)
+        public async Task<PageResultDto<TransactionSplit>> GetByTransactionIdAsync(int transactionId, int pageSize, int pageIndex)
         {
-            var query = _context.TransactionSplits.Where(ts => ts.TransactionId == transactionId && (status == null || ts.Status == status));
+            var query = _context.TransactionSplits.Where(ts => ts.TransactionId == transactionId);
             return await PaginationExtension.PaginationAsync(query, pageSize, pageIndex);
         }
         public async Task<IEnumerable<TransactionSplit>> GetByTransactionIdAsync(int transactionId)
         {
             return await _context.TransactionSplits.Where(ts => ts.TransactionId == transactionId).ToListAsync();
         }
-        public async Task<PageResultDto<TransactionSplit>> GetByDebtorIdAsync(int debtorId, TransactionSplitStatusEnum? status, int pageSize, int pageIndex)
+        public async Task<TransactionSplit?> GetByTransactionIdAsync(int transactionId, int userId)
         {
-            var query = _context.TransactionSplits.Where(ts => ts.DebtorId == debtorId && (status == null || ts.Status == status));
+            return await _context.TransactionSplits.Where(ts => ts.TransactionId == transactionId && ts.DebtorId == userId).FirstOrDefaultAsync();
+        }
+        public async Task<PageResultDto<TransactionSplit>> GetByDebtorIdAsync(int debtorId, int pageSize, int pageIndex)
+        {
+            var query = _context.TransactionSplits.Where(ts => ts.DebtorId == debtorId);
             return await PaginationExtension.PaginationAsync(query, pageSize, pageIndex);
         }
         public async Task<IEnumerable<TransactionSplit>> CreateTransactionSplitAsync(IEnumerable<TransactionSplit> dto)

@@ -14,6 +14,6 @@ namespace WeShare.Application.Interfaces
         Task<IEnumerable<TransactionSplit>> CalculateTransactionSplitAmountAsync(int transactionId, List<int> debtIds, decimal totalAmount, SplitStrategyEnum typeStrategy, Dictionary<int, decimal>? splitAmount);
         Task<IEnumerable<TransactionSplit>> CreateTransactionSplitAsync(IEnumerable<TransactionSplit> dto);
         System.Threading.Tasks.Task DeleteTransactionAsync(int transactionId);
-        Task<PageResultDto<TransactionSplit>> GetByDebtorIdAsync(int debtorId, TransactionSplitStatusEnum? status, int pageSize, int pageIndex);
+        Task<PageResultDto<TransactionSplit>> GetByDebtorIdAsync(int debtorId, TransactionStatusEnum? status, int pageSize, int pageIndex);
     }
 }

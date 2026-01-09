@@ -15,5 +15,7 @@ namespace WeShare.Application.Dtos.Transaction
         public string? Description { get; set; }
         public int? TaskId { get; set; }
         public int ReceiverId { get; set; }
+        public string? ProofUrl { get; set; }
+        public TransactionPaymentTypeEnum PaymentType { get; set; }
     }
 }

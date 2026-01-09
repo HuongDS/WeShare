@@ -16,6 +16,7 @@ using WeShare.Core.Constants;
 using WeShare.Core.Entities;
 using WeShare.Core.Interfaces;
 using WeShare.Core.Other;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace WeShare.Application.Services
 {
@@ -74,6 +75,9 @@ namespace WeShare.Application.Services
             {
                 newTransactionSplits = CalculateSplitHelper.CalculateSplitAmount(data.Amount, data.DebtIds, data.Stategy, data.SplitAmounts);
             }
+
+            var notiRepo = _unitOfWork.Repository<Notification>();
+
             foreach (var split in newTransactionSplits)
             {
                 var transactionSplit = new TransactionSplit
@@ -85,6 +89,18 @@ namespace WeShare.Application.Services
                 await _groupMemberRepository.UpdateBalancesRange(split.Key, -split.Value);
                 await _transactionSplitRepository.CreateTransactionSplitAsync(transactionSplit);
                 if (split.Key != data.PayerId) await _groupDebtRepository.SyncGroupDebtAsync(data.GroupId, split.Key, data.PayerId, split.Value);
+                var newNoti = new Notification
+                {
+                    ReceiveId = split.Key,
+                    Title = "New Transaction Created",
+                    Message = $"A new transaction has been created in group {data.GroupId} by user {data.PayerId}. You owe {split.Value}.",
+                    IsRead = false,
+                    Type = Core.Enums.NotificationTypeEnum.PAYMENT,
+                    RelatedTransactionId = newTransaction.Id,
+                    RelatedGroupId = data.GroupId,
+                    Created_At = DateTime.UtcNow
+                };
+                await notiRepo.AddAsync(newNoti);
             }
             await _unitOfWork.CompleteAsync();
 
@@ -133,9 +149,14 @@ namespace WeShare.Application.Services
             {
                 throw new Exception(ErrorMessage.UNAUTHORIZED_ACTION);
             }
+            if (transaction.Status == Core.Enums.TransactionStatusEnum.PENDING)
+            {
+                throw new Exception(ErrorMessage.TRANSACTION_IS_PENDING);
+            }
             transaction.Description = data.Description;
-            var debtIds = transaction.TransactionSplits.Select(ts => ts.Debtor.Id).ToList();
+            var debtIds = new List<int>();
             if (data.SplitAmounts != null) debtIds.AddRange(data.SplitAmounts.Keys);
+            else debtIds = transaction.TransactionSplits.Select(ts => ts.DebtorId).ToList();
             debtIds = debtIds.Distinct().ToList();
             if (data.Amount.HasValue)
             {
@@ -163,15 +184,7 @@ namespace WeShare.Application.Services
                 // update new
                 transaction.Amount = data.Amount.Value;
                 var newTransactionSplits = new Dictionary<int, decimal>();
-                if (data.Strategy != Core.Enums.SplitStrategyEnum.EQUALLY)
-                {
-                    newTransactionSplits = CalculateSplitHelper.CalculateSplitAmount(transaction.Amount, debtIds, data.Strategy, data.SplitAmounts);
-                }
-                else
-                {
-                    newTransactionSplits = CalculateSplitHelper.CalculateSplitAmount(transaction.Amount, debtIds, data.Strategy, data.SplitAmounts);
-
-                }
+                newTransactionSplits = CalculateSplitHelper.CalculateSplitAmount(transaction.Amount, debtIds, data.Strategy, data.SplitAmounts);
                 payerGroupMember.Balance += transaction.Amount;
                 foreach (var split in newTransactionSplits)
                 {
@@ -308,6 +321,10 @@ namespace WeShare.Application.Services
             {
                 throw new Exception(ErrorMessage.UNAUTHORIZED_ACTION);
             }
+            if (transaction.Status == Core.Enums.TransactionStatusEnum.PENDING)
+            {
+                throw new Exception(ErrorMessage.TRANSACTION_IS_PENDING_CANNOT_BE_DELETED);
+            }
 
             // revert
             var allTransactionSplits = transaction.TransactionSplits.ToList();
@@ -335,7 +352,7 @@ namespace WeShare.Application.Services
         }
         public async Task<IEnumerable<int>> GetDebtIdsAsync(int transactionId)
         {
-            var transactionSplits = await _transactionSplitRepository.GetByTransactionIdAsync(transactionId, null, int.MaxValue, 1);
+            var transactionSplits = await _transactionSplitRepository.GetByTransactionIdAsync(transactionId, int.MaxValue, 1);
             return transactionSplits.Items.Select(ts => ts.DebtorId).ToList();
         }
 
@@ -349,15 +366,28 @@ namespace WeShare.Application.Services
             {
                 throw new Exception(ErrorMessage.TOTAL_AMOUNT_MUST_BE_GREATER_THAN_ZERO);
             }
-            var newSettlement = _mapper.Map<Core.Entities.Transaction>(data);
             var currBalance = await _groupMemberRepository.GetBalanceInGroupAsync(data.GroupId, data.ReceiverId);
             if (data.Amount > currBalance)
             {
                 throw new Exception(ErrorMessage.INSUFFICIENT_BALANCE);
             }
-            await _groupMemberRepository.UpdateBalancesRange(data.PayerId, data.Amount);
-            await _groupMemberRepository.UpdateBalancesRange(data.ReceiverId, -data.Amount);
-            await _groupDebtRepository.SyncGroupDebtAsync(data.GroupId, data.PayerId, data.ReceiverId, -data.Amount);
+            var newSettlement = _mapper.Map<Core.Entities.Transaction>(data);
+            newSettlement.PaymentType = data.PaymentType;
+            if (data.PaymentType == Core.Enums.TransactionPaymentTypeEnum.QR_CODE)
+            {
+                if (data.ProofUrl is null)
+                {
+                    throw new Exception(ErrorMessage.YOU_MUST_PROVIDE_EVIDENCE);
+                }
+                newSettlement.ProofUrl = data.ProofUrl;
+            }
+            else
+            {
+                await _groupMemberRepository.UpdateBalancesRange(data.PayerId, data.Amount);
+                await _groupMemberRepository.UpdateBalancesRange(data.ReceiverId, -data.Amount);
+                await _groupDebtRepository.SyncGroupDebtAsync(data.GroupId, data.PayerId, data.ReceiverId, -data.Amount);
+            }
+            newSettlement.Status = Core.Enums.TransactionStatusEnum.PENDING;
             await _transactionRepository.AddAsync(newSettlement);
             await _transactionSplitRepository.CreateTransactionSplitAsync(new TransactionSplit
             {
@@ -365,32 +395,91 @@ namespace WeShare.Application.Services
                 DebtorId = data.ReceiverId,
                 OwedAmount = data.Amount
             });
+
+            var newNotification = new Notification
+            {
+                ReceiveId = data.ReceiverId,
+                Title = "New Settlement Created",
+                Message = $"A settlement of amount {data.Amount} has been created by user {data.PayerId}. Please review it.",
+                IsRead = false,
+                Type = Core.Enums.NotificationTypeEnum.PAYMENT,
+                RelatedTransactionId = newSettlement.Id,
+                RelatedGroupId = data.GroupId,
+                Created_At = DateTime.UtcNow
+            };
+            await _unitOfWork.Repository<Notification>().AddAsync(newNotification);
             await _unitOfWork.CompleteAsync();
             return newSettlement.Id;
         }
 
         public async Task<IEnumerable<int>> CreateMultiSettlementAsyc(int userId, List<CreateSettlementDto> data)
         {
-            if (!data.All(c => c.PayerId == userId))
+            await _unitOfWork.StartTransactionAsync();  // outer transaction
+            try
+            {
+                var result = new List<int>();
+                foreach (var settlement in data)
+                {
+                    // This Single function calls _unitOfWork.CompleteAsync()
+                    // But because of the outer Transaction, it hasn't actually saved to the database yet.
+                    // It only "marks" that it will save.
+                    var settlementId = await CreateSingleSettlementAsync(userId, settlement);
+                    result.Add(settlementId);
+                }
+                await _unitOfWork.CommitTransactionAsync();
+                return result;
+            }
+            catch (Exception ex)
+            {
+                await _unitOfWork.RollBackTransactionAsync();
+                throw new Exception(ex.Message);
+            }
+        }
+
+        public async Task<int> ConfirmSettlementAsync(int transactionId, int userId)
+        {
+            var transactionRepo = _unitOfWork.Repository<Core.Entities.Transaction>();
+            var transaction = await transactionRepo.GetByIdAsync(transactionId);
+            if (transaction == null)
+            {
+                throw new Exception(ErrorMessage.TRANSACTION_NOT_FOUND);
+            }
+            if (transaction.Type != Core.Enums.TransactionTypeEnum.PAYMENT)
+            {
+                throw new Exception(ErrorMessage.THIS_TRANSACTION_HAS_TYPE_EXPENSE);
+            }
+            if (transaction.Status == Core.Enums.TransactionStatusEnum.DONE)
+            {
+                throw new Exception(AlertMessage.TRANSACTION_HAS_BEEN_COMPLETED);
+            }
+
+            var transactionSplit = await _transactionSplitRepository.GetByTransactionIdAsync(transactionId, userId);
+            if (transactionSplit is null)
             {
                 throw new Exception(ErrorMessage.UNAUTHORIZED_ACTION);
             }
-            if (data.Any(c => c.Amount <= 0))
+
+            await _groupMemberRepository.UpdateBalancesRange(transaction.PayerId, transaction.Amount);
+            await _groupMemberRepository.UpdateBalancesRange(userId, -transaction.Amount);
+            await _groupDebtRepository.SyncGroupDebtAsync(transaction.GroupId, transaction.PayerId, userId, -transaction.Amount);
+            transaction.Status = Core.Enums.TransactionStatusEnum.DONE;
+
+            transactionRepo.Update(transaction);
+
+            var newNotification = new Notification
             {
-                throw new Exception(ErrorMessage.TOTAL_AMOUNT_MUST_BE_GREATER_THAN_ZERO);
-            }
-            var newTransactionList = new List<Core.Entities.Transaction>();
-            foreach (var item in data)
-            {
-                var tmp = _mapper.Map<Core.Entities.Transaction>(item);
-                newTransactionList.Add(tmp);
-                await _groupMemberRepository.UpdateBalancesRange(item.ReceiverId, -item.Amount);
-                await _groupMemberRepository.UpdateBalancesRange(item.PayerId, item.Amount);
-                await _groupDebtRepository.SyncGroupDebtAsync(item.GroupId, item.PayerId, item.ReceiverId, -item.Amount);
-            }
-            await _transactionRepository.AddRangeAsync(newTransactionList);
+                ReceiveId = transaction.PayerId,
+                Title = "Settlement Confirmed",
+                Message = $"Your settlement of amount {transaction.Amount} has been confirmed by user {userId}.",
+                IsRead = false,
+                Type = Core.Enums.NotificationTypeEnum.PAYMENT,
+                RelatedTransactionId = transaction.Id,
+                RelatedGroupId = transaction.GroupId,
+                Created_At = DateTime.UtcNow
+            };
+            await _unitOfWork.Repository<Notification>().AddAsync(newNotification);
             await _unitOfWork.CompleteAsync();
-            return newTransactionList.Select(t => t.Id).ToList();
+            return transaction.Id;
         }
     }
 }

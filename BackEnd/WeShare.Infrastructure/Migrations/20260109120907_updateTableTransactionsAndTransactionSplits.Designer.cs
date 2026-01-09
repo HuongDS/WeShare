@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using WeShare.Infrastructure;
@@ -11,9 +12,11 @@ using WeShare.Infrastructure;
 namespace WeShare.Infrastructure.Migrations
 {
     [DbContext(typeof(WeShareDbContext))]
-    partial class WeShareDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260109120907_updateTableTransactionsAndTransactionSplits")]
+    partial class updateTableTransactionsAndTransactionSplits
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -132,51 +135,6 @@ namespace WeShare.Infrastructure.Migrations
                     b.HasIndex("GroupId");
 
                     b.ToTable("GroupMembers");
-                });
-
-            modelBuilder.Entity("WeShare.Core.Entities.Notification", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("Created_At")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.Property<bool>("IsRead")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(false);
-
-                    b.Property<string>("Message")
-                        .IsRequired()
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
-                    b.Property<int>("ReceiveId")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("RelatedGroupId")
-                        .HasColumnType("integer");
-
-                    b.Property<int?>("RelatedTransactionId")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ReceiveId");
-
-                    b.ToTable("Notifications");
                 });
 
             modelBuilder.Entity("WeShare.Core.Entities.RefreshToken", b =>
@@ -426,17 +384,6 @@ namespace WeShare.Infrastructure.Migrations
                     b.Navigation("Group");
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("WeShare.Core.Entities.Notification", b =>
-                {
-                    b.HasOne("WeShare.Core.Entities.User", "Receiver")
-                        .WithMany()
-                        .HasForeignKey("ReceiveId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Receiver");
                 });
 
             modelBuilder.Entity("WeShare.Core.Entities.RefreshToken", b =>

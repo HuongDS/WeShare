@@ -22,6 +22,9 @@ namespace WeShare.Core.Entities
         public DateTime? Created_At { get; set; }
         public SplitStrategyEnum SplitStrategy { get; set; }
         public TransactionTypeEnum Type { get; set; }
+        public TransactionPaymentTypeEnum PaymentType { get; set; }
+        public string? ProofUrl { get; set; }
+        public TransactionStatusEnum Status { get; set; }
         public Group Group { get; set; }
 
         [ForeignKey("PayerId")]

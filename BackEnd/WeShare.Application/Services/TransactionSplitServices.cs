@@ -23,13 +23,13 @@ namespace WeShare.Application.Services
             _transactionSplitRepository = transactionSplitRepository;
             _unitOfWork = unitOfWork;
         }
-        public async Task<PageResultDto<TransactionSplit>> GetByTransactionIdAsync(int transactionId, TransactionSplitStatusEnum? status, int pageSize, int pageIndex)
+        public async Task<PageResultDto<TransactionSplit>> GetByTransactionIdAsync(int transactionId, int pageSize, int pageIndex)
         {
-            return await _transactionSplitRepository.GetByTransactionIdAsync(transactionId, status, pageSize, pageIndex);
+            return await _transactionSplitRepository.GetByTransactionIdAsync(transactionId, pageSize, pageIndex);
         }
-        public async Task<PageResultDto<TransactionSplit>> GetByDebtorIdAsync(int debtorId, TransactionSplitStatusEnum? status, int pageSize, int pageIndex)
+        public async Task<PageResultDto<TransactionSplit>> GetByDebtorIdAsync(int debtorId, TransactionStatusEnum? status, int pageSize, int pageIndex)
         {
-            return await _transactionSplitRepository.GetByDebtorIdAsync(debtorId, status, pageSize, pageIndex);
+            return await _transactionSplitRepository.GetByDebtorIdAsync(debtorId, pageSize, pageIndex);
         }
         public async Task<IEnumerable<TransactionSplit>> CreateTransactionSplitAsync(IEnumerable<TransactionSplit> dto)
         {
@@ -56,7 +56,6 @@ namespace WeShare.Application.Services
                     TransactionId = transactionId,
                     DebtorId = item.Key,
                     OwedAmount = item.Value,
-                    Status = TransactionSplitStatusEnum.UNPAID
                 };
                 result.Add(tmp);
             }

@@ -14,8 +14,9 @@ namespace WeShare.Core.Interfaces
         Task<IEnumerable<TransactionSplit>> CreateTransactionSplitAsync(IEnumerable<TransactionSplit> dto);
         Task<TransactionSplit> CreateTransactionSplitAsync(TransactionSplit dto);
         System.Threading.Tasks.Task DeleteTransactionAsync(int transactionId);
-        Task<PageResultDto<TransactionSplit>> GetByDebtorIdAsync(int debtorId, TransactionSplitStatusEnum? status, int pageSize, int pageIndex);
-        Task<PageResultDto<TransactionSplit>> GetByTransactionIdAsync(int transactionId, TransactionSplitStatusEnum? status, int pageSize, int pageIndex);
+        Task<PageResultDto<TransactionSplit>> GetByDebtorIdAsync(int debtorId, int pageSize, int pageIndex);
+        Task<PageResultDto<TransactionSplit>> GetByTransactionIdAsync(int transactionId, int pageSize, int pageIndex);
         Task<IEnumerable<TransactionSplit>> GetByTransactionIdAsync(int transactionId);
+        Task<TransactionSplit?> GetByTransactionIdAsync(int transactionId, int userId);
     }
 }

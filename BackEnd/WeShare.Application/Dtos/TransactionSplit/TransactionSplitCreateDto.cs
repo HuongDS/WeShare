@@ -12,6 +12,6 @@ namespace WeShare.Application.Dtos.TransactionSplit
         public int TransactionId { get; set; }
         public int DebtorId { get; set; }
         public decimal Amount { get; set; }
-        public TransactionSplitStatusEnum Status { get; set; } = TransactionSplitStatusEnum.NONE;
+        public TransactionStatusEnum Status { get; set; } = TransactionStatusEnum.NONE;
     }
 }
