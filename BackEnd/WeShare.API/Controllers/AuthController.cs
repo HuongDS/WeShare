@@ -90,7 +90,7 @@ namespace WeShare.API.Controllers
                 });
             }
         }
-        [HttpPost("login-google")]
+        [HttpPost("google")]
         public async Task<IActionResult> LoginGoogleAsync([FromBody] string idToken)
         {
             try
@@ -113,7 +113,7 @@ namespace WeShare.API.Controllers
                 });
             }
         }
-        [HttpPost("refresh-token")]
+        [HttpPost("refresh")]
         public async Task<IActionResult> RefreshTokenAsync([FromBody] string refreshToken)
         {
             try
@@ -148,7 +148,7 @@ namespace WeShare.API.Controllers
                 Data = res
             });
         }
-        [HttpPost("logout-force")]
+        [HttpPost("logout-all-devices")]
         [Authorize]
         public async Task<IActionResult> LogOutForce()
         {
