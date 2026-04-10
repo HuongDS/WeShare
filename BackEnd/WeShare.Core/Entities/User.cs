@@ -16,7 +16,7 @@ namespace WeShare.Core.Entities
         public string? DefaultBankAccount { get; set; }
         public string? BankName { get; set; }
         public string? BankBin { get; set; }
-        public string PasswordHashed { get; set; }
+        public string? PasswordHashed { get; set; }
         public ICollection<GroupMember> GroupMembers { get; set; }
     }
 }

@@ -11,6 +11,9 @@ namespace WeShare.Core.Constants
         // 
         public static string SOME_THING_WENT_WRONG = "Something went wrong. Please try again!";
 
+        // 500
+        public static string INTERNAL_SERVER_ERROR = "Internal server error. Please try again!";
+
         // Auth
         public static string USER_HAS_BEEN_EXIST = "User exist!";
         public static string EMAIL_OR_PASSWORD_IS_INCORRECT = "Email or password is incorrect!";
