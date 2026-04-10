@@ -1,26 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
+﻿
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
 using System.Text.Json;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using AutoMapper;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using WeShare.Application.Dtos.Auth;
 using WeShare.Application.Helpers;
 using WeShare.Application.Interfaces;
-using WeShare.Application.Services;
-using WeShare.Application.Validators;
 using WeShare.Core.Constants;
-using WeShare.Core.Constants.Regex;
 using WeShare.Core.Dtos.Auth;
 using WeShare.Core.Entities;
+using WeShare.Core.Exceptions;
 using WeShare.Core.Interfaces;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace WeShare.Infrastructure.Services
 {
@@ -77,9 +71,9 @@ namespace WeShare.Infrastructure.Services
             await _emailServices.SendEmailAsync(data.Email, EmailSubjects.VERIFY_EMAIL, htmlContent);
             return AlertMessage.PLEASE_VERIFY_OTP_TO_LOGIN;
         }
-        public async Task<string> VerifyRegisterOTP(string email, string otp)
+        public async Task<string> VerifyRegisterOTP(VerifyOtpDto data)
         {
-            var key = $"register-otp-{email}-{otp}";
+            var key = $"register-otp-{data.Email}-{data.Otp}";
             var entity = await _cacheServices.GetAsync(key);
             if (entity == null)
             {
@@ -111,23 +105,27 @@ namespace WeShare.Infrastructure.Services
             var checkEmailExist = await userRepo.FindAsync(u => u.Email == data.Email);
             if (!System.Text.RegularExpressions.Regex.IsMatch(data.Email, Core.Constants.Regex.Regex.EMAIL_REGEX))
             {
-                throw new Exception(ErrorMessage.EMAIL_INVALID);
+                throw new BadRequestException(ErrorMessage.EMAIL_INVALID);
             }
             if (checkEmailExist is null || checkEmailExist.FirstOrDefault() == null)
             {
-                throw new Exception(ErrorMessage.EMAIL_OR_PASSWORD_IS_INCORRECT);
+                throw new BadRequestException(ErrorMessage.EMAIL_OR_PASSWORD_IS_INCORRECT);
             }
             var user = checkEmailExist.FirstOrDefault();
             if (!BCrypt.Net.BCrypt.Verify(data.Password, user.PasswordHashed))
             {
-                throw new Exception(ErrorMessage.EMAIL_OR_PASSWORD_IS_INCORRECT);
+                throw new BadRequestException(ErrorMessage.EMAIL_OR_PASSWORD_IS_INCORRECT);
             }
-            return await GenerateAuthResponse(user);
+
+            var authRes = GenerateAuthResponseTokens(user, out RefreshToken newToken);
+            await _unitOfWork.Repository<RefreshToken>().AddAsync(newToken);
+            await _unitOfWork.CompleteAsync();
+            return authRes;
         }
-        public async Task<AuthResponseDto> RefreshTokenAsync(string oldRt)
+        public async Task<AuthResponseDto> RefreshTokenAsync(TokenRequestDto data)
         {
             var rtRepo = _unitOfWork.Repository<RefreshToken>();
-            var storedTokens = await rtRepo.FindAsync(x => x.Token == oldRt);
+            var storedTokens = await rtRepo.FindAsync(x => x.Token == data.RefreshToken);
             var storedToken = storedTokens.FirstOrDefault();
             if (storedToken is null)
             {
@@ -149,26 +147,32 @@ namespace WeShare.Infrastructure.Services
                     item.IsRevoked = true;
                     rtRepo.Update(item);
                 }
-                await _unitOfWork.CompleteAsync();
                 throw new Exception(ErrorMessage.ALERT_INVALID_LOGIN);
             }
             storedToken.IsUsed = true;
             rtRepo.Update(storedToken);
+            await _unitOfWork.CompleteAsync();
 
             var userRepo = _unitOfWork.Repository<User>();
-            var user = await userRepo.GetByIdAsync(storedToken.UserId);
+            var users = await userRepo.FindAsync(u => u.Id == storedToken.UserId);
+            var user = users.FirstOrDefault();
             if (user is null)
             {
-                throw new Exception(ErrorMessage.USER_NOT_FOUND);
+                throw new NotFoundException(ErrorMessage.USER_NOT_FOUND);
             }
-            return await GenerateAuthResponse(user);
+
+            var authResponse = GenerateAuthResponseTokens(user, out RefreshToken newToken);
+            await rtRepo.AddAsync(newToken);
+            await _unitOfWork.CompleteAsync();
+
+            return authResponse;
         }
-        public async Task<AuthResponseDto> LoginGoogleAsync(string idToken)
+        public async Task<AuthResponseDto> LoginGoogleAsync(GoogleLoginDto data)
         {
-            var payload = await _googleValidator.ValidateAsync(idToken);
+            var payload = await _googleValidator.ValidateAsync(data.IdToken);
             if (payload is null || string.IsNullOrEmpty(payload.Email))
             {
-                throw new Exception(ErrorMessage.LOGIN_FAILED);
+                throw new BadRequestException(ErrorMessage.LOGIN_FAILED);
             }
             var email = payload.Email;
             var userRepo = _unitOfWork.Repository<User>();
@@ -179,25 +183,30 @@ namespace WeShare.Infrastructure.Services
                 var firstName = payload.GivenName;
                 var lastName = payload.FamilyName;
                 var avatar = payload.Picture;
-                var defaultPassword = Guid.NewGuid().ToString("N").Substring(0, 10) + "W@1";
                 var registData = new RegisterDto
                 {
                     Email = email,
                     FullName = firstName + " " + lastName,
-                    Avatar = avatar,
-                    Password = BCrypt.Net.BCrypt.HashPassword(defaultPassword),
+                    Avatar = avatar
                 };
                 var newUser = _mapper.Map<User>(registData);
                 await userRepo.AddAsync(newUser);
+
+                var authRes = GenerateAuthResponseTokens(newUser, out RefreshToken newToken);
+                await _unitOfWork.Repository<RefreshToken>().AddAsync(newToken);
                 await _unitOfWork.CompleteAsync();
-                return await GenerateAuthResponse(newUser);
+                return authRes;
             }
-            return await GenerateAuthResponse(user);
+            var existingAuthResponse = GenerateAuthResponseTokens(user, out RefreshToken existingNewToken);
+            await _unitOfWork.Repository<RefreshToken>().AddAsync(existingNewToken);
+            await _unitOfWork.CompleteAsync();
+
+            return existingAuthResponse;
         }
-        public async Task<bool> LogoutAsync(string refreshToken)
+        public async Task<bool> LogoutAsync(TokenRequestDto data)
         {
             var rtRepo = _unitOfWork.Repository<RefreshToken>();
-            var storedRTokens = await rtRepo.FindAsync(rt => rt.Token == refreshToken);
+            var storedRTokens = await rtRepo.FindAsync(rt => rt.Token == data.RefreshToken);
             var storedToken = storedRTokens.FirstOrDefault();
             if (storedToken is null)
             {
@@ -251,12 +260,12 @@ namespace WeShare.Infrastructure.Services
                 return Convert.ToBase64String(random);
             }
         }
-        private async Task<AuthResponseDto> GenerateAuthResponse(User user)
+        private AuthResponseDto GenerateAuthResponseTokens(User user, out RefreshToken newRefreshToken)
         {
             var newAccess = GenerateJwtToken(user);
             var newRefresh = GenerateRefreshToken();
 
-            var newToken = new RefreshToken
+            newRefreshToken = new RefreshToken
             {
                 UserId = user.Id,
                 Token = newRefresh,
@@ -266,8 +275,6 @@ namespace WeShare.Infrastructure.Services
                 AddedDate = DateTime.UtcNow,
                 ExpiryDate = DateTime.UtcNow.AddMonths(1)
             };
-            await _unitOfWork.Repository<RefreshToken>().AddAsync(newToken);
-            await _unitOfWork.CompleteAsync();
 
             var res = _mapper.Map<AuthResponseDto>(user);
             res.AccessToken = newAccess.TokenString;
