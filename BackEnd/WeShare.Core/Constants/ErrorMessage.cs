@@ -28,6 +28,7 @@ namespace WeShare.Core.Constants
         public static string LOG_OUT_FAILED = "Logout Failed! PLease try again.";
         public static string REGISTER_FAILED = "Register Failed! PLease try again.";
         public static string OTP_IS_INVALID = "OTP is invalid! Please try again.";
+        public static string YOU_ARE_NOT_LOGGED_IN = "You are not logged in! Please log in to perform this action.";
 
         // Group
         public static string GROUP_NOT_FOUND = "Group not found! Please try again.";
