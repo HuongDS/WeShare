@@ -44,15 +44,15 @@ namespace WeShare.Infrastructure.Services
             var existingUser = await userRepo.FindAsync(u => u.Email == data.Email);
             if (existingUser.Count() != 0)
             {
-                throw new Exception(ErrorMessage.USER_HAS_BEEN_EXIST);
+                throw new BadRequestException(ErrorMessage.USER_HAS_BEEN_EXIST);
             }
             if (!System.Text.RegularExpressions.Regex.IsMatch(data.Password, Core.Constants.Regex.Regex.PASSWORD_REGEX))
             {
-                throw new Exception(ErrorMessage.PASSWORD_IS_WEAK);
+                throw new BadRequestException(ErrorMessage.PASSWORD_IS_WEAK);
             }
             if (!System.Text.RegularExpressions.Regex.IsMatch(data.Email, Core.Constants.Regex.Regex.EMAIL_REGEX))
             {
-                throw new Exception(ErrorMessage.EMAIL_INVALID);
+                throw new BadRequestException(ErrorMessage.EMAIL_INVALID);
             }
             var otp = GenerateOTPHelper.GenerateOTP();
             var serializedData = JsonSerializer.Serialize(data);
