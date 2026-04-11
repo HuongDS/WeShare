@@ -136,11 +136,12 @@ export const useAuth = () => {
   })
 
   return {
-    login,
-    register,
-    verifyOtp,
-    loginWithGoogle,
-    logout,
-    logoutAllDevices,
+    login: login.mutateAsync,
+    isLoging: login.isPending,
+    register: register.mutateAsync,
+    verifyOtp: verifyOtp.mutateAsync,
+    loginWithGoogle: loginWithGoogle.mutateAsync,
+    logout: logout.mutateAsync,
+    logoutAllDevices: logoutAllDevices.mutateAsync,
   }
 }
