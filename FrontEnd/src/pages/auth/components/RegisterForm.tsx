@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { useNavigate } from "react-router-dom"
 import { motion, type Variants } from "framer-motion"
 import {
   Mail,
@@ -35,10 +36,12 @@ export default function RegisterForm({
   itemVariants,
   isLoading = false,
 }: RegisterFormProps) {
+  const navigate = useNavigate()
   const [registerName, setRegisterName] = useState("")
   const [registerEmail, setRegisterEmail] = useState("")
   const [registerPassword, setRegisterPassword] = useState("")
   const [registerConfirmPassword, setRegisterConfirmPassword] = useState("")
+  const [isEmailVerified, setIsEmailVerified] = useState(false)
 
   const { verifyEmail, isVerifying, emailData } = useVerifyEmail()
   const { register } = useAuth()
@@ -51,7 +54,16 @@ export default function RegisterForm({
 
   const handleEmailBlur = async () => {
     if (registerEmail.trim() !== "") {
-      await verifyEmail(registerEmail)
+      try {
+        const result = await verifyEmail(registerEmail)
+        if (result?.format && result?.dns && !result?.disposable) {
+          setIsEmailVerified(true)
+        } else {
+          setIsEmailVerified(false)
+        }
+      } catch {
+        setIsEmailVerified(false)
+      }
     }
   }
 
@@ -74,6 +86,10 @@ export default function RegisterForm({
         toast.error("Please enter a valid email address.")
         return
       }
+      if (!isEmailVerified) {
+        toast.error("Please verify your email first.")
+        return
+      }
       if (!validatePassword(registerPassword)) {
         toast.error("Password must be 200 characters or less.")
         return
@@ -83,11 +99,14 @@ export default function RegisterForm({
         return
       }
 
-      await register({
+      await register.mutateAsync({
         fullName: registerName,
         email: registerEmail,
         password: registerPassword,
       })
+
+      // Navigate to OTP verification with email in state
+      navigate("/verify-otp", { state: { email: registerEmail } })
     } catch (error) {
       console.error("Registration failed:", error)
     }
@@ -193,8 +212,12 @@ export default function RegisterForm({
 
       {/* Submit Button */}
       <motion.div variants={itemVariants}>
-        <Button type="submit" className="w-full gap-2" disabled={isLoading}>
-          {isLoading ? (
+        <Button
+          type="submit"
+          className="w-full gap-2"
+          disabled={!isEmailVerified || register.isPending || isLoading}
+        >
+          {register.isPending || isLoading ? (
             <>
               <Loader2 className="h-4 w-4 animate-spin" />
               Creating account...

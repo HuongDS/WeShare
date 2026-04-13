@@ -1,31 +1,77 @@
+import { useEffect } from "react"
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
-import LoginPage from "./pages/auth/LoginPage"
-import ErrorPage from "./pages/error/ErrorPage"
+import { useAppDispatch, useAppSelector } from "@/store/hooks"
+import { initAuthState } from "@/store/authSlice"
 import { Toaster } from "./components/ui/sonner"
+import { Loader2 } from "lucide-react"
+import React, { Suspense } from "react"
+import ProtectedRoute from "./components/ProtectedRoute"
+import GuestRoute from "./components/GuestRoute"
+import MainLayout from "./components/MainLayout"
 
-const Dashboard = () => (
-  <div className="flex h-screen items-center justify-center text-2xl font-bold">
-    Chào mừng bạn đến với Trang Quản Trị!
+const LoginPageLazy = React.lazy(() => import("./pages/auth/LoginPage"))
+const ErrorPageLazy = React.lazy(() => import("./pages/error/ErrorPage"))
+const VerifyOtpPageLazy = React.lazy(() => import("./pages/auth/VerifyOtpPage"))
+const DashboardPageLazy = React.lazy(() => import("./pages/user/DashboardPage"))
+
+const PageLoader = () => (
+  <div className="flex h-screen w-full items-center justify-center">
+    <Loader2 className="h-8 w-8 animate-spin text-primary" />
   </div>
 )
 
 export function App() {
+  const dispatch = useAppDispatch()
+  const { isInitialized } = useAppSelector((state) => state.auth)
+
+  useEffect(() => {
+    dispatch(initAuthState())
+  }, [dispatch])
+
+  if (!isInitialized) {
+    return <PageLoader />
+  }
+
   return (
     <>
-      {" "}
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Navigate to="/login" replace />} />
+        <Suspense fallback={<PageLoader />}>
+          <Routes>
+            <Route path="/" element={<Navigate to="/auth" replace />} />
 
-          <Route path="/login" element={<LoginPage />} />
+            <Route
+              path="/auth"
+              element={
+                <GuestRoute>
+                  <LoginPageLazy />
+                </GuestRoute>
+              }
+            />
+            <Route
+              path="/verify-otp"
+              element={
+                <GuestRoute>
+                  <VerifyOtpPageLazy />
+                </GuestRoute>
+              }
+            />
 
-          <Route path="/dashboard" element={<Dashboard />} />
+            <Route
+              element={
+                <ProtectedRoute>
+                  <MainLayout />
+                </ProtectedRoute>
+              }
+            >
+              <Route path="/dashboard" element={<DashboardPageLazy />} />
+            </Route>
 
-          <Route path="/403" element={<ErrorPage code={403} />} />
-          <Route path="/500" element={<ErrorPage code={500} />} />
-
-          <Route path="*" element={<ErrorPage code={404} />} />
-        </Routes>
+            {/* Error Pages */}
+            <Route path="/403" element={<ErrorPageLazy code={403} />} />
+            <Route path="/500" element={<ErrorPageLazy code={500} />} />
+            <Route path="*" element={<ErrorPageLazy code={404} />} />
+          </Routes>
+        </Suspense>
       </BrowserRouter>
       <Toaster position="top-right" richColors />
     </>
