@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using WeShare.Application.Dtos.Auth;
 using WeShare.Core.Constants;
 using WeShare.Core.Dtos.Auth;
 using WeShare.Core.Dtos.Share;
@@ -15,132 +16,74 @@ namespace WeShare.API.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IAuthServices _authServices;
+        private readonly ICurrentUserService _currentUserService;
 
-        public AuthController(IAuthServices authServices)
+        public AuthController(IAuthServices authServices, ICurrentUserService currentUserService)
         {
             _authServices = authServices;
+            _currentUserService = currentUserService;
         }
 
         [HttpPost("register")]
         public async Task<IActionResult> RegisterAsync([FromBody] RegisterDto data)
         {
-            try
+            var res = await _authServices.RegisterAsync(data);
+            return Ok(new ResponseDto<string>
             {
-                var res = await _authServices.RegisterAsync(data);
-                return Ok(new ResponseDto<string>
-                {
-                    Data = res,
-                    Status = (int)HttpStatusCode.OK,
-                    Message = AlertMessage.PLEASE_VERIFY_OTP_TO_COMPLETE_REGISTERATION,
-                });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new ResponseDto<object>
-                {
-                    Status = (int)HttpStatusCode.BadRequest,
-                    Message = ex.Message,
-                    Data = null
-                });
-            }
+                Data = res,
+                Status = (int)HttpStatusCode.OK,
+                Message = AlertMessage.PLEASE_VERIFY_OTP_TO_COMPLETE_REGISTERATION,
+            });
         }
         [HttpPost("verify-otp")]
-        public async Task<IActionResult> VerifyRegisterOTP([FromQuery] string email, [FromQuery] string otp)
+        public async Task<IActionResult> VerifyRegisterOTP([FromBody] VerifyOtpDto data)
         {
-            try
+            var res = await _authServices.VerifyRegisterOTP(data);
+            return Ok(new ResponseDto<string>
             {
-                var res = await _authServices.VerifyRegisterOTP(email, otp);
-                return Ok(new ResponseDto<string>
-                {
-                    Data = res,
-                    Status = (int)HttpStatusCode.OK,
-                    Message = SuccessMessage.REGISTER_SUCCESSFULLY,
-                });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new ResponseDto<object>
-                {
-                    Status = (int)HttpStatusCode.BadRequest,
-                    Message = ex.Message,
-                    Data = null
-                });
-            }
+                Data = res,
+                Status = (int)HttpStatusCode.OK,
+                Message = SuccessMessage.REGISTER_SUCCESSFULLY,
+            });
         }
         [HttpPost("login")]
         public async Task<IActionResult> LoginAsync([FromBody] LoginDto data)
         {
-            try
+            var res = await _authServices.LoginAsync(data);
+            return Ok(new ResponseDto<AuthResponseDto>
             {
-                var res = await _authServices.LoginAsync(data);
-                return Ok(new ResponseDto<AuthResponseDto>
-                {
-                    Data = res,
-                    Status = (int)HttpStatusCode.OK,
-                    Message = SuccessMessage.LOGIN_SUCCESSFULLY
-                });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new ResponseDto<object>
-                {
-                    Status = (int)HttpStatusCode.BadRequest,
-                    Message = ex.Message,
-                    Data = null
-                });
-            }
+                Data = res,
+                Status = (int)HttpStatusCode.OK,
+                Message = SuccessMessage.LOGIN_SUCCESSFULLY
+            });
         }
-        [HttpPost("login-google")]
-        public async Task<IActionResult> LoginGoogleAsync([FromBody] string idToken)
+        [HttpPost("google")]
+        public async Task<IActionResult> LoginGoogleAsync([FromBody] GoogleLoginDto data)
         {
-            try
+            var response = await _authServices.LoginGoogleAsync(data);
+            return Ok(new ResponseDto<AuthResponseDto>
             {
-                var response = await _authServices.LoginGoogleAsync(idToken);
-                return Ok(new ResponseDto<AuthResponseDto>
-                {
-                    Data = response,
-                    Status = (int)HttpStatusCode.OK,
-                    Message = SuccessMessage.LOGIN_SUCCESSFULLY
-                });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new ResponseDto<object>
-                {
-                    Status = (int)HttpStatusCode.BadRequest,
-                    Message = ex.Message,
-                    Data = null
-                });
-            }
+                Data = response,
+                Status = (int)HttpStatusCode.OK,
+                Message = SuccessMessage.LOGIN_SUCCESSFULLY
+            });
         }
-        [HttpPost("refresh-token")]
-        public async Task<IActionResult> RefreshTokenAsync([FromBody] string refreshToken)
+        [HttpPost("refresh")]
+        public async Task<IActionResult> RefreshTokenAsync([FromBody] TokenRequestDto data)
         {
-            try
+            var res = await _authServices.RefreshTokenAsync(data);
+            return Ok(new ResponseDto<AuthResponseDto>
             {
-                var res = await _authServices.RefreshTokenAsync(refreshToken);
-                return Ok(new ResponseDto<AuthResponseDto>
-                {
-                    Status = (int)HttpStatusCode.OK,
-                    Message = SuccessMessage.REFRESH_SUCCESSFULLY,
-                    Data = res
-                });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new ResponseDto<object>
-                {
-                    Status = (int)HttpStatusCode.BadRequest,
-                    Message = ex.Message,
-                    Data = null
-                });
-            }
+                Status = (int)HttpStatusCode.OK,
+                Message = SuccessMessage.REFRESH_SUCCESSFULLY,
+                Data = res
+            });
         }
         [HttpPost("logout")]
         [Authorize]
-        public async Task<IActionResult> LogOutAsync([FromBody] string refreshToken)
+        public async Task<IActionResult> LogOutAsync([FromBody] TokenRequestDto data)
         {
-            var res = await _authServices.LogoutAsync(refreshToken);
+            var res = await _authServices.LogoutAsync(data);
             return Ok(new ResponseDto<bool>
             {
                 Status = (int)HttpStatusCode.OK,
@@ -148,21 +91,12 @@ namespace WeShare.API.Controllers
                 Data = res
             });
         }
-        [HttpPost("logout-force")]
+        [HttpPost("logout-all-devices")]
         [Authorize]
         public async Task<IActionResult> LogOutForce()
         {
-            var userId = User.FindFirst("id")?.Value;
-            if (userId is null)
-            {
-                return BadRequest(new ResponseDto<bool>
-                {
-                    Status = (int)HttpStatusCode.BadRequest,
-                    Message = ErrorMessage.LOG_OUT_FAILED,
-                    Data = false
-                });
-            }
-            var res = await _authServices.LogoutForceAsync(int.Parse(userId));
+            var userId = _currentUserService.GetUserId();
+            var res = await _authServices.LogoutForceAsync(userId);
             return Ok(new ResponseDto<bool>
             {
                 Status = (int)HttpStatusCode.OK,

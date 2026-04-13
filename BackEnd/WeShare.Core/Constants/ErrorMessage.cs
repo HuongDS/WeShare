@@ -11,6 +11,9 @@ namespace WeShare.Core.Constants
         // 
         public static string SOME_THING_WENT_WRONG = "Something went wrong. Please try again!";
 
+        // 500
+        public static string INTERNAL_SERVER_ERROR = "Internal server error. Please try again!";
+
         // Auth
         public static string USER_HAS_BEEN_EXIST = "User exist!";
         public static string EMAIL_OR_PASSWORD_IS_INCORRECT = "Email or password is incorrect!";
@@ -25,6 +28,7 @@ namespace WeShare.Core.Constants
         public static string LOG_OUT_FAILED = "Logout Failed! PLease try again.";
         public static string REGISTER_FAILED = "Register Failed! PLease try again.";
         public static string OTP_IS_INVALID = "OTP is invalid! Please try again.";
+        public static string YOU_ARE_NOT_LOGGED_IN = "You are not logged in! Please log in to perform this action.";
 
         // Group
         public static string GROUP_NOT_FOUND = "Group not found! Please try again.";

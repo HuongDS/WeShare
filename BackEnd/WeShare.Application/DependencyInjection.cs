@@ -27,6 +27,8 @@ namespace WeShare.Application
             services.AddScoped<ITaskServices, TaskServices>();
             services.AddScoped<IEmailServices, EmailServices>();
             services.AddScoped<ICacheServices, CacheServices>();
+            services.AddHttpContextAccessor();
+            services.AddScoped<ICurrentUserService, CurrentUserService>();
             return services;
         }
     }
