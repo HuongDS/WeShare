@@ -101,7 +101,14 @@ axiosClient.interceptors.response.use(
       }
     }
 
-    // Các lỗi khác (400, 404, 500...) thì cứ ném ra ngoài bình thường
+    if (error.response?.status === 403) {
+      window.location.href = "/403"
+    }
+
+    if (error.response?.status >= 500) {
+      window.location.href = "/500"
+    }
+
     return Promise.reject(error)
   }
 )
