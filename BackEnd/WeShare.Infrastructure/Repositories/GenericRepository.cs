@@ -72,5 +72,9 @@ namespace WeShare.Infrastructure.Repositories
             }
             return await PaginationExtension.PaginationAsync(query, pageSize, pageIndex);
         }
+        public async Task<T> FirstOrDefaultAsync(Expression<Func<T, bool>> predicate)
+        {
+            return await _dbSet.FirstOrDefaultAsync(predicate);
+        }
     }
 }

@@ -13,6 +13,7 @@ namespace WeShare.Core.Interfaces
         void Delete(T entity);
         Task Delete(int id);
         Task<IEnumerable<T>> FindAsync(System.Linq.Expressions.Expression<Func<T, bool>> predicate);
+        Task<T> FirstOrDefaultAsync(System.Linq.Expressions.Expression<Func<T, bool>> predicate);
         Task<IEnumerable<T>> GetAllAsyns();
         Task<T?> GetByIdAsync(int id);
         Task<Other.PageResultDto<T>> GetPagedAsync(int pageSize, int pageIndex, System.Linq.Expressions.Expression<Func<T, bool>> filter = null);

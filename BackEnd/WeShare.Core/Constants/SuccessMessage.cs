@@ -13,6 +13,8 @@ namespace WeShare.Core.Constants
         public static string LOGIN_SUCCESSFULLY = "Login Successfully.";
         public static string REFRESH_SUCCESSFULLY = "Refresh Token Successfully.";
         public static string LOG_OUT_SUCCESSFULLY = "Log Out Successfully.";
+        public static string FORGOT_PASSWORD_EMAIL_SENT = "Forgot password email sent successfully!";
+        public static string PASSWORD_RESET_SUCCESSFULLY = "Password reset successfully!";
 
         // Group
         public static string GET_GROUP_SUCCESSFULLY = "Get group successful!";

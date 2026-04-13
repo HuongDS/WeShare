@@ -1,8 +1,10 @@
 import axiosClient from "@/axios/axiosInstance"
+import type { ForgotPasswordDto } from "@/types/auth/ForgotPasswordDto"
 import type { GoogleLoginDto } from "@/types/auth/GoogleLoginDto"
 import type { LoginRequest } from "@/types/auth/LoginRequest"
 import type { LoginResponse } from "@/types/auth/LoginResponse"
 import type { RegisterDto } from "@/types/auth/RegisterDto"
+import type { ResetPasswordDto } from "@/types/auth/ResetPasswordDto"
 import type { TokenRequestDto } from "@/types/auth/TokenRequestDto"
 import type { VerifyOtpDto } from "@/types/auth/VerifyOtpDto"
 import type { ResponseDto } from "@/types/ResponseDto"
@@ -46,6 +48,20 @@ export const authApi = {
   logoutAllDevices: async () => {
     const res = await axiosClient.post<ResponseDto<boolean>>(
       "/auth/logout-all-devices"
+    )
+    return res.data
+  },
+  forgotPassword: async (payload: ForgotPasswordDto) => {
+    const res = await axiosClient.post<ResponseDto<string>>(
+      "/auth/forgot-password",
+      payload
+    )
+    return res.data
+  },
+  resetPassword: async (payload: ResetPasswordDto) => {
+    const res = await axiosClient.post<ResponseDto<string>>(
+      "/auth/reset-password",
+      payload
     )
     return res.data
   },
