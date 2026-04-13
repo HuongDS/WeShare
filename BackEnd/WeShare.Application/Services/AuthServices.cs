@@ -63,7 +63,7 @@ namespace WeShare.Infrastructure.Services
             var emailTempletePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "EmailTemplete", "OtpEmail.html");
             if (!File.Exists(emailTempletePath))
             {
-                throw new Exception(ErrorMessage.EMAIL_TEMPLATE_NOT_FOUND);
+                throw new InternalServerError(ErrorMessage.EMAIL_TEMPLATE_NOT_FOUND);
             }
             var htmlContent = await File.ReadAllTextAsync(emailTempletePath);
             htmlContent = htmlContent.Replace("{{UserName}}", data.FullName);
@@ -77,7 +77,7 @@ namespace WeShare.Infrastructure.Services
             var entity = await _cacheServices.GetAsync(key);
             if (entity == null)
             {
-                throw new Exception(ErrorMessage.OTP_IS_INVALID);
+                throw new BadRequestException(ErrorMessage.OTP_IS_INVALID);
             }
             await _cacheServices.RemoveAsync(key);
             var userRepo = _unitOfWork.Repository<User>();
@@ -91,7 +91,7 @@ namespace WeShare.Infrastructure.Services
             var welcomeEmailTempletePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "EmailTemplete", "WelcomeEmail.html");
             if (!File.Exists(welcomeEmailTempletePath))
             {
-                throw new Exception(ErrorMessage.EMAIL_TEMPLATE_NOT_FOUND);
+                throw new InternalServerError(ErrorMessage.EMAIL_TEMPLATE_NOT_FOUND);
             }
             var htmlContent = await File.ReadAllTextAsync(welcomeEmailTempletePath);
             htmlContent = htmlContent.Replace("{{UserName}}", newUser.FullName);

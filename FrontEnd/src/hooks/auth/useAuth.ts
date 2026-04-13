@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom"
 import { authApi } from "@/api/authApi"
 import { removeAuthUser, setAuthUser } from "@/store/authSlice"
 import { useAppDispatch } from "@/store/hooks"
@@ -7,6 +8,7 @@ import { toast } from "sonner"
 
 export const useAuth = () => {
   const dispatch = useAppDispatch()
+  const navigate = useNavigate()
 
   const login = useMutation({
     mutationFn: authApi.login,
@@ -78,6 +80,7 @@ export const useAuth = () => {
             userName: userName,
           })
         )
+        navigate("/dashboard", { replace: true })
       }
     },
     onError: (err) => {
@@ -95,14 +98,16 @@ export const useAuth = () => {
     mutationFn: authApi.logout,
     onSuccess: (res) => {
       if (res.data) {
-        toast.success(res.message)
+        toast.success(res.message || "Logged out successfully!")
       } else {
-        toast.error(res.message)
+        toast.error(res.message || "Logout failed")
       }
       localStorage.removeItem("token")
       localStorage.removeItem("refreshToken")
+      localStorage.removeItem("user")
 
       dispatch(removeAuthUser())
+      navigate("/auth", { replace: true })
     },
     onError: (err) => {
       if (axios.isAxiosError(err)) {
@@ -118,12 +123,16 @@ export const useAuth = () => {
     mutationFn: authApi.logoutAllDevices,
     onSuccess: (res) => {
       if (res.data) {
-        toast.success(res.message)
+        toast.success(res.message || "Logged out from all devices!")
       } else {
-        toast.error(res.message)
+        toast.error(res.message || "Logout failed")
       }
       localStorage.removeItem("token")
       localStorage.removeItem("refreshToken")
+      localStorage.removeItem("user")
+
+      dispatch(removeAuthUser())
+      navigate("/auth", { replace: true })
     },
     onError: (err) => {
       if (axios.isAxiosError(err)) {
@@ -136,12 +145,12 @@ export const useAuth = () => {
   })
 
   return {
-    login: login.mutateAsync,
+    login: login,
     isLoging: login.isPending,
-    register: register.mutateAsync,
-    verifyOtp: verifyOtp.mutateAsync,
-    loginWithGoogle: loginWithGoogle.mutateAsync,
-    logout: logout.mutateAsync,
-    logoutAllDevices: logoutAllDevices.mutateAsync,
+    register,
+    verifyOtp,
+    logout,
+    logoutAllDevices,
+    loginWithGoogle,
   }
 }
