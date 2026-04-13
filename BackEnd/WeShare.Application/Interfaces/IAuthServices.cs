@@ -11,12 +11,14 @@ namespace WeShare.Core.Interfaces
 {
     public interface IAuthServices
     {
+        Task<string> ForgotPasswordAsync(ForgotPasswordDto data);
         Task<AuthResponseDto> LoginAsync(LoginDto data);
         Task<AuthResponseDto> LoginGoogleAsync(GoogleLoginDto data);
         Task<bool> LogoutAsync(TokenRequestDto data);
         Task<bool> LogoutForceAsync(int userId);
         Task<AuthResponseDto> RefreshTokenAsync(TokenRequestDto data);
         Task<string> RegisterAsync(RegisterDto data);
+        Task<string> VerifyForgotPasswordOTPAndResetPassword(ResetPasswordDto data);
         Task<string> VerifyRegisterOTP(VerifyOtpDto data);
     }
 }
