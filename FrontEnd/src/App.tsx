@@ -12,6 +12,12 @@ import MainLayout from "./components/MainLayout"
 const LoginPageLazy = React.lazy(() => import("./pages/auth/LoginPage"))
 const ErrorPageLazy = React.lazy(() => import("./pages/error/ErrorPage"))
 const VerifyOtpPageLazy = React.lazy(() => import("./pages/auth/VerifyOtpPage"))
+const ForgotPasswordPageLazy = React.lazy(
+  () => import("./pages/auth/ForgotPasswordPage")
+)
+const ResetPasswordPageLazy = React.lazy(
+  () => import("./pages/auth/ResetPasswordPage")
+)
 const DashboardPageLazy = React.lazy(() => import("./pages/user/DashboardPage"))
 
 const PageLoader = () => (
@@ -52,6 +58,22 @@ export function App() {
               element={
                 <GuestRoute>
                   <VerifyOtpPageLazy />
+                </GuestRoute>
+              }
+            />
+            <Route
+              path="/forgot-password"
+              element={
+                <GuestRoute>
+                  <ForgotPasswordPageLazy />
+                </GuestRoute>
+              }
+            />
+            <Route
+              path="/reset-password"
+              element={
+                <GuestRoute>
+                  <ResetPasswordPageLazy />
                 </GuestRoute>
               }
             />
