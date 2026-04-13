@@ -107,7 +107,11 @@ export default function LoginForm({
 
       {/* Forgot Password Link */}
       <motion.div variants={itemVariants} className="flex justify-end">
-        <button className="text-sm text-primary transition-colors hover:text-primary/80">
+        <button
+          type="button"
+          onClick={() => navigate("/forgot-password")}
+          className="text-sm text-primary transition-colors hover:text-primary/80"
+        >
           Forgot password?
         </button>
       </motion.div>

@@ -8,6 +8,8 @@ import {
   ArrowRight,
   XCircle,
   CheckCircle2,
+  Eye,
+  EyeOff,
 } from "lucide-react"
 import { toast } from "sonner"
 import { Button } from "@/components/ui/button"
@@ -15,6 +17,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { useVerifyEmail } from "@/hooks/auth/useVerifyEmail"
 import { useAuth } from "@/hooks/auth/useAuth"
+import { PASSWORD_REGEX, EMAIL_REGEX } from "@/constants/regex"
 
 interface RegisterFormProps {
   containerVariants: {
@@ -42,14 +45,14 @@ export default function RegisterForm({
   const [registerPassword, setRegisterPassword] = useState("")
   const [registerConfirmPassword, setRegisterConfirmPassword] = useState("")
   const [isEmailVerified, setIsEmailVerified] = useState(false)
+  const [showPassword, setShowPassword] = useState(false)
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
 
   const { verifyEmail, isVerifying, emailData } = useVerifyEmail()
   const { register } = useAuth()
 
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-
   const validateEmail = (email: string): boolean => {
-    return emailRegex.test(email)
+    return EMAIL_REGEX.test(email)
   }
 
   const handleEmailBlur = async () => {
@@ -68,7 +71,7 @@ export default function RegisterForm({
   }
 
   const validatePassword = (password: string): boolean => {
-    return password.length <= 200 && password.length > 0
+    return PASSWORD_REGEX.test(password)
   }
 
   const validateName = (name: string): boolean => {
@@ -181,13 +184,56 @@ export default function RegisterForm({
           <Lock className="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 text-slate-400" />
           <Input
             id="register-password"
-            type="password"
+            type={showPassword ? "text" : "password"}
             placeholder="••••••••"
-            className="border-slate-300 bg-white py-6 pl-10 text-slate-900 placeholder:text-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20"
+            className="border-slate-300 bg-white py-6 pr-10 pl-10 text-slate-900 placeholder:text-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20"
             value={registerPassword}
             onChange={(e) => setRegisterPassword(e.target.value)}
             required
           />
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="absolute top-1/2 right-3 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+          >
+            {showPassword ? (
+              <EyeOff className="h-5 w-5" />
+            ) : (
+              <Eye className="h-5 w-5" />
+            )}
+          </button>
+        </div>
+        <div className="mt-2 space-y-1 text-xs text-slate-500">
+          <p>Password must contain:</p>
+          <ul className="ml-4 space-y-0.5">
+            <li
+              className={
+                registerPassword.length >= 8
+                  ? "text-green-600"
+                  : "text-slate-400"
+              }
+            >
+              ✓ At least 8 characters
+            </li>
+            <li
+              className={
+                /\d/.test(registerPassword)
+                  ? "text-green-600"
+                  : "text-slate-400"
+              }
+            >
+              ✓ At least 1 number
+            </li>
+            <li
+              className={
+                /[!@#$%^&*]/.test(registerPassword)
+                  ? "text-green-600"
+                  : "text-slate-400"
+              }
+            >
+              ✓ At least 1 special character (!@#$%^&*)
+            </li>
+          </ul>
         </div>
       </motion.div>
 
@@ -200,13 +246,24 @@ export default function RegisterForm({
           <Lock className="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 text-slate-400" />
           <Input
             id="register-confirm-password"
-            type="password"
+            type={showConfirmPassword ? "text" : "password"}
             placeholder="••••••••"
-            className="border-slate-300 bg-white py-6 pl-10 text-slate-900 placeholder:text-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20"
+            className="border-slate-300 bg-white py-6 pr-10 pl-10 text-slate-900 placeholder:text-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20"
             value={registerConfirmPassword}
             onChange={(e) => setRegisterConfirmPassword(e.target.value)}
             required
           />
+          <button
+            type="button"
+            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+            className="absolute top-1/2 right-3 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+          >
+            {showConfirmPassword ? (
+              <EyeOff className="h-5 w-5" />
+            ) : (
+              <Eye className="h-5 w-5" />
+            )}
+          </button>
         </div>
       </motion.div>
 
