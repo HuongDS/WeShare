@@ -3,8 +3,8 @@ import { authApi } from "@/api/authApi"
 import { removeAuthUser, setAuthUser } from "@/store/authSlice"
 import { useAppDispatch } from "@/store/hooks"
 import { useMutation } from "@tanstack/react-query"
-import axios from "axios"
 import { toast } from "sonner"
+import { handleAxiosError } from "@/utils/HandleAxiosError"
 
 export const useAuth = () => {
   const dispatch = useAppDispatch()
@@ -28,13 +28,7 @@ export const useAuth = () => {
       }
     },
     onError: (err) => {
-      if (axios.isAxiosError(err)) {
-        const errorMessage =
-          err.response?.data?.message || "Username or Password incorrect."
-        toast.error(errorMessage)
-      } else {
-        toast.error("Some thing went wrong!")
-      }
+      handleAxiosError(err, "Username or Password incorrect.")
     },
   })
 
@@ -44,11 +38,7 @@ export const useAuth = () => {
       toast.success(res.data || "Please check your email to confirm!")
     },
     onError: (err) => {
-      if (axios.isAxiosError(err)) {
-        toast.error(err.response?.data?.message || "Register failed.")
-      } else {
-        toast.error("Some thing went wrong!")
-      }
+      handleAxiosError(err, "Register failed.")
     },
   })
 
@@ -58,11 +48,7 @@ export const useAuth = () => {
       toast.success(res.data || "Register Successfully!")
     },
     onError: (err) => {
-      if (axios.isAxiosError(err)) {
-        toast.error(err.response?.data?.message || "Verify failed.")
-      } else {
-        toast.error("Some thing went wrong!")
-      }
+      handleAxiosError(err, "Verify failed.")
     },
   })
 
@@ -84,13 +70,7 @@ export const useAuth = () => {
       }
     },
     onError: (err) => {
-      if (axios.isAxiosError(err)) {
-        const errorMessage =
-          err.response?.data?.message || "Please check your email again!"
-        toast.error(errorMessage)
-      } else {
-        toast.error("Some thing went wrong!")
-      }
+      handleAxiosError(err, "Please check your email again!")
     },
   })
 
@@ -110,12 +90,7 @@ export const useAuth = () => {
       navigate("/auth", { replace: true })
     },
     onError: (err) => {
-      if (axios.isAxiosError(err)) {
-        const errorMessage = err.response?.data?.message || "Logout Failed"
-        toast.error(errorMessage)
-      } else {
-        toast.error("Some thing went wrong!")
-      }
+      handleAxiosError(err, "Logout failed.")
     },
   })
 
@@ -135,12 +110,27 @@ export const useAuth = () => {
       navigate("/auth", { replace: true })
     },
     onError: (err) => {
-      if (axios.isAxiosError(err)) {
-        const errorMessage = err.response?.data?.message || "Logout Failed"
-        toast.error(errorMessage)
-      } else {
-        toast.error("Some thing went wrong!")
-      }
+      handleAxiosError(err, "Logout failed.")
+    },
+  })
+
+  const forgotPassword = useMutation({
+    mutationFn: authApi.forgotPassword,
+    onSuccess: (res) => {
+      toast.success(res.data || "Password reset link sent to your email!")
+    },
+    onError: (err) => {
+      handleAxiosError(err, "Failed to send reset link.")
+    },
+  })
+
+  const resetPassword = useMutation({
+    mutationFn: authApi.resetPassword,
+    onSuccess: (res) => {
+      toast.success(res.data || "Password reset successfully!")
+    },
+    onError: (err) => {
+      handleAxiosError(err, "Failed to reset password.")
     },
   })
 
@@ -152,5 +142,7 @@ export const useAuth = () => {
     logout,
     logoutAllDevices,
     loginWithGoogle,
+    forgotPassword,
+    resetPassword,
   }
 }

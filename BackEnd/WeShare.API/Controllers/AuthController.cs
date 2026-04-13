@@ -104,5 +104,27 @@ namespace WeShare.API.Controllers
                 Data = res
             });
         }
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto data)
+        {
+            var res = await _authServices.ForgotPasswordAsync(data);
+            return Ok(new ResponseDto<string>
+            {
+                Status = (int)HttpStatusCode.OK,
+                Message = SuccessMessage.FORGOT_PASSWORD_EMAIL_SENT,
+                Data = res
+            });
+        }
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto data)
+        {
+            var res = await _authServices.VerifyForgotPasswordOTPAndResetPassword(data);
+            return Ok(new ResponseDto<string>
+            {
+                Status = (int)HttpStatusCode.OK,
+                Message = SuccessMessage.PASSWORD_RESET_SUCCESSFULLY,
+                Data = res
+            });
+        }
     }
 }

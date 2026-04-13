@@ -282,5 +282,61 @@ namespace WeShare.Infrastructure.Services
 
             return res;
         }
+
+        public async Task<string> ForgotPasswordAsync(ForgotPasswordDto data)
+        {
+            var user = await _unitOfWork.Repository<User>().FirstOrDefaultAsync(u => u.Email == data.Email);
+            if (user == null)
+            {
+                throw new NotFoundException(ErrorMessage.USER_NOT_FOUND);
+            }
+            var otp = GenerateOTPHelper.GenerateOTP();
+            var key = $"forgot-password-otp-{data.Email}-{otp}";
+            var serializedData = JsonSerializer.Serialize(data);
+            await _cacheServices.SetAsync(key, serializedData, 5);
+            // Get email templete
+            var emailTempletePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "EmailTemplete", "OtpForgotPasswordEmail.html");
+            if (!File.Exists(emailTempletePath))
+            {
+                throw new InternalServerError(ErrorMessage.EMAIL_TEMPLATE_NOT_FOUND);
+            }
+            var htmlContent = await File.ReadAllTextAsync(emailTempletePath);
+            htmlContent = htmlContent.Replace("{{UserName}}", user.FullName);
+            htmlContent = htmlContent.Replace("{{OTP_CODE}}", otp);
+            await _emailServices.SendEmailAsync(data.Email, EmailSubjects.FORGOT_PASSWORD, htmlContent);
+            return SuccessMessage.FORGOT_PASSWORD_EMAIL_SENT;
+        }
+
+        public async Task<string> VerifyForgotPasswordOTPAndResetPassword(ResetPasswordDto data)
+        {
+            var key = $"forgot-password-otp-{data.Email}-{data.Otp}";
+            var entity = await _cacheServices.GetAsync(key);
+            if (entity == null)
+            {
+                throw new BadRequestException(ErrorMessage.OTP_IS_INVALID);
+            }
+            await _cacheServices.RemoveAsync(key);
+            var decryptEntity = JsonSerializer.Deserialize<ForgotPasswordDto>(entity);
+            var user = await _unitOfWork.Repository<User>().FirstOrDefaultAsync(u => u.Email == decryptEntity.Email);
+            if (user == null)
+            {
+                throw new NotFoundException(ErrorMessage.USER_NOT_FOUND);
+            }
+            string hashPassword = BCrypt.Net.BCrypt.HashPassword(data.NewPassword);
+            user.PasswordHashed = hashPassword;
+            _unitOfWork.Repository<User>().Update(user);
+
+            // logout all devices
+            var rtRepo = _unitOfWork.Repository<RefreshToken>();
+            var storedTokens = await rtRepo.FindAsync(rt => rt.UserId == user.Id && !rt.IsRevoked && rt.ExpiryDate > DateTime.UtcNow);
+            foreach (var item in storedTokens)
+            {
+                item.IsRevoked = true;
+                rtRepo.Update(item);
+            }
+
+            await _unitOfWork.CompleteAsync();
+            return SuccessMessage.UPDATE_PASSWORD_SUCCESSFULLY;
+        }
     }
 }
