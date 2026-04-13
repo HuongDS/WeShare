@@ -29,7 +29,7 @@ export default function LoginForm({
   const [loginEmail, setLoginEmail] = useState("")
   const [loginPassword, setLoginPassword] = useState("")
   const navigate = useNavigate()
-  const { login, isLoging } = useAuth()
+  const { login } = useAuth()
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
@@ -52,7 +52,7 @@ export default function LoginForm({
         toast.error("Password must be 200 characters or less.")
         return
       }
-      await login({ email: loginEmail, password: loginPassword })
+      await login.mutateAsync({ email: loginEmail, password: loginPassword })
       navigate("/dashboard")
     } catch (error) {
       console.error("Login failed:", error)
@@ -114,8 +114,12 @@ export default function LoginForm({
 
       {/* Submit Button */}
       <motion.div variants={itemVariants}>
-        <Button type="submit" className="w-full gap-2" disabled={isLoging}>
-          {isLoging ? (
+        <Button
+          type="submit"
+          className="w-full gap-2"
+          disabled={login.isPending}
+        >
+          {login.isPending ? (
             <>
               <Loader2 className="h-4 w-4 animate-spin" />
               Signing in...
