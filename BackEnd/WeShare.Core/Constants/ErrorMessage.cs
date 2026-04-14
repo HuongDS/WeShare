@@ -74,5 +74,9 @@ namespace WeShare.Core.Constants
         // Email
         public static string EMAIL_SEND_FAILED = "Email sending failed! Please try again.";
         public static string EMAIL_TEMPLATE_NOT_FOUND = "Email template not found! Please try again.";
+
+        // Bank
+        public static string BANK_SYSTEM_IN_UNAVAILABLE = "Bank system is currently unavailable. Please try again later.";
+        public static string BANK_ACCOUNT_HAS_BEEN_USED = "This bank account has been used by another user! Please try again with different bank account.";
     }
 }
