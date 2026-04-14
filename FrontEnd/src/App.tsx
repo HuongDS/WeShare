@@ -19,6 +19,9 @@ const ResetPasswordPageLazy = React.lazy(
   () => import("./pages/auth/ResetPasswordPage")
 )
 const DashboardPageLazy = React.lazy(() => import("./pages/user/DashboardPage"))
+const UserProfilePageLazy = React.lazy(
+  () => import("./pages/user/UserProfilePage")
+)
 
 const PageLoader = () => (
   <div className="flex h-screen w-full items-center justify-center">
@@ -86,6 +89,7 @@ export function App() {
               }
             >
               <Route path="/dashboard" element={<DashboardPageLazy />} />
+              <Route path="/profile" element={<UserProfilePageLazy />} />
             </Route>
 
             {/* Error Pages */}
