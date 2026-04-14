@@ -55,5 +55,8 @@ namespace WeShare.Core.Constants
         // Otp
         public static string SEND_OTP_SUCCESSFULLY = "Send OTP successfully!";
         public static string VERIFY_OTP_SUCCESSFULLY = "Verify OTP successfully!";
+
+        // Bank
+        public static string GET_BANKS_SUCCESSFULLY = "Get banks successfully!";
     }
 }
