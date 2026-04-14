@@ -29,6 +29,8 @@ namespace WeShare.Application
             services.AddScoped<ICacheServices, CacheServices>();
             services.AddHttpContextAccessor();
             services.AddScoped<ICurrentUserService, CurrentUserService>();
+            services.AddHttpClient();
+            services.AddScoped<IBankServices, BankServices>();
             return services;
         }
     }

@@ -12,6 +12,8 @@ import {
   LogOut,
   ShieldAlert,
   Zap,
+  Settings,
+  User,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -59,6 +61,12 @@ const menuItems: MenuItem[] = [
     label: "Settlements",
     icon: <Handshake className="h-5 w-5" />,
     href: "/settlements",
+  },
+  {
+    id: "profile",
+    label: "Profile",
+    icon: <Settings className="h-5 w-5" />,
+    href: "/profile",
   },
 ]
 
@@ -291,6 +299,19 @@ export default function Sidebar({
 
             {/* Action Buttons */}
             <div className="space-y-1 px-2 py-1">
+              <Button
+                onClick={() => {
+                  navigate("/profile")
+                  if (isMobile) onMobileClose?.()
+                }}
+                variant="ghost"
+                size="sm"
+                className="w-full justify-start gap-2 text-xs text-slate-700 hover:bg-slate-100"
+              >
+                <User className="h-4 w-4" />
+                View Details Profile
+              </Button>
+
               <Button
                 onClick={handleLogout}
                 disabled={logout.isPending}
