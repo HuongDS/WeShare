@@ -246,9 +246,19 @@ export default function Sidebar({
             >
               {/* Avatar */}
               <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-green-400 to-green-600">
-                <span className="text-sm font-bold text-white">
-                  {user?.userName?.charAt(0).toUpperCase() || "U"}
-                </span>
+                {user?.avatar ? (
+                  <img
+                    src={user?.avatar}
+                    alt="Avatar"
+                    className="h-full w-full rounded-full object-cover object-center"
+                  />
+                ) : (
+                  <span className="text-sm font-bold text-white">
+                    {user?.userName
+                      ? user.userName.charAt(0).toUpperCase()
+                      : "U"}
+                  </span>
+                )}
               </div>
 
               {isExpanded && (
@@ -280,9 +290,19 @@ export default function Sidebar({
             <div className="px-2 py-1.5">
               <div className="flex items-center gap-3">
                 <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-green-400 to-green-600">
-                  <span className="text-sm font-bold text-white">
-                    {user?.userName?.charAt(0).toUpperCase() || "U"}
-                  </span>
+                  {user?.avatar ? (
+                    <img
+                      src={user?.avatar}
+                      alt="Avatar"
+                      className="h-full w-full rounded-full object-cover object-center"
+                    />
+                  ) : (
+                    <span className="text-sm font-bold text-white">
+                      {user?.userName
+                        ? user.userName.charAt(0).toUpperCase()
+                        : "U"}
+                    </span>
+                  )}
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-sm font-semibold text-slate-900">
