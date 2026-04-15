@@ -58,5 +58,9 @@ namespace WeShare.Core.Constants
 
         // Bank
         public static string GET_BANKS_SUCCESSFULLY = "Get banks successfully!";
+
+        // Image
+        public static string UPLOAD_IMAGE_SUCCESSFULLY = "Upload image successfully!";
+        public static string DELETE_IMAGE_SUCCESSFULLY = "Image deleted successfully";
     }
 }
