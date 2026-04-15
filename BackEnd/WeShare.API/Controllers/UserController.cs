@@ -18,11 +18,14 @@ namespace WeShare.API.Controllers
     {
         private readonly IUserServices _userServices;
         private readonly ICurrentUserService _currentUserService;
+        private readonly IFileServices _fileServices;
 
-        public UserController(IUserServices userServices, ICurrentUserService currentUserService)
+        public UserController(IUserServices userServices, ICurrentUserService currentUserService,
+            IFileServices fileServices)
         {
             _userServices = userServices;
             _currentUserService = currentUserService;
+            _fileServices = fileServices;
         }
         [HttpGet]
         public async Task<IActionResult> GetUserProfile()
@@ -62,5 +65,18 @@ namespace WeShare.API.Controllers
             });
         }
 
+        [HttpPost("update-avatar")]
+        public async Task<IActionResult> UpdateAvatar(IFormFile file)
+        {
+            var userId = _currentUserService.GetUserId();
+            var uploadResult = await _fileServices.UploadImageAsync(file, "WeShare/Avatars");
+            var res = await _userServices.UpdateAvatarAsync(userId, uploadResult.Url, uploadResult.PublicId);
+            return Ok(new ResponseDto<UserViewDto>
+            {
+                Status = (int)HttpStatusCode.OK,
+                Message = SuccessMessage.UPDATE_AVATAR_SUCCESSFULLY,
+                Data = res
+            });
+        }
     }
 }

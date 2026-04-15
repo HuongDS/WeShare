@@ -77,5 +77,19 @@ namespace WeShare.Application.Services
             userRepo.Update(user);
             await _unitOfWork.CompleteAsync();
         }
+
+        public async Task<UserViewDto> UpdateAvatarAsync(int userId, string url, string publicId)
+        {
+            var user = await _unitOfWork.Repository<User>().GetByIdAsync(userId);
+            if (user == null)
+            {
+                throw new NotFoundException(ErrorMessage.USER_NOT_FOUND);
+            }
+            user.Avatar = url;
+            user.AvatarPublicId = publicId;
+            _unitOfWork.Repository<User>().Update(user);
+            await _unitOfWork.CompleteAsync();
+            return _mapper.Map<UserViewDto>(user);
+        }
     }
 }
