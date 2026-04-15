@@ -78,7 +78,7 @@ namespace WeShare.Application.Services
             await _unitOfWork.CompleteAsync();
         }
 
-        public async Task<UserViewDto> UpdateAvatarAsync(int userId, string url, string publicId)
+        public async Task<UserViewDto> UpdateAvatarAsync(int userId, string? url, string? publicId)
         {
             var user = await _unitOfWork.Repository<User>().GetByIdAsync(userId);
             if (user == null)

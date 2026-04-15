@@ -1,4 +1,5 @@
 ﻿using System.Net;
+using CloudinaryDotNet.Actions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -71,6 +72,20 @@ namespace WeShare.API.Controllers
             var userId = _currentUserService.GetUserId();
             var uploadResult = await _fileServices.UploadImageAsync(file, "WeShare/Avatars");
             var res = await _userServices.UpdateAvatarAsync(userId, uploadResult.Url, uploadResult.PublicId);
+            return Ok(new ResponseDto<UserViewDto>
+            {
+                Status = (int)HttpStatusCode.OK,
+                Message = SuccessMessage.UPDATE_AVATAR_SUCCESSFULLY,
+                Data = res
+            });
+        }
+
+        [HttpDelete("delete-avatar")]
+        public async Task<IActionResult> DeleteAvatar([FromBody] DeleteAvatarDto data)
+        {
+            var userId = _currentUserService.GetUserId();
+            await _fileServices.DeleteImageAsync(data.AvatarPublicId);
+            var res = await _userServices.UpdateAvatarAsync(userId, null, null);
             return Ok(new ResponseDto<UserViewDto>
             {
                 Status = (int)HttpStatusCode.OK,
