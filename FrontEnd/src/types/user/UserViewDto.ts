@@ -5,4 +5,5 @@ export interface UserViewDto {
   avatar?: string
   defaultBankAccount?: string
   bankName?: string
+  avatarPublicId?: string
 }

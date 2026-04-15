@@ -29,6 +29,7 @@ namespace WeShare.Core.Constants
         public static string UPDATE_USER_PROFILE_SUCCESSFULLY = "Update user profile successful!";
         public static string UPDATE_PASSWORD_SUCCESSFULLY = "Update password successful!";
         public static string UPDATE_PAYMENT_INFO_SUCCESSFULLY = "Update payment information successful!";
+        public static string UPDATE_AVATAR_SUCCESSFULLY = "Update avatar successful!";
 
         // Transaction
         public static string ADD_TRANSACTION_SUCCESSFULLY = "Add transaction successful!";
@@ -58,5 +59,9 @@ namespace WeShare.Core.Constants
 
         // Bank
         public static string GET_BANKS_SUCCESSFULLY = "Get banks successfully!";
+
+        // Image
+        public static string UPLOAD_IMAGE_SUCCESSFULLY = "Upload image successfully!";
+        public static string DELETE_IMAGE_SUCCESSFULLY = "Image deleted successfully";
     }
 }

@@ -4,4 +4,5 @@ export interface User {
   email?: string
   avatar?: string
   defaultBankAccount?: string
+  avatarPublicId?: string
 }
