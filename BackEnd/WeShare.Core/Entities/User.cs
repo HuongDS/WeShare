@@ -13,6 +13,7 @@ namespace WeShare.Core.Entities
         public string FullName { get; set; }
         public string Email { get; set; }
         public string? Avatar { get; set; }
+        public string? AvatarPublicId { get; set; }
         public string? DefaultBankAccount { get; set; }
         public string? BankName { get; set; }
         public string? BankBin { get; set; }
