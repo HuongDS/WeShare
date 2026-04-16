@@ -5,6 +5,7 @@ import { useAppDispatch } from "@/store/hooks"
 import { useMutation } from "@tanstack/react-query"
 import { toast } from "sonner"
 import { handleAxiosError } from "@/utils/HandleAxiosError"
+import { userApi } from "@/api/userApi"
 
 export const useAuth = () => {
   const dispatch = useAppDispatch()
@@ -12,17 +13,22 @@ export const useAuth = () => {
 
   const login = useMutation({
     mutationFn: authApi.login,
-    onSuccess: (res) => {
+    onSuccess: async (res) => {
       if (res.status === 200 && res.data) {
         const { accessToken, refreshToken, userId, userName } = res.data
         localStorage.setItem("token", accessToken)
         localStorage.setItem("refreshToken", refreshToken)
         toast.success(res.message || "Login successfully!")
 
+        const profileRes = await userApi.getUserProfile()
+        const userProfile = profileRes.data
+
         dispatch(
           setAuthUser({
             userId: userId,
             userName: userName,
+            avatar: userProfile.avatar,
+            email: userProfile.email,
           })
         )
       }
@@ -54,16 +60,21 @@ export const useAuth = () => {
 
   const loginWithGoogle = useMutation({
     mutationFn: authApi.loginWithGoogle,
-    onSuccess: (res) => {
+    onSuccess: async (res) => {
       if (res.status === 200 && res.data) {
         const { accessToken, refreshToken, userId, userName } = res.data
         localStorage.setItem("token", accessToken)
         localStorage.setItem("refreshToken", refreshToken)
         toast.success(res.message || "Login successfully!")
+        const profileRes = await userApi.getUserProfile()
+        const userProfile = profileRes.data
+
         dispatch(
           setAuthUser({
             userId: userId,
             userName: userName,
+            avatar: userProfile.avatar,
+            email: userProfile.email,
           })
         )
         navigate("/dashboard", { replace: true })
