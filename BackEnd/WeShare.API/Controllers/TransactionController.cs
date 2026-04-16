@@ -7,6 +7,8 @@ using WeShare.Application.Interfaces;
 using WeShare.Application.Services;
 using WeShare.Core.Constants;
 using WeShare.Core.Dtos.Share;
+using WeShare.Core.Entities;
+using WeShare.Core.Interfaces;
 using WeShare.Core.Other;
 
 namespace WeShare.API.Controllers
@@ -17,289 +19,120 @@ namespace WeShare.API.Controllers
     public class TransactionController : ControllerBase
     {
         private readonly ITransactionServices _transactionServices;
+        private readonly ICurrentUserService _currentUserService;
 
-        public TransactionController(ITransactionServices transactionServices)
+        public TransactionController(ITransactionServices transactionServices, ICurrentUserService currentUserService)
         {
             _transactionServices = transactionServices;
+            _currentUserService = currentUserService;
         }
         [HttpPost]
-        public async Task<IActionResult> AddTransaction([FromBody] WeShare.Application.Dtos.Transaction.CreateTransactionDto data)
+        public async Task<IActionResult> AddTransaction([FromBody] CreateTransactionDto data)
         {
-            try
+            var userId = _currentUserService.GetUserId();
+            var res = await _transactionServices.CreateTransactionAsync(userId, data);
+            return Ok(new ResponseDto<TransactionViewDto>
             {
-                var userId = User.FindFirst("id")?.Value;
-                if (userId is null)
-                {
-                    return BadRequest(new ResponseDto<object>
-                    {
-                        Status = (int)HttpStatusCode.BadRequest,
-                        Message = ErrorMessage.UNAUTHORIZED_ACTION,
-                        Data = null
-                    });
-                }
-                var res = await _transactionServices.CreateTransactionAsync(int.Parse(userId), data);
-                return Ok(new ResponseDto<TransactionViewDto>
-                {
-                    Status = (int)HttpStatusCode.OK,
-                    Message = SuccessMessage.ADD_TRANSACTION_SUCCESSFULLY,
-                    Data = res
-                });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new ResponseDto<object>
-                {
-                    Status = (int)HttpStatusCode.BadRequest,
-                    Message = ex.Message,
-                    Data = null
-                });
-            }
+                Status = (int)HttpStatusCode.OK,
+                Message = SuccessMessage.ADD_TRANSACTION_SUCCESSFULLY,
+                Data = res
+            });
         }
-        [HttpPost("{transactionId}")]
+        [HttpGet("{transactionId}/is-payer")]
         public async Task<IActionResult> IsUserPayerOfTransaction([FromRoute] int transactionId)
         {
-            try
+            var userId = _currentUserService.GetUserId();
+            var res = await _transactionServices.IsUserPayerOfTransactionAsync(userId, transactionId);
+            return Ok(new ResponseDto<bool>
             {
-                var userId = User.FindFirst("id")?.Value;
-                if (userId is null)
-                {
-                    return BadRequest(new ResponseDto<object>
-                    {
-                        Status = (int)HttpStatusCode.BadRequest,
-                        Message = ErrorMessage.UNAUTHORIZED_ACTION,
-                        Data = null
-                    });
-                }
-                var res = await _transactionServices.IsUserPayerOfTransactionAsync(int.Parse(userId), transactionId);
-                return Ok(new ResponseDto<bool>
-                {
-                    Status = (int)HttpStatusCode.OK,
-                    Message = SuccessMessage.CHECK_USER_PAYER_OF_TRANSACTION_SUCCESSFULLY,
-                    Data = res
-                });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new ResponseDto<object>
-                {
-                    Status = (int)HttpStatusCode.BadRequest,
-                    Message = ex.Message,
-                    Data = null
-                });
-            }
+                Status = (int)HttpStatusCode.OK,
+                Message = SuccessMessage.CHECK_USER_PAYER_OF_TRANSACTION_SUCCESSFULLY,
+                Data = res
+            });
         }
         [HttpPut]
-        public async Task<IActionResult> UpdateTransaction([FromBody] WeShare.Application.Dtos.Transaction.UpdateTransactionDto data)
+        public async Task<IActionResult> UpdateTransaction([FromBody] UpdateTransactionDto data)
         {
-            try
+            var userId = _currentUserService.GetUserId();
+            var res = await _transactionServices.UpdateTransactionAsync(userId, data);
+            return Ok(new ResponseDto<TransactionViewDto>
             {
-                var userId = User.FindFirst("id")?.Value;
-                if (userId is null)
-                {
-                    return BadRequest(new ResponseDto<object>
-                    {
-                        Status = (int)HttpStatusCode.BadRequest,
-                        Message = ErrorMessage.UNAUTHORIZED_ACTION,
-                        Data = null
-                    });
-                }
-                var res = await _transactionServices.UpdateTransactionAsync(int.Parse(userId), data);
-                return Ok(new ResponseDto<TransactionViewDto>
-                {
-                    Status = (int)HttpStatusCode.OK,
-                    Message = SuccessMessage.UPDATE_TRANSACTION_SUCCESSFULLY,
-                    Data = res
-                });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new ResponseDto<object>
-                {
-                    Status = (int)HttpStatusCode.BadRequest,
-                    Message = ex.Message,
-                    Data = null
-                });
-            }
+                Status = (int)HttpStatusCode.OK,
+                Message = SuccessMessage.UPDATE_TRANSACTION_SUCCESSFULLY,
+                Data = res
+            });
         }
         [HttpGet("{transactionId}")]
         public async Task<IActionResult> GetTransactionDetails([FromRoute] int transactionId)
         {
-            try
+            var res = await _transactionServices.GetTransactionDetailsAsync(transactionId);
+            return Ok(new ResponseDto<TransactionViewDto>
             {
-                var res = await _transactionServices.GetTransactionDetailsAsync(transactionId);
-                return Ok(new ResponseDto<TransactionViewDto>
-                {
-                    Status = (int)HttpStatusCode.OK,
-                    Message = SuccessMessage.GET_TRANSACTION_DETAIL_SUCCESSFULLY,
-                    Data = res
-                });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new ResponseDto<object>
-                {
-                    Status = (int)HttpStatusCode.BadRequest,
-                    Message = ex.Message,
-                    Data = null
-                });
-            }
+                Status = (int)HttpStatusCode.OK,
+                Message = SuccessMessage.GET_TRANSACTION_DETAIL_SUCCESSFULLY,
+                Data = res
+            });
         }
-        [HttpGet("groupId")]
-        public async Task<IActionResult> GetTransactionsByGroupId([FromQuery] int groupId, [FromQuery] int pageSize, [FromQuery] int pageIndex)
+        [HttpGet("group/{groupId}")]
+        public async Task<IActionResult> GetTransactionsByGroupId([FromRoute] int groupId, [FromQuery] int pageSize, [FromQuery] int pageIndex)
         {
-            try
+            var res = await _transactionServices.GetTransactionsByGroupIdAsync(groupId, pageSize, pageIndex);
+            return Ok(new ResponseDto<PageResultDto<TransactionViewDto>>
             {
-                var res = await _transactionServices.GetTransactionsByGroupIdAsync(groupId, pageSize, pageIndex);
-                return Ok(new ResponseDto<PageResultDto<TransactionViewDto>>
-                {
-                    Status = (int)HttpStatusCode.OK,
-                    Message = SuccessMessage.GET_TRANSACTION_DETAIL_SUCCESSFULLY,
-                    Data = res
-                });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new ResponseDto<object>
-                {
-                    Status = (int)HttpStatusCode.BadRequest,
-                    Message = ex.Message,
-                    Data = null
-                });
-            }
+                Status = (int)HttpStatusCode.OK,
+                Message = SuccessMessage.GET_TRANSACTIONS_SUCCESSFULLY,
+                Data = res
+            });
         }
-        [HttpGet("payerId")]
+        [HttpGet("me")]
         public async Task<IActionResult> GetTransactionsByPayerId([FromQuery] int pageSize, [FromQuery] int pageIndex)
         {
-            try
+            var userId = _currentUserService.GetUserId();
+            var res = await _transactionServices.GetTransactionsByPayerIdAsync(userId, pageSize, pageIndex);
+            return Ok(new ResponseDto<PageResultDto<TransactionViewDto>>
             {
-                var userId = User.FindFirst("id")?.Value;
-                if (userId is null)
-                {
-                    return BadRequest(new ResponseDto<object>
-                    {
-                        Status = (int)HttpStatusCode.BadRequest,
-                        Message = ErrorMessage.UNAUTHORIZED_ACTION,
-                        Data = null
-                    });
-                }
-                var res = await _transactionServices.GetTransactionsByPayerIdAsync(int.Parse(userId), pageSize, pageIndex);
-                return Ok(new ResponseDto<PageResultDto<TransactionViewDto>>
-                {
-                    Status = (int)HttpStatusCode.OK,
-                    Message = SuccessMessage.GET_TRANSACTION_DETAIL_SUCCESSFULLY,
-                    Data = res
-                });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new ResponseDto<object>
-                {
-                    Status = (int)HttpStatusCode.BadRequest,
-                    Message = ex.Message,
-                    Data = null
-                });
-            }
+                Status = (int)HttpStatusCode.OK,
+                Message = SuccessMessage.GET_TRANSACTIONS_SUCCESSFULLY,
+                Data = res
+            });
         }
         [HttpDelete("{transactionId}")]
         public async Task<IActionResult> DeleteTransaction([FromRoute] int transactionId)
         {
-            try
+            var userId = _currentUserService.GetUserId();
+            var res = await _transactionServices.DeleteTransactionAsync(userId, transactionId);
+            return Ok(new ResponseDto<bool>
             {
-                var userId = User.FindFirst("id")?.Value;
-                if (userId is null)
-                {
-                    return BadRequest(new ResponseDto<object>
-                    {
-                        Status = (int)HttpStatusCode.BadRequest,
-                        Message = ErrorMessage.UNAUTHORIZED_ACTION,
-                        Data = null
-                    });
-                }
-                var res = await _transactionServices.DeleteTransactionAsync(int.Parse(userId), transactionId);
-                return Ok(new ResponseDto<bool>
-                {
-                    Status = (int)HttpStatusCode.OK,
-                    Message = SuccessMessage.DELETE_TRANSACTION_SUCCESSFULLY,
-                    Data = res
-                });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new ResponseDto<object>
-                {
-                    Status = (int)HttpStatusCode.BadRequest,
-                    Message = ex.Message,
-                    Data = null
-                });
-            }
+                Status = (int)HttpStatusCode.OK,
+                Message = SuccessMessage.DELETE_TRANSACTION_SUCCESSFULLY,
+                Data = res
+            });
         }
 
         [HttpPost("single-settlement")]
         public async Task<IActionResult> AddSettlement([FromBody] CreateSettlementDto data)
         {
-            try
+            var userId = _currentUserService.GetUserId();
+            var res = await _transactionServices.CreateSingleSettlementAsync(userId, data);
+            return Ok(new ResponseDto<int>
             {
-                var userId = User.FindFirst("id")?.Value;
-                if (userId is null)
-                {
-                    return BadRequest(new ResponseDto<object>
-                    {
-                        Status = (int)HttpStatusCode.BadRequest,
-                        Message = ErrorMessage.UNAUTHORIZED_ACTION,
-                        Data = null
-                    });
-                }
-                var res = await _transactionServices.CreateSingleSettlementAsync(int.Parse(userId), data);
-                return Ok(new ResponseDto<int>
-                {
-                    Status = (int)HttpStatusCode.OK,
-                    Message = SuccessMessage.ADD_SETTLEMENT_SUCCESSFULLY,
-                    Data = res
-                });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new ResponseDto<object>
-                {
-                    Status = (int)HttpStatusCode.BadRequest,
-                    Message = ex.Message,
-                    Data = null
-                });
-            }
+                Status = (int)HttpStatusCode.OK,
+                Message = SuccessMessage.ADD_SETTLEMENT_SUCCESSFULLY,
+                Data = res
+            });
         }
 
         [HttpPost("multi-settlement")]
         public async Task<IActionResult> AddSettlement([FromBody] List<CreateSettlementDto> data)
         {
-            try
+            var userId = _currentUserService.GetUserId();
+            var res = await _transactionServices.CreateMultiSettlementAsyc(userId, data);
+            return Ok(new ResponseDto<IEnumerable<int>>
             {
-                var userId = User.FindFirst("id")?.Value;
-                if (userId is null)
-                {
-                    return BadRequest(new ResponseDto<object>
-                    {
-                        Status = (int)HttpStatusCode.BadRequest,
-                        Message = ErrorMessage.UNAUTHORIZED_ACTION,
-                        Data = null
-                    });
-                }
-                var res = await _transactionServices.CreateMultiSettlementAsyc(int.Parse(userId), data);
-                return Ok(new ResponseDto<IEnumerable<int>>
-                {
-                    Status = (int)HttpStatusCode.OK,
-                    Message = SuccessMessage.ADD_SETTLEMENTS_SUCCESSFULLY,
-                    Data = res
-                });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new ResponseDto<object>
-                {
-                    Status = (int)HttpStatusCode.BadRequest,
-                    Message = ex.Message,
-                    Data = null
-                });
-            }
+                Status = (int)HttpStatusCode.OK,
+                Message = SuccessMessage.ADD_SETTLEMENTS_SUCCESSFULLY,
+                Data = res
+            });
         }
     }
 }

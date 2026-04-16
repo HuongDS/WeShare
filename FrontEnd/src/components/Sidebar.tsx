@@ -5,6 +5,7 @@ import { motion } from "framer-motion"
 import {
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
   Home,
   Receipt,
   Users,
@@ -14,6 +15,7 @@ import {
   Zap,
   Settings,
   User,
+  ChartColumnIncreasing,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import {
@@ -35,6 +37,7 @@ interface MenuItem {
   label: string
   icon: React.ReactNode
   href?: string
+  children?: MenuItem[]
 }
 
 const menuItems: MenuItem[] = [
@@ -45,22 +48,29 @@ const menuItems: MenuItem[] = [
     href: "/dashboard",
   },
   {
-    id: "expenses",
-    label: "Expenses",
-    icon: <Receipt className="h-5 w-5" />,
-    href: "/expenses",
+    id: "transactions",
+    label: "Transactions",
+    icon: <ChartColumnIncreasing className="h-5 w-5" />,
+    children: [
+      {
+        id: "expenses",
+        label: "Expenses",
+        icon: <Receipt className="h-5 w-5" />,
+        href: "/expenses",
+      },
+      {
+        id: "settlements",
+        label: "Settlements",
+        icon: <Handshake className="h-5 w-5" />,
+        href: "/settlements",
+      },
+    ],
   },
   {
     id: "groups",
     label: "Groups",
     icon: <Users className="h-5 w-5" />,
     href: "/groups",
-  },
-  {
-    id: "settlements",
-    label: "Settlements",
-    icon: <Handshake className="h-5 w-5" />,
-    href: "/settlements",
   },
   {
     id: "profile",
@@ -89,10 +99,26 @@ export default function Sidebar({
   const navigate = useNavigate()
   const location = useLocation()
   const [isExpanded, setIsExpanded] = useState(isMobileView ? true : !isMobile)
+  const [expandedParents, setExpandedParents] = useState<string[]>([
+    "transactions",
+  ])
 
   const isActive = (href?: string) => {
     if (!href) return false
     return location.pathname === href
+  }
+
+  const isParentActive = (item: MenuItem) => {
+    if (!item.children) return false
+    return item.children.some((child) => isActive(child.href))
+  }
+
+  const toggleParent = (parentId: string) => {
+    setExpandedParents((prev) =>
+      prev.includes(parentId)
+        ? prev.filter((id) => id !== parentId)
+        : [...prev, parentId]
+    )
   }
 
   const handleLogout = async () => {
@@ -173,62 +199,139 @@ export default function Sidebar({
 
       {/* Navigation Items */}
       <nav
-        className={`flex-1 space-y-2 ${isExpanded ? "px-3 py-4" : "flex flex-col items-center px-2 py-4"}`}
+        className={`flex-1 space-y-1 ${isExpanded ? "px-3 py-4" : "flex flex-col items-center px-2 py-4"}`}
       >
         {menuItems.map((item) => {
           const active = isActive(item.href)
+          const parentActive = isParentActive(item)
+          const isParentExpanded = expandedParents.includes(item.id)
+          const hasChildren = item.children && item.children.length > 0
+
           return (
-            <Tooltip key={item.id} delayDuration={200}>
-              <TooltipTrigger asChild>
-                <motion.button
-                  onClick={() => handleMenuItemClick(item.id, item.href)}
-                  className={`relative flex items-center rounded-lg transition-all duration-200 ${
-                    isExpanded
-                      ? "w-full justify-start gap-3 px-4 py-3"
-                      : "h-12 w-12 justify-center"
-                  } ${
-                    active
-                      ? "bg-slate-100 text-slate-900"
-                      : "text-slate-700 hover:bg-slate-100"
-                  }`}
-                  whileHover={{ x: isExpanded ? 5 : 0 }}
-                  whileTap={{ scale: 0.98 }}
-                  type="button"
+            <div key={item.id}>
+              <Tooltip delayDuration={200}>
+                <TooltipTrigger asChild>
+                  <motion.button
+                    onClick={() => {
+                      if (hasChildren) {
+                        toggleParent(item.id)
+                      } else {
+                        handleMenuItemClick(item.id, item.href)
+                      }
+                    }}
+                    className={`relative flex items-center rounded-lg transition-all duration-200 ${
+                      isExpanded
+                        ? "w-full justify-start gap-3 px-4 py-3"
+                        : "h-12 w-12 justify-center"
+                    } ${
+                      active || parentActive
+                        ? "bg-slate-100 text-slate-900"
+                        : "text-slate-700 hover:bg-slate-100"
+                    }`}
+                    whileHover={{ x: isExpanded ? 5 : 0 }}
+                    whileTap={{ scale: 0.98 }}
+                    type="button"
+                  >
+                    {/* Active Left Indicator Bar */}
+                    {(active || parentActive) && (
+                      <motion.div
+                        layoutId={`activeIndicator-${item.id}`}
+                        className="absolute top-0 bottom-0 left-0 w-1 rounded-r-full bg-gradient-to-b from-primary to-primary/80"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 0.2 }}
+                      />
+                    )}
+
+                    <div className="flex-shrink-0">{item.icon}</div>
+
+                    {isExpanded && (
+                      <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        className="flex flex-1 items-center justify-between"
+                      >
+                        <span
+                          className={`text-sm font-medium ${
+                            active || parentActive
+                              ? "font-semibold text-slate-900"
+                              : ""
+                          }`}
+                        >
+                          {item.label}
+                        </span>
+
+                        {/* Chevron for parent items */}
+                        {hasChildren && (
+                          <motion.div
+                            animate={{ rotate: isParentExpanded ? 180 : 0 }}
+                            transition={{ duration: 0.2 }}
+                            className="flex-shrink-0"
+                          >
+                            <ChevronDown className="h-4 w-4 text-slate-500" />
+                          </motion.div>
+                        )}
+                      </motion.div>
+                    )}
+                  </motion.button>
+                </TooltipTrigger>
+                {!isExpanded && !isMobile && !hasChildren && (
+                  <TooltipContent side="right" sideOffset={8}>
+                    {item.label}
+                  </TooltipContent>
+                )}
+              </Tooltip>
+
+              {/* Child Menu Items */}
+              {hasChildren && isExpanded && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{
+                    opacity: isParentExpanded ? 1 : 0,
+                    height: isParentExpanded ? "auto" : 0,
+                  }}
+                  transition={{ duration: 0.2 }}
+                  className="space-y-1 overflow-hidden"
                 >
-                  {/* Active Left Indicator Bar */}
-                  {active && (
-                    <motion.div
-                      layoutId="activeIndicator"
-                      className="absolute top-0 bottom-0 left-0 w-1 rounded-r-full bg-gradient-to-b from-primary to-primary/80"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ duration: 0.2 }}
-                    />
-                  )}
-
-                  <div className="flex-shrink-0">{item.icon}</div>
-
-                  {isExpanded && (
-                    <motion.span
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.2 }}
-                      className={`text-sm font-medium ${
-                        active ? "font-semibold text-slate-900" : ""
-                      }`}
-                    >
-                      {item.label}
-                    </motion.span>
-                  )}
-                </motion.button>
-              </TooltipTrigger>
-              {!isExpanded && !isMobile && (
-                <TooltipContent side="right" sideOffset={8}>
-                  {item.label}
-                </TooltipContent>
+                  {item?.children?.map((child) => {
+                    const childActive = isActive(child.href)
+                    return (
+                      <motion.button
+                        key={child.id}
+                        onClick={() =>
+                          handleMenuItemClick(child.id, child.href)
+                        }
+                        className={`relative flex w-full items-center gap-3 rounded-lg px-4 py-2 pl-8 text-left text-sm transition-all duration-200 ${
+                          childActive
+                            ? "bg-primary/10 font-medium text-slate-900"
+                            : "text-slate-600 hover:bg-slate-100"
+                        }`}
+                        whileHover={{ x: 3 }}
+                        whileTap={{ scale: 0.98 }}
+                        type="button"
+                      >
+                        {/* Active indicator for child */}
+                        {childActive && (
+                          <motion.div
+                            layoutId={`activeIndicator-child-${child.id}`}
+                            className="absolute left-0 h-1 w-1 rounded-full bg-primary"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ duration: 0.2 }}
+                          />
+                        )}
+                        <div className="flex-shrink-0">{child.icon}</div>
+                        <span className="text-sm font-medium">
+                          {child.label}
+                        </span>
+                      </motion.button>
+                    )
+                  })}
+                </motion.div>
               )}
-            </Tooltip>
+            </div>
           )
         })}
       </nav>

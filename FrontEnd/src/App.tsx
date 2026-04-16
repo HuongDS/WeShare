@@ -22,6 +22,12 @@ const DashboardPageLazy = React.lazy(() => import("./pages/user/DashboardPage"))
 const UserProfilePageLazy = React.lazy(
   () => import("./pages/user/UserProfilePage")
 )
+const ExpensesPageLazy = React.lazy(
+  () => import("./pages/transaction/ExpensesPage")
+)
+// const SettlementsPageLazy = React.lazy(
+//   () => import("./pages/transaction/SettlementsPage")
+// )
 
 export function App() {
   const dispatch = useAppDispatch()
@@ -84,6 +90,8 @@ export function App() {
             >
               <Route path="/dashboard" element={<DashboardPageLazy />} />
               <Route path="/profile" element={<UserProfilePageLazy />} />
+              <Route path="/expenses" element={<ExpensesPageLazy />} />
+              {/* <Route path="/settlements" element={<SettlementsPageLazy />} /> */}
             </Route>
 
             {/* Error Pages */}
