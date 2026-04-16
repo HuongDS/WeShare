@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Transactions;
 using AutoMapper;
+using Microsoft.AspNetCore.Http.HttpResults;
 using WeShare.Application.Dtos.Task;
 using WeShare.Application.Dtos.Transaction;
 using WeShare.Application.Dtos.TransactionSplit;
@@ -14,6 +15,7 @@ using WeShare.Application.Helpers;
 using WeShare.Application.Interfaces;
 using WeShare.Core.Constants;
 using WeShare.Core.Entities;
+using WeShare.Core.Exceptions;
 using WeShare.Core.Interfaces;
 using WeShare.Core.Other;
 using static System.Runtime.InteropServices.JavaScript.JSType;
@@ -43,7 +45,7 @@ namespace WeShare.Application.Services
         {
             if (userId != data.PayerId)
             {
-                throw new Exception(ErrorMessage.UNAUTHORIZED_ACTION);
+                throw new BadRequestException(ErrorMessage.UNAUTHORIZED_ACTION);
             }
             var newTransaction = new Core.Entities.Transaction
             {
@@ -63,18 +65,20 @@ namespace WeShare.Application.Services
             var payerMember = await _groupMemberRepository.GetGroupMemberAsync(data.PayerId, data.GroupId);
             if (payerMember is null)
             {
-                throw new Exception(ErrorMessage.GROUP_NOT_FOUND);
+                throw new InternalServerError(ErrorMessage.GROUP_NOT_FOUND);
             }
             payerMember.Balance += data.Amount;
             var newTransactionSplits = new Dictionary<int, decimal>();
-            if (data.Stategy != Core.Enums.SplitStrategyEnum.EQUALLY)
-            {
-                newTransactionSplits = CalculateSplitHelper.CalculateSplitAmount(data.Amount, data.DebtIds, data.Stategy, data.SplitAmounts);
-            }
-            else
-            {
-                newTransactionSplits = CalculateSplitHelper.CalculateSplitAmount(data.Amount, data.DebtIds, data.Stategy, data.SplitAmounts);
-            }
+            //if (data.Stategy != Core.Enums.SplitStrategyEnum.EQUALLY)
+            //{
+            //    newTransactionSplits = CalculateSplitHelper.CalculateSplitAmount(data.Amount, data.DebtIds, data.Stategy, data.SplitAmounts);
+            //}
+            //else
+            //{
+            //    newTransactionSplits = CalculateSplitHelper.CalculateSplitAmount(data.Amount, data.DebtIds, data.Stategy, data.SplitAmounts);
+            //}
+
+            newTransactionSplits = CalculateSplitHelper.CalculateSplitAmount(data.Amount, data.DebtIds, data.Stategy, data.SplitAmounts);
 
             var notiRepo = _unitOfWork.Repository<Notification>();
 
@@ -108,7 +112,7 @@ namespace WeShare.Application.Services
             var user = await userRepo.GetByIdAsync(newTransaction.PayerId);
             if (user == null)
             {
-                throw new Exception(ErrorMessage.PAYER_NOT_FOUND);
+                throw new NotFoundException(ErrorMessage.PAYER_NOT_FOUND);
             }
             var task = null as Core.Entities.Task;
             if (data.TaskId.HasValue && data.TaskId != 0)
@@ -134,7 +138,7 @@ namespace WeShare.Application.Services
             var transaction = await _transactionRepository.GetByIdAsync(transactionId);
             if (transaction == null)
             {
-                throw new Exception(ErrorMessage.TRANSACTION_NOT_FOUND);
+                throw new NotFoundException(ErrorMessage.TRANSACTION_NOT_FOUND);
             }
             return transaction.PayerId == userId;
         }
@@ -143,15 +147,15 @@ namespace WeShare.Application.Services
             var transaction = await _transactionRepository.GetTransactionDetailsAsync(data.Id);
             if (transaction == null)
             {
-                throw new Exception(ErrorMessage.TRANSACTION_NOT_FOUND);
+                throw new NotFoundException(ErrorMessage.TRANSACTION_NOT_FOUND);
             }
             if (transaction.PayerId != userId)
             {
-                throw new Exception(ErrorMessage.UNAUTHORIZED_ACTION);
+                throw new BadRequestException(ErrorMessage.UNAUTHORIZED_ACTION);
             }
             if (transaction.Status == Core.Enums.TransactionStatusEnum.PENDING)
             {
-                throw new Exception(ErrorMessage.TRANSACTION_IS_PENDING);
+                throw new InternalServerError(ErrorMessage.TRANSACTION_IS_PENDING);
             }
             transaction.Description = data.Description;
             var debtIds = new List<int>();
@@ -172,7 +176,7 @@ namespace WeShare.Application.Services
                 var payerGroupMember = await _groupMemberRepository.GetGroupMemberAsync(transaction.PayerId, transaction.GroupId);
                 if (payerGroupMember is null)
                 {
-                    throw new Exception(ErrorMessage.GROUP_MEMBER_NOT_FOUND);
+                    throw new NotFoundException(ErrorMessage.GROUP_MEMBER_NOT_FOUND);
                 }
                 await _groupMemberRepository.RevertTransactionAsync(payerGroupMember, -transaction.Amount);
                 foreach (var item in oldTransactionSplits)
@@ -208,12 +212,12 @@ namespace WeShare.Application.Services
             var transaction = await _transactionRepository.GetByIdAsync(transactionId);
             if (transaction == null)
             {
-                throw new Exception(ErrorMessage.TRANSACTION_NOT_FOUND);
+                throw new NotFoundException(ErrorMessage.TRANSACTION_NOT_FOUND);
             }
             var payer = await _unitOfWork.Repository<User>().GetByIdAsync(transaction.PayerId);
             if (payer == null)
             {
-                throw new Exception(ErrorMessage.PAYER_NOT_FOUND);
+                throw new NotFoundException(ErrorMessage.PAYER_NOT_FOUND);
             }
             var task = null as Core.Entities.Task;
             if (transaction.TaskId.HasValue && transaction.TaskId != 0)
@@ -243,7 +247,7 @@ namespace WeShare.Application.Services
                 var payer = await _unitOfWork.Repository<User>().GetByIdAsync(transaction.PayerId);
                 if (payer == null)
                 {
-                    throw new Exception(ErrorMessage.PAYER_NOT_FOUND);
+                    throw new NotFoundException(ErrorMessage.PAYER_NOT_FOUND);
                 }
                 var task = null as Core.Entities.Task;
                 if (transaction.TaskId.HasValue && transaction.TaskId != 0)
@@ -281,7 +285,7 @@ namespace WeShare.Application.Services
                 var payer = await _unitOfWork.Repository<User>().GetByIdAsync(transaction.PayerId);
                 if (payer == null)
                 {
-                    throw new Exception(ErrorMessage.PAYER_NOT_FOUND);
+                    throw new NotFoundException(ErrorMessage.PAYER_NOT_FOUND);
                 }
                 var task = null as Core.Entities.Task;
                 if (transaction.TaskId.HasValue && transaction.TaskId != 0)
@@ -315,15 +319,15 @@ namespace WeShare.Application.Services
             var transaction = await _transactionRepository.GetTransactionDetailsAsync(transactionId);
             if (transaction == null)
             {
-                throw new Exception(ErrorMessage.TRANSACTION_NOT_FOUND);
+                throw new NotFoundException(ErrorMessage.TRANSACTION_NOT_FOUND);
             }
             if (transaction.PayerId != userId)
             {
-                throw new Exception(ErrorMessage.UNAUTHORIZED_ACTION);
+                throw new BadRequestException(ErrorMessage.UNAUTHORIZED_ACTION);
             }
             if (transaction.Status == Core.Enums.TransactionStatusEnum.PENDING)
             {
-                throw new Exception(ErrorMessage.TRANSACTION_IS_PENDING_CANNOT_BE_DELETED);
+                throw new InternalServerError(ErrorMessage.TRANSACTION_IS_PENDING_CANNOT_BE_DELETED);
             }
 
             // revert
@@ -331,7 +335,7 @@ namespace WeShare.Application.Services
             var paymentGroupMember = await _groupMemberRepository.GetGroupMemberAsync(transaction.PayerId, transaction.GroupId);
             if (paymentGroupMember is null)
             {
-                throw new Exception(ErrorMessage.GROUP_MEMBER_NOT_FOUND);
+                throw new NotFoundException(ErrorMessage.GROUP_MEMBER_NOT_FOUND);
             }
             await _groupMemberRepository.RevertTransactionAsync(paymentGroupMember, -transaction.Amount);
             var groupMembers = await _groupMemberRepository.GetAsync(transaction.GroupId);
@@ -360,16 +364,16 @@ namespace WeShare.Application.Services
         {
             if (userId != data.PayerId)
             {
-                throw new Exception(ErrorMessage.UNAUTHORIZED_ACTION);
+                throw new BadRequestException(ErrorMessage.UNAUTHORIZED_ACTION);
             }
             if (data.Amount <= 0)
             {
-                throw new Exception(ErrorMessage.TOTAL_AMOUNT_MUST_BE_GREATER_THAN_ZERO);
+                throw new BadRequestException(ErrorMessage.TOTAL_AMOUNT_MUST_BE_GREATER_THAN_ZERO);
             }
             var currBalance = await _groupMemberRepository.GetBalanceInGroupAsync(data.GroupId, data.ReceiverId);
             if (data.Amount > currBalance)
             {
-                throw new Exception(ErrorMessage.INSUFFICIENT_BALANCE);
+                throw new BadRequestException(ErrorMessage.INSUFFICIENT_BALANCE);
             }
             var newSettlement = _mapper.Map<Core.Entities.Transaction>(data);
             newSettlement.PaymentType = data.PaymentType;
@@ -377,7 +381,7 @@ namespace WeShare.Application.Services
             {
                 if (data.ProofUrl is null)
                 {
-                    throw new Exception(ErrorMessage.YOU_MUST_PROVIDE_EVIDENCE);
+                    throw new BadRequestException(ErrorMessage.YOU_MUST_PROVIDE_EVIDENCE);
                 }
                 newSettlement.ProofUrl = data.ProofUrl;
             }
@@ -432,7 +436,7 @@ namespace WeShare.Application.Services
             catch (Exception ex)
             {
                 await _unitOfWork.RollBackTransactionAsync();
-                throw new Exception(ex.Message);
+                throw new InternalServerError(ex.Message);
             }
         }
 
@@ -442,21 +446,21 @@ namespace WeShare.Application.Services
             var transaction = await transactionRepo.GetByIdAsync(transactionId);
             if (transaction == null)
             {
-                throw new Exception(ErrorMessage.TRANSACTION_NOT_FOUND);
+                throw new NotFoundException(ErrorMessage.TRANSACTION_NOT_FOUND);
             }
             if (transaction.Type != Core.Enums.TransactionTypeEnum.PAYMENT)
             {
-                throw new Exception(ErrorMessage.THIS_TRANSACTION_HAS_TYPE_EXPENSE);
+                throw new BadRequestException(ErrorMessage.THIS_TRANSACTION_HAS_TYPE_EXPENSE);
             }
             if (transaction.Status == Core.Enums.TransactionStatusEnum.DONE)
             {
-                throw new Exception(AlertMessage.TRANSACTION_HAS_BEEN_COMPLETED);
+                throw new BadRequestException(AlertMessage.TRANSACTION_HAS_BEEN_COMPLETED);
             }
 
             var transactionSplit = await _transactionSplitRepository.GetByTransactionIdAsync(transactionId, userId);
             if (transactionSplit is null)
             {
-                throw new Exception(ErrorMessage.UNAUTHORIZED_ACTION);
+                throw new InternalServerError(ErrorMessage.UNAUTHORIZED_ACTION);
             }
 
             await _groupMemberRepository.UpdateBalancesRange(transaction.PayerId, transaction.Amount);
