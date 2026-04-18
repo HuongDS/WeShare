@@ -89,3 +89,25 @@ export const useUser = () => {
     updateUserPaymentProfile: updateUserPaymentProfile,
   }
 }
+
+export const useOtherUserProfile = (userId: string) => {
+  const getOtherUserProfile = useQuery({
+    queryKey: ["otherUserProfile", userId],
+    queryFn: () => userApi.getOtherUserProfile(userId),
+  })
+  return { getOtherUserProfile }
+}
+
+export const useSearchUsers = (
+  key: string,
+  pageSize: number,
+  pageIndex: number
+) => {
+  const searchUsers = useQuery({
+    queryKey: ["searchUsers", key, pageSize, pageIndex],
+    queryFn: () => userApi.searchUsers(key, pageSize, pageIndex),
+    enabled: !!key.trim(),
+  })
+
+  return { searchUsers }
+}

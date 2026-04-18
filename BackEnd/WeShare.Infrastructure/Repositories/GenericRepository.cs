@@ -76,5 +76,24 @@ namespace WeShare.Infrastructure.Repositories
         {
             return await _dbSet.FirstOrDefaultAsync(predicate);
         }
+        public async Task<(IEnumerable<T> Items, int TotalCount)> GetPagedAsync(
+    Expression<Func<T, bool>> predicate, int pageIndex, int pageSize)
+        {
+            var query = _context.Set<T>().AsQueryable();
+
+            if (predicate != null)
+            {
+                query = query.Where(predicate);
+            }
+
+            var totalCount = await query.CountAsync();
+
+            var items = await query
+                .Skip((pageIndex - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return (items, totalCount);
+        }
     }
 }

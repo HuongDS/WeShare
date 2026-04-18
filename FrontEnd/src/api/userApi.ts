@@ -1,5 +1,6 @@
 import axiosClient from "@/axios/axiosInstance"
 import type { ResponseDto } from "@/types/ResponseDto"
+import type { PageResultResponse } from "@/types/PageResultResponse"
 import type { DeleteAvatarDto } from "@/types/user/DeleteAvatarDto"
 import type { UpdatePaymentDto } from "@/types/user/UpdatePaymentDto"
 import type { UpdateUserDto } from "@/types/user/UpdateUserDto"
@@ -8,6 +9,12 @@ import type { UserViewDto } from "@/types/user/UserViewDto"
 export const userApi = {
   getUserProfile: async () => {
     const res = await axiosClient.get<ResponseDto<UserViewDto>>("/user")
+    return res.data
+  },
+  getOtherUserProfile: async (userId: string) => {
+    const res = await axiosClient.get<ResponseDto<UserViewDto>>(
+      `/user/${userId}`
+    )
     return res.data
   },
   updateUserProfile: async (payload: UpdateUserDto) => {
@@ -46,6 +53,18 @@ export const userApi = {
         data: payload,
       }
     )
+    return res.data
+  },
+  searchUsers: async (key: string, pageSize: number, pageIndex: number) => {
+    const res = await axiosClient.get<
+      ResponseDto<PageResultResponse<UserViewDto>>
+    >("user/find", {
+      params: {
+        key,
+        pageSize,
+        pageIndex,
+      },
+    })
     return res.data
   },
 }
