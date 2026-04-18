@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WeShare.Application.Dtos.Other;
 using WeShare.Application.Dtos.User;
 
 namespace WeShare.Application.Interfaces
@@ -13,5 +14,6 @@ namespace WeShare.Application.Interfaces
         Task<UserViewDto> UpdateUserProfileAsync(int userId, UpdateUserDto data);
         Task UpdatePaymentInfor(int userId, UpdatePaymentDto data);
         Task<UserViewDto> UpdateAvatarAsync(int userId, string? url, string? publicId);
+        Task<PageResultDto<UserViewDto>> GetUserProfilesAsync(string key, int pageSize, int pageIndex);
     }
 }
