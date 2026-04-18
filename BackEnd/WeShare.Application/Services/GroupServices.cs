@@ -11,6 +11,7 @@ using WeShare.Application.Dtos.Other;
 using WeShare.Application.Interfaces;
 using WeShare.Core.Constants;
 using WeShare.Core.Entities;
+using WeShare.Core.Exceptions;
 using WeShare.Core.Interfaces;
 using WeShare.Core.Other;
 using static System.Runtime.InteropServices.JavaScript.JSType;
@@ -49,7 +50,7 @@ namespace WeShare.Application.Services
             var storedGroup = await groupRepo.GetByIdAsync(groupId);
             if (storedGroup is null)
             {
-                throw new Exception(ErrorMessage.GROUP_NOT_FOUND);
+                throw new BadRequestException(ErrorMessage.GROUP_NOT_FOUND);
             }
 
             var memberInGroups = await _groupMemberRepository.GetAsync(groupId);
@@ -80,12 +81,12 @@ namespace WeShare.Application.Services
             var storedGroup = await groupRepo.GetByIdAsync(data.GroupId);
             if (storedGroup is null)
             {
-                throw new Exception(ErrorMessage.GROUP_NOT_FOUND);
+                throw new BadRequestException(ErrorMessage.GROUP_NOT_FOUND);
             }
             var checkRole = await _groupMemberRepository.CheckUserInGroupAsync(data.GroupId, data.UserId);
             if (checkRole is null || checkRole.Role != Core.Enums.GroupRoleEnum.Leader)
             {
-                throw new Exception(ErrorMessage.YOU_HAVE_NO_RIGHT_TO_DO_THIS_ACTION);
+                throw new BadRequestException(ErrorMessage.YOU_HAVE_NO_RIGHT_TO_DO_THIS_ACTION);
             }
 
             var newMembers = await _groupMemberRepository.AddAsync(data.GroupId, data.MemberIds);
@@ -99,12 +100,12 @@ namespace WeShare.Application.Services
             var storedGroup = await groupRepo.GetByIdAsync(data.GroupId);
             if (storedGroup is null)
             {
-                throw new Exception(ErrorMessage.GROUP_NOT_FOUND);
+                throw new BadRequestException(ErrorMessage.GROUP_NOT_FOUND);
             }
             var checkRole = await _groupMemberRepository.CheckUserInGroupAsync(data.GroupId, data.UserId);
             if (checkRole is null || checkRole.Role != Core.Enums.GroupRoleEnum.Leader)
             {
-                throw new Exception(ErrorMessage.YOU_HAVE_NO_RIGHT_TO_DO_THIS_ACTION);
+                throw new BadRequestException(ErrorMessage.YOU_HAVE_NO_RIGHT_TO_DO_THIS_ACTION);
             }
 
             var deleteMembers = data.MemberIds.Select(m => new GroupMember
@@ -125,7 +126,7 @@ namespace WeShare.Application.Services
             var storedGroup = await groupRepo.GetByIdAsync(data.GroupId);
             if (storedGroup is null)
             {
-                throw new Exception(ErrorMessage.GROUP_NOT_FOUND);
+                throw new BadRequestException(ErrorMessage.GROUP_NOT_FOUND);
             }
             storedGroup.Type = data.Type;
             storedGroup.Name = data.Name;
@@ -140,11 +141,11 @@ namespace WeShare.Application.Services
             var checkRole = await _groupMemberRepository.CheckUserInGroupAsync(groupId, userId);
             if (checkRole is null || checkRole.Role != Core.Enums.GroupRoleEnum.Leader)
             {
-                throw new Exception(ErrorMessage.YOU_HAVE_NO_RIGHT_TO_DO_THIS_ACTION);
+                throw new BadRequestException(ErrorMessage.YOU_HAVE_NO_RIGHT_TO_DO_THIS_ACTION);
             }
             if (storedGroup is null)
             {
-                throw new Exception(ErrorMessage.GROUP_NOT_FOUND);
+                throw new BadRequestException(ErrorMessage.GROUP_NOT_FOUND);
             }
             await groupRepo.Delete(groupId);
             await _unitOfWork.CompleteAsync();
