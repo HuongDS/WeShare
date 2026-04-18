@@ -15,5 +15,6 @@ namespace WeShare.Application.Dtos.Group
         public string Name { get; set; }
         public GroupTypeEnum Type { get; set; }
         public IEnumerable<GroupMemberViewDto> Members { get; set; }
+        public string Description { get; set; }
     }
 }

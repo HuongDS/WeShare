@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -18,5 +19,9 @@ namespace WeShare.Core.Interfaces
         Task<T?> GetByIdAsync(int id);
         Task<Other.PageResultDto<T>> GetPagedAsync(int pageSize, int pageIndex, System.Linq.Expressions.Expression<Func<T, bool>> filter = null);
         void Update(T entity);
+        Task<(IEnumerable<T> Items, int TotalCount)> GetPagedAsync(
+            Expression<Func<T, bool>> predicate,
+            int pageIndex,
+            int pageSize);
     }
 }
