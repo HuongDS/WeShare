@@ -25,14 +25,14 @@ namespace WeShare.Infrastructure.Repositories
         {
             return await _context.GroupMembers.Include(gm => gm.User).Where(gm => gm.GroupId == groupId).ToListAsync();
         }
-        public async Task<PageResultDto<int>> GetByUserIdAsync(int userId, int pageSize, int pageIndex)
+        public async Task<PageResultDto<GroupMember>> GetByUserIdAsync(int userId, int pageSize, int pageIndex)
         {
-            var query = _context.GroupMembers.Where(gm => gm.UserId == userId).Select(gm => gm.GroupId).AsQueryable();
+            var query = _context.GroupMembers.Include(g => g.User).Where(gm => gm.UserId == userId).AsQueryable();
             return await PaginationExtension.PaginationAsync(query, pageSize, pageIndex);
         }
         public async Task<GroupMember?> GetGroupMemberAsync(int userId, int groupId)
         {
-            return await _context.GroupMembers.FirstOrDefaultAsync(gm => gm.UserId == userId && gm.GroupId == groupId);
+            return await _context.GroupMembers.Include(g => g.User).FirstOrDefaultAsync(gm => gm.UserId == userId && gm.GroupId == groupId);
         }
         public async Task<IEnumerable<int>> GetGroupIdsAsync(int userId)
         {
@@ -115,6 +115,12 @@ namespace WeShare.Infrastructure.Repositories
                 throw new Exception(ErrorMessage.GROUP_MEMBER_NOT_FOUND);
             }
             return entity.Balance;
+        }
+
+        public async Task<PageResultDto<GroupMember>> GetGroupMembersPaginationAsync(int groupId, int pageSize, int pageIndex)
+        {
+            var query = _context.GroupMembers.Include(gm => gm.User).Where(gm => gm.GroupId == groupId).AsQueryable();
+            return await PaginationExtension.PaginationAsync(query, pageSize, pageIndex);
         }
     }
 }

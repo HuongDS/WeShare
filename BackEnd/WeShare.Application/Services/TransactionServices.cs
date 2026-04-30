@@ -394,6 +394,7 @@ namespace WeShare.Application.Services
                 await _groupMemberRepository.UpdateBalancesRange(data.ReceiverId, -data.Amount);
                 await _groupDebtRepository.SyncGroupDebtAsync(data.GroupId, data.PayerId, data.ReceiverId, -data.Amount);
             }
+
             newSettlement.Status = Core.Enums.TransactionStatusEnum.PENDING;
             await _transactionRepository.AddAsync(newSettlement);
             await _transactionSplitRepository.CreateTransactionSplitAsync(new TransactionSplit
