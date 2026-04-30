@@ -13,7 +13,7 @@ namespace WeShare.Core.Interfaces
         Task<int> CountAsync(System.Linq.Expressions.Expression<Func<T, bool>> predicate);
         void Delete(T entity);
         Task Delete(int id);
-        Task<IEnumerable<T>> FindAsync(System.Linq.Expressions.Expression<Func<T, bool>> predicate);
+        Task<IEnumerable<T>> FindAsync(System.Linq.Expressions.Expression<Func<T, bool>> predicate, params Expression<Func<T, object>>[] includes);
         Task<T> FirstOrDefaultAsync(System.Linq.Expressions.Expression<Func<T, bool>> predicate);
         Task<IEnumerable<T>> GetAllAsyns(params Expression<Func<T, object>>[] includes);
         Task<T?> GetByIdAsync(int id, params Expression<Func<T, object>>[] includes);
