@@ -17,9 +17,10 @@ namespace WeShare.Core.Interfaces
         void Delete(IEnumerable<GroupMember> data);
         Task<IEnumerable<GroupMember>> GetAsync(int groupId);
         Task<decimal> GetBalanceInGroupAsync(int groupId, int userId);
-        Task<PageResultDto<int>> GetByUserIdAsync(int userId, int pageSize, int pageIndex);
+        Task<PageResultDto<GroupMember>> GetByUserIdAsync(int userId, int pageSize, int pageIndex);
         Task<IEnumerable<int>> GetGroupIdsAsync(int userId);
         Task<GroupMember?> GetGroupMemberAsync(int userId, int groupId);
+        Task<PageResultDto<GroupMember>> GetGroupMembersPaginationAsync(int groupId, int pageSize, int pageIndex);
         System.Threading.Tasks.Task RevertTransactionAsync(GroupMember data, decimal balance);
         GroupMember Update(GroupMember data);
         System.Threading.Tasks.Task UpdateBalancesRange(Dictionary<int, decimal> groupMemberIds);

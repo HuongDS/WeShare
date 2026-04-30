@@ -61,17 +61,17 @@ namespace WeShare.Application.Services
         }
         public async Task<Dtos.Other.PageResultDto<GroupViewDto>> GetAllByUserIdAsync(int userId, int pageSize, int pageIndex)
         {
-            var storedGroupIds = await _groupMemberRepository.GetByUserIdAsync(userId, pageSize, pageIndex);
+            var storedGroups = await _groupMemberRepository.GetByUserIdAsync(userId, pageSize, pageIndex);
             var res = new List<GroupViewDto>();
-            foreach (var item in storedGroupIds.Items)
+            foreach (var item in storedGroups.Items)
             {
-                var tmp = await GetByIdAsync(item);
+                var tmp = await GetByIdAsync(item.GroupId);
                 res.Add(tmp);
             }
             return new Dtos.Other.PageResultDto<GroupViewDto>
             {
                 Items = res,
-                TotalItems = storedGroupIds.TotalItems,
+                TotalItems = storedGroups.TotalItems,
                 PageIndex = pageIndex,
                 PageSize = pageSize
             };
