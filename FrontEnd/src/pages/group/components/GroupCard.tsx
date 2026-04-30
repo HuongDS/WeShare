@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { useNavigate } from "react-router-dom"
 import { MoreHorizontal, Pencil, Trash2, Users, Loader2 } from "lucide-react"
 import {
   DropdownMenu,
@@ -38,7 +39,6 @@ import type { GroupViewDto } from "@/types/group/GroupViewDto"
 interface GroupCardProps {
   group: GroupViewDto
   onEdit: (group: GroupViewDto) => void
-  onSelect: (group: GroupViewDto) => void
 }
 
 const formatGroupDescription = (group: GroupViewDto) => {
@@ -59,8 +59,9 @@ const groupTypeRibbon = {
   Travel: "bg-blue-500",
 } as const
 
-export default function GroupCard({ group, onEdit, onSelect }: GroupCardProps) {
+export default function GroupCard({ group, onEdit }: GroupCardProps) {
   const [isConfirmOpen, setIsConfirmOpen] = useState(false)
+  const navigate = useNavigate()
   const { deleteGroup } = useDeleteGroup()
   const currentUserId = Number(
     useAppSelector((state) => state.auth.user?.userId)
@@ -78,13 +79,13 @@ export default function GroupCard({ group, onEdit, onSelect }: GroupCardProps) {
   const cardContent = (
     <Card
       className={`relative cursor-pointer overflow-hidden border border-t-4 border-border/70 transition-all hover:-translate-y-0.5 hover:shadow-lg ${groupTypeBorder[group.type] || "border-t-slate-300"}`}
-      onClick={() => onSelect(group)}
+      onClick={() => navigate(`/groups/${group.id}`)}
       role="button"
       tabIndex={0}
       onKeyDown={(event) => {
         if (event.key === "Enter" || event.key === " ") {
           event.preventDefault()
-          onSelect(group)
+          navigate(`/groups/${group.id}`)
         }
       }}
     >
