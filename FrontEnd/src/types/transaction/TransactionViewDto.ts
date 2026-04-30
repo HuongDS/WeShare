@@ -12,4 +12,5 @@ export interface TransactionViewDto {
   splitStrategy: SplitStrategyEnum
   transactionSplits: TransactionSplitViewDto[]
   createdAt: Date
+  ProofUrl?: string
 }

@@ -15,7 +15,9 @@ interface HeaderProps {
 
 export default function Header({ onMobileMenuOpen }: HeaderProps) {
   const location = useLocation()
-  const pageTitle = routeTitles[location.pathname] || "Dashboard"
+  const pageTitle = location.pathname.startsWith("/groups/")
+    ? "Group Details"
+    : routeTitles[location.pathname] || "Dashboard"
 
   return (
     <header className="sticky top-4 z-50 mx-4 mt-4 h-14 rounded-full border border-slate-200 bg-white/80 px-6 py-3 shadow-sm backdrop-blur-md transition-all duration-300 lg:mx-6">

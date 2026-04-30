@@ -23,7 +23,7 @@ namespace WeShare.Infrastructure.Repositories
         }
         public async Task<IEnumerable<GroupMember>> GetAsync(int groupId)
         {
-            return await _context.GroupMembers.Where(gm => gm.GroupId == groupId).ToListAsync();
+            return await _context.GroupMembers.Include(gm => gm.User).Where(gm => gm.GroupId == groupId).ToListAsync();
         }
         public async Task<PageResultDto<int>> GetByUserIdAsync(int userId, int pageSize, int pageIndex)
         {

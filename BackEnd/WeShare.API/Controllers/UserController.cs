@@ -44,7 +44,7 @@ namespace WeShare.API.Controllers
         }
 
         [HttpGet("{id:int}")]
-        public async Task<IActionResult> GetUserProfile(int id)
+        public async Task<IActionResult> GetUserProfile([FromRoute] int id)
         {
             var userProfile = await _userServices.GetUserProfileAsync(id);
             return Ok(new ResponseDto<UserViewDto>

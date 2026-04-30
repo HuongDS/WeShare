@@ -1,6 +1,6 @@
 import { transactionApi } from "@/api/transactionApi"
 import { handleAxiosError } from "@/utils/HandleAxiosError"
-import { useMutation, useQuery } from "@tanstack/react-query"
+import { keepPreviousData, useMutation, useQuery } from "@tanstack/react-query"
 import { toast } from "sonner"
 
 export const useTransaction = () => {
@@ -63,6 +63,7 @@ export const useGetTransactions = (
       )
     },
     enabled: !!groupId,
+    placeholderData: keepPreviousData,
   })
   return { getTransactionsByGroupId }
 }
@@ -109,4 +110,17 @@ export const useTransactionSettlement = () => {
     },
   })
   return { addSettlement, addSettlements }
+}
+
+export const useUploadProof = () => {
+  const uploadUrlProof = useMutation({
+    mutationFn: transactionApi.uploadProof,
+    onSuccess: (res) => {
+      toast.success(res.message || "Upload proof successfully!")
+    },
+    onError: (err) => {
+      handleAxiosError(err, "Upload proof failed.")
+    },
+  })
+  return { uploadUrlProof }
 }

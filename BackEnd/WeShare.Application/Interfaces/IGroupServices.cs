@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using WeShare.Application.Dtos.Group;
 using WeShare.Application.Dtos.Other;
+using WeShare.Application.Dtos.User;
 
 namespace WeShare.Application.Interfaces
 {
@@ -17,5 +18,6 @@ namespace WeShare.Application.Interfaces
         Task<GroupViewDto> UpdateGroupAsync(UpdateGroupDto data);
         Task DeleteGroupAsync(int groupId, int userId);
         Task<PageResultDto<GroupViewDto>> GetAllByUserIdAsync(int userId, int pageSize, int pageIndex);
+        Task<IEnumerable<UserViewDto>> GetGroupMembersAsync(int groupId);
     }
 }

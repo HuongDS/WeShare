@@ -23,6 +23,7 @@ namespace WeShare.Application.Dtos.Transaction
         public DateTime CreatedAt { get; set; }
         public SplitStrategyEnum SplitStrategy { get; set; }
         public IEnumerable<TransactionSplitViewDto> TransactionSplits { get; set; }
+        public string? ProofUrl { get; set; }
     }
 
 }

@@ -115,3 +115,14 @@ export const useDeleteGroup = () => {
 
   return { deleteGroup }
 }
+
+export const useGetGroupMembers = (groupId: number) => {
+  const members = useQuery({
+    queryKey: ["groupMembers", groupId],
+    queryFn: () => {
+      return groupApi.getMemberGroups(groupId)
+    },
+    enabled: !!groupId,
+  })
+  return { members }
+}

@@ -7,9 +7,7 @@ import {
   ChevronRight,
   ChevronDown,
   Home,
-  Receipt,
   Users,
-  Handshake,
   LogOut,
   ShieldAlert,
   Zap,
@@ -48,30 +46,17 @@ const menuItems: MenuItem[] = [
     href: "/dashboard",
   },
   {
-    id: "transactions",
-    label: "Transactions",
-    icon: <ChartColumnIncreasing className="h-5 w-5" />,
-    children: [
-      {
-        id: "expenses",
-        label: "Expenses",
-        icon: <Receipt className="h-5 w-5" />,
-        href: "/expenses",
-      },
-      {
-        id: "settlements",
-        label: "Settlements",
-        icon: <Handshake className="h-5 w-5" />,
-        href: "/settlements",
-      },
-    ],
-  },
-  {
     id: "groups",
     label: "Groups",
     icon: <Users className="h-5 w-5" />,
     href: "/groups",
   },
+  {
+    id: "transactions",
+    label: "Transactions",
+    icon: <ChartColumnIncreasing className="h-5 w-5" />,
+  },
+
   {
     id: "profile",
     label: "Profile",
@@ -105,6 +90,11 @@ export default function Sidebar({
 
   const isActive = (href?: string) => {
     if (!href) return false
+
+    if (href === "/groups") {
+      return location.pathname.startsWith("/groups")
+    }
+
     return location.pathname === href
   }
 
@@ -131,7 +121,7 @@ export default function Sidebar({
     await logoutAllDevices.mutateAsync()
   }
 
-  const handleMenuItemClick = (id: string, href?: string) => {
+  const handleMenuItemClick = (href?: string) => {
     if (href) {
       navigate(href)
     }
@@ -216,7 +206,7 @@ export default function Sidebar({
                       if (hasChildren) {
                         toggleParent(item.id)
                       } else {
-                        handleMenuItemClick(item.id, item.href)
+                        handleMenuItemClick(item.href)
                       }
                     }}
                     className={`relative flex items-center rounded-lg transition-all duration-200 ${
@@ -300,9 +290,7 @@ export default function Sidebar({
                     return (
                       <motion.button
                         key={child.id}
-                        onClick={() =>
-                          handleMenuItemClick(child.id, child.href)
-                        }
+                        onClick={() => handleMenuItemClick(child.href)}
                         className={`relative flex w-full items-center gap-3 rounded-lg px-4 py-2 pl-8 text-left text-sm transition-all duration-200 ${
                           childActive
                             ? "bg-primary/10 font-medium text-slate-900"

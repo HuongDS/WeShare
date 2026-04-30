@@ -17,5 +17,6 @@ namespace WeShare.Core.Entities
         public ICollection<Transaction>? Transactions { get; set; }
         public ICollection<GroupDebt>? GroupDebts { get; set; }
         public ICollection<Event>? Events { get; set; }
+        public string? Description { get; set; }
     }
 }
