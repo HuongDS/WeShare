@@ -27,8 +27,7 @@ const getGroupTypeConfig = (rawType: string | number | undefined | null) => {
         label: "Travel",
         badgeClass: "bg-blue-100 text-blue-700",
       }
-    case "0":
-    case "none":
+
     case "general":
     default:
       return {
@@ -116,10 +115,30 @@ export default function GroupDetailsPage() {
           className="space-y-4"
         >
           <TabsList className="grid w-full grid-cols-4 bg-card">
-            <TabsTrigger value="general">General (Settings)</TabsTrigger>
-            <TabsTrigger value="expenses">Expenses</TabsTrigger>
-            <TabsTrigger value="settlements">Settlements</TabsTrigger>
-            <TabsTrigger value="members">Members</TabsTrigger>
+            <TabsTrigger
+              value="general"
+              className="data-[state=active]:font-bold data-[state=active]:text-emerald-700"
+            >
+              General (Settings){" "}
+            </TabsTrigger>
+            <TabsTrigger
+              value="expenses"
+              className="data-[state=active]:font-bold data-[state=active]:text-emerald-700"
+            >
+              Expenses
+            </TabsTrigger>
+            <TabsTrigger
+              value="settlements"
+              className="data-[state=active]:font-bold data-[state=active]:text-emerald-700"
+            >
+              Settlements
+            </TabsTrigger>
+            <TabsTrigger
+              value="members"
+              className="data-[state=active]:font-bold data-[state=active]:text-emerald-700"
+            >
+              Members
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="general">
