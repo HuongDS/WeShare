@@ -7,7 +7,6 @@ import type { GroupTypeEnum } from "@/constants/GroupTypeEnum"
 import type { GroupViewDto } from "@/types/group/GroupViewDto"
 import GroupFormModal from "./components/GroupFormModal"
 import GroupList from "./components/GroupList"
-import GroupDetailModal from "./components/GroupDetailModal"
 
 const mapFilterToString = (filter: string) => {
   if (filter === "NONE" || filter === "GENERAL") {
@@ -47,7 +46,6 @@ export default function GroupPage() {
   const [formMode, setFormMode] = useState<"create" | "edit">("create")
   const [selectedGroup, setSelectedGroup] = useState<GroupViewDto | null>(null)
   const [selectedType, setSelectedType] = useState<"ALL" | GroupTypeEnum>("ALL")
-  const [detailGroup, setDetailGroup] = useState<GroupViewDto | null>(null)
 
   const openCreateForm = () => {
     setFormMode("create")
@@ -59,10 +57,6 @@ export default function GroupPage() {
     setFormMode("edit")
     setSelectedGroup(group)
     setIsFormOpen(true)
-  }
-
-  const openDetail = (group: GroupViewDto) => {
-    setDetailGroup(group)
   }
 
   const handleFormOpenChange = (open: boolean) => {
@@ -122,7 +116,6 @@ export default function GroupPage() {
           isLoading={groups.isLoading}
           onEdit={openEditForm}
           onCreate={openCreateForm}
-          onSelect={openDetail}
         />
 
         {totalPages > 1 && (
@@ -157,16 +150,6 @@ export default function GroupPage() {
         onOpenChange={handleFormOpenChange}
         mode={formMode}
         initialData={selectedGroup}
-      />
-
-      <GroupDetailModal
-        open={!!detailGroup}
-        onOpenChange={(open) => {
-          if (!open) {
-            setDetailGroup(null)
-          }
-        }}
-        group={detailGroup}
       />
     </div>
   )
