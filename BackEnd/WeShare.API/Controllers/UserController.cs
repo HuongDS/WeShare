@@ -3,12 +3,14 @@ using CloudinaryDotNet.Actions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using WeShare.Application.Dtos.Other;
 using WeShare.Application.Dtos.User;
 using WeShare.Application.Interfaces;
 using WeShare.Application.Services;
 using WeShare.Core.Constants;
 using WeShare.Core.Dtos.Share;
 using WeShare.Core.Interfaces;
+using WeShare.Core.Other;
 
 namespace WeShare.API.Controllers
 {

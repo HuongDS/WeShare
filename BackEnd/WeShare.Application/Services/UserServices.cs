@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
+using WeShare.Application.Dtos.Other;
 using WeShare.Application.Dtos.User;
 using WeShare.Application.Helpers;
 using WeShare.Application.Interfaces;
@@ -90,6 +91,22 @@ namespace WeShare.Application.Services
             _unitOfWork.Repository<User>().Update(user);
             await _unitOfWork.CompleteAsync();
             return _mapper.Map<UserViewDto>(user);
+        }
+        public async Task<PageResultDto<UserViewDto>> GetUserProfilesAsync(string key, int pageSize, int pageIndex)
+        {
+            var userRepo = _unitOfWork.Repository<User>();
+            var (users, totalItems) = await userRepo.GetPagedAsync(
+                x => string.IsNullOrEmpty(key)
+                || x.FullName.Contains(key)
+                || x.Email.Contains(key), pageIndex, pageSize);
+            var res = _mapper.Map<IEnumerable<UserViewDto>>(users);
+            return new PageResultDto<UserViewDto>
+            {
+                Items = res.ToList(),
+                TotalItems = totalItems,
+                PageIndex = pageIndex,
+                PageSize = pageSize
+            };
         }
     }
 }
