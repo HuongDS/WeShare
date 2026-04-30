@@ -21,13 +21,29 @@ namespace WeShare.Infrastructure.Repositories
             _context = context;
             _dbSet = context.Set<T>();
         }
-        public async Task<T?> GetByIdAsync(int id)
+        public async Task<T?> GetByIdAsync(int id, params Expression<Func<T, object>>[] includes)
         {
-            return await _dbSet.FirstOrDefaultAsync(e => e.Id == id);
+            IQueryable<T> query = _dbSet;
+            if (includes != null)
+            {
+                foreach (var include in includes)
+                {
+                    query.Include(include);
+                }
+            }
+            return await query.FirstOrDefaultAsync(e => e.Id == id);
         }
-        public async Task<IEnumerable<T>> GetAllAsyns()
+        public async Task<IEnumerable<T>> GetAllAsyns(params Expression<Func<T, object>>[] includes)
         {
-            return await _dbSet.ToListAsync();
+            IQueryable<T> query = _dbSet;
+            if (includes != null)
+            {
+                foreach (var include in includes)
+                {
+                    query.Include(include);
+                }
+            }
+            return await query.ToListAsync();
         }
         public async Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> predicate)
         {
