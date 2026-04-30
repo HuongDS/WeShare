@@ -7,7 +7,6 @@ import GroupCard from "./GroupCard"
 interface GroupListProps {
   groups: GroupViewDto[]
   isLoading: boolean
-  onSelect: (group: GroupViewDto) => void
   onEdit: (group: GroupViewDto) => void
   onCreate: () => void
 }
@@ -19,7 +18,6 @@ export default function GroupList({
   isLoading,
   onEdit,
   onCreate,
-  onSelect,
 }: GroupListProps) {
   if (isLoading) {
     return (
@@ -65,12 +63,7 @@ export default function GroupList({
   return (
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
       {groups.map((group) => (
-        <GroupCard
-          onSelect={onSelect}
-          key={group.id}
-          group={group}
-          onEdit={onEdit}
-        />
+        <GroupCard key={group.id} group={group} onEdit={onEdit} />
       ))}
     </div>
   )

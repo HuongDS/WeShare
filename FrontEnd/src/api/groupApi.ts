@@ -5,6 +5,7 @@ import type { AddOrRemoveMemberToGroupDto } from "@/types/group/AddOrRemoveMembe
 import type { CreateGroupDto } from "@/types/group/CreateGroupDto"
 import type { GroupViewDto } from "@/types/group/GroupViewDto"
 import type { UpdateGroupDto } from "@/types/group/UpdateGroupDto"
+import type { UserViewDto } from "@/types/user/UserViewDto"
 
 export const groupApi = {
   getGroup: async (groupId: number) => {
@@ -55,6 +56,12 @@ export const groupApi = {
   deleteGroup: async (groupId: number) => {
     const res = await axiosClient.delete<ResponseDto<object>>(
       `/group/${groupId}`
+    )
+    return res.data
+  },
+  getMemberGroups: async (groupId: number) => {
+    const res = await axiosClient.get<ResponseDto<UserViewDto[]>>(
+      `/group/members/${groupId}`
     )
     return res.data
   },

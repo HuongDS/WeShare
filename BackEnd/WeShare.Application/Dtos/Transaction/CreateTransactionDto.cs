@@ -18,5 +18,6 @@ namespace WeShare.Application.Dtos.Transaction
         public TransactionTypeEnum Type { get; set; }
         public Dictionary<int, decimal>? SplitAmounts { get; set; }
         public List<int> DebtIds { get; set; }
+        public string? ReceiptUrl { get; set; }
     }
 }

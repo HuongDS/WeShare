@@ -55,7 +55,8 @@ namespace WeShare.Application.Services
                 Description = data.Description,
                 Created_At = DateTime.UtcNow,
                 SplitStrategy = data.Stategy,
-                Type = data.Type
+                Type = data.Type,
+                ProofUrl = data.ReceiptUrl
             };
             if (data.TaskId.HasValue)
             {
@@ -264,7 +265,8 @@ namespace WeShare.Application.Services
                     Task = transaction.TaskId.HasValue ? _mapper.Map<TaskViewDto>(task) : null,
                     CreatedAt = transaction.Created_At.Value,
                     SplitStrategy = transaction.SplitStrategy,
-                    TransactionSplits = _mapper.Map<IEnumerable<TransactionSplitViewDto>>(transaction.TransactionSplits)
+                    TransactionSplits = _mapper.Map<IEnumerable<TransactionSplitViewDto>>(transaction.TransactionSplits),
+                    ProofUrl = transaction.ProofUrl
                 };
                 transactionViewDtos.Add(transactionViewDto);
             }
@@ -273,7 +275,8 @@ namespace WeShare.Application.Services
                 Items = transactionViewDtos,
                 TotalItems = transactions.TotalItems,
                 PageSize = transactions.PageSize,
-                PageIndex = transactions.PageIndex
+                PageIndex = transactions.PageIndex,
+                TotalPages = transactions.TotalPages
             };
         }
         public async Task<PageResultDto<TransactionViewDto>> GetTransactionsByPayerIdAsync(int payerId, int pageSize, int pageIndex)
@@ -391,6 +394,7 @@ namespace WeShare.Application.Services
                 await _groupMemberRepository.UpdateBalancesRange(data.ReceiverId, -data.Amount);
                 await _groupDebtRepository.SyncGroupDebtAsync(data.GroupId, data.PayerId, data.ReceiverId, -data.Amount);
             }
+
             newSettlement.Status = Core.Enums.TransactionStatusEnum.PENDING;
             await _transactionRepository.AddAsync(newSettlement);
             await _transactionSplitRepository.CreateTransactionSplitAsync(new TransactionSplit

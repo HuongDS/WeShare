@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using WeShare.Application.Dtos.Group;
 using WeShare.Application.Dtos.Other;
+using WeShare.Application.Dtos.User;
 using WeShare.Application.Interfaces;
 using WeShare.Application.Services;
 using WeShare.Core.Constants;
@@ -33,6 +34,17 @@ namespace WeShare.API.Controllers
         {
             var res = await _groupServices.GetByIdAsync(groupId);
             return Ok(new ResponseDto<GroupViewDto>
+            {
+                Status = (int)HttpStatusCode.OK,
+                Message = SuccessMessage.GET_GROUP_SUCCESSFULLY,
+                Data = res
+            });
+        }
+        [HttpGet("members/{groupId}")]
+        public async Task<IActionResult> GetGroupMembersAsync([FromRoute] int groupId)
+        {
+            var res = await _groupServices.GetGroupMembersAsync(groupId);
+            return Ok(new ResponseDto<IEnumerable<UserViewDto>>
             {
                 Status = (int)HttpStatusCode.OK,
                 Message = SuccessMessage.GET_GROUP_SUCCESSFULLY,

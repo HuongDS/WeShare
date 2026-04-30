@@ -4,4 +4,5 @@ export interface UpdateGroupDto {
   groupId: number
   type: GroupTypeEnum
   name: string
+  description?: string
 }

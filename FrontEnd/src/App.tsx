@@ -22,13 +22,10 @@ const DashboardPageLazy = React.lazy(() => import("./pages/user/DashboardPage"))
 const UserProfilePageLazy = React.lazy(
   () => import("./pages/user/UserProfilePage")
 )
-const ExpensesPageLazy = React.lazy(
-  () => import("./pages/transaction/ExpensesPage")
-)
-const SettlementsPageLazy = React.lazy(
-  () => import("./pages/transaction/SettlementsPage")
-)
 const GroupPageLazy = React.lazy(() => import("./pages/group/GroupPage"))
+const GroupDetailsPageLazy = React.lazy(
+  () => import("./pages/group/GroupDetailsPage")
+)
 
 export function App() {
   const dispatch = useAppDispatch()
@@ -91,9 +88,20 @@ export function App() {
             >
               <Route path="/dashboard" element={<DashboardPageLazy />} />
               <Route path="/profile" element={<UserProfilePageLazy />} />
-              <Route path="/expenses" element={<ExpensesPageLazy />} />
-              <Route path="/settlements" element={<SettlementsPageLazy />} />
+              <Route
+                path="/expenses"
+                element={<Navigate to="/groups" replace />}
+              />
+              <Route
+                path="/settlements"
+                element={<Navigate to="/groups" replace />}
+              />
               <Route path="/groups" element={<GroupPageLazy />} />
+              <Route path="/groups/:id" element={<GroupDetailsPageLazy />} />
+              <Route
+                path="/groups/:id/details"
+                element={<Navigate to="/groups/:id" replace />}
+              />
             </Route>
 
             {/* Error Pages */}

@@ -40,6 +40,7 @@ namespace WeShare.Core.Constants
         public static string ADD_SETTLEMENT_SUCCESSFULLY = "Settle successful!";
         public static string ADD_SETTLEMENTS_SUCCESSFULLY = "Settle all successful!";
         public static string GET_TRANSACTIONS_SUCCESSFULLY = "Get transactions successful!";
+        public static string UPLOAD_PROOF_SUCCESSFULLY = "Upload proof successful!";
 
         // Event
         public static string CREATE_EVENT_SUCCESSFULLY = "Create event successful!";
@@ -64,5 +65,13 @@ namespace WeShare.Core.Constants
         // Image
         public static string UPLOAD_IMAGE_SUCCESSFULLY = "Upload image successfully!";
         public static string DELETE_IMAGE_SUCCESSFULLY = "Image deleted successfully";
+
+        // GroupMember
+        public static string GET_MY_DEBT_IN_GROUP_SUCCESSFULLY = "Get my debt in group successfully";
+        public static string GET_GROUP_MEMBERS_SUCCESSFULLY = "Get group members successfully";
+
+        // GroupDebt
+        public static string GET_GROUP_DEBTS_SUCCESSFULLY = "Get group debts successfully";
+        public static string GET_MY_OWE_SUCCESSFULLY = "Get my owe successfully";
     }
 }

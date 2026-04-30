@@ -1,986 +1,630 @@
-import { useMemo, useState } from "react"
-import React from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useForm, useWatch, type SubmitHandler } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
-import { Dialog, DialogContent } from "@/components/ui/dialog"
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Checkbox } from "@/components/ui/checkbox"
-import { Avatar } from "@/components/ui/avatar"
-// import { Textarea } from "@/components/ui/textarea"
-import { useTransaction } from "@/hooks/transaction/useTransaction"
-import { useAppSelector } from "@/store/hooks"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useGetGroupMembers } from "@/hooks/group/useGroup"
 import {
-  Loader2,
-  Users,
-  Banknote,
-  Percent,
-  AlertCircle,
-  Search,
-  ChevronRight,
-  Check,
-} from "lucide-react"
-import { cn } from "@/lib/utils"
-import type { SplitStrategyEnum } from "@/constants/SplitStrategyEnum"
-import type { UserViewDto } from "@/types/user/UserViewDto"
-
-// Enhanced member type with current user flag
-interface EnhancedMember extends UserViewDto {
-  isCurrentUser?: boolean
-}
-
-// Validation schema with strict split validation
-const createExpenseSchema = z.object({
-  amount: z.number().positive("Amount must be greater than 0"),
-  description: z.string().optional().nullable(),
-  payerId: z.string().min(1, "Payer ID is required"),
-  splitStrategy: z.enum(["EQUALLY", "EXACTLY", "PERCENTAGE"] as const),
-  debtIds: z
-    .array(z.number())
-    .min(1, "At least one participant must be selected"),
-  splitAmounts: z.record(z.string(), z.number()).optional(),
-})
-
-type CreateExpenseFormData = z.infer<typeof createExpenseSchema>
+  useTransaction,
+  useUploadProof,
+} from "@/hooks/transaction/useTransaction"
+import { useAppSelector } from "@/store/hooks"
+import { useQueryClient } from "@tanstack/react-query"
+import { ImageIcon, Loader2, Paperclip, X } from "lucide-react"
+import {
+  mapSplitStrategyToBackend,
+  type SplitStrategyEnum,
+} from "@/constants/SplitStrategyEnum"
+import { mapTransactionTypeToBackend } from "@/constants/TransactionTypeEnum"
+import { formatCurrency } from "@/lib/utils"
+import { toast } from "sonner"
 
 interface AddExpenseModalProps {
   isOpen: boolean
   onOpenChange: (open: boolean) => void
-  groupId?: number
+  groupId?: string
   onSuccess?: () => void
-  groupMembers?: UserViewDto[]
 }
 
-const SPLIT_STRATEGIES: Array<{
-  value: SplitStrategyEnum
-  label: string
-  description: string
-  icon: React.ReactNode
-  color: string
-  bgColor: string
-  borderColor: string
-}> = [
-  {
-    value: "EQUALLY",
-    label: "Split Equally",
-    description: "Everyone pays the same",
-    icon: <Users className="h-5 w-5" />,
-    color: "text-blue-600",
-    bgColor: "bg-blue-50",
-    borderColor: "border-blue-500",
-  },
-  {
-    value: "EXACTLY",
-    label: "Exact Amount",
-    description: "Specify exact amounts",
-    icon: <Banknote className="h-5 w-5" />,
-    color: "text-green-600",
-    bgColor: "bg-green-50",
-    borderColor: "border-green-500",
-  },
-  {
-    value: "PERCENTAGE",
-    label: "By Percentage",
-    description: "Split by percentage",
-    icon: <Percent className="h-5 w-5" />,
-    color: "text-orange-600",
-    bgColor: "bg-orange-50",
-    borderColor: "border-orange-500",
-  },
-]
+const expenseSchema = z.object({
+  amount: z.number().positive("Amount must be greater than 0"),
+  description: z.string().trim().min(1, "Description is required"),
+  receiptUrl: z.string().optional(),
+  splitStrategy: z.enum(["EQUALLY", "EXACTLY", "PERCENTAGE"] as const),
+  debtIds: z.array(z.number()).min(1, "Select at least one member"),
+  splitAmounts: z.record(z.string(), z.number()).optional(),
+})
 
-// Mock group members - replace with props or API fetch
-const defaultGroupMembers: UserViewDto[] = [
-  {
-    id: "1",
-    fullName: "John Doe",
-    email: "john@example.com",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=John",
-  },
-  {
-    id: "2",
-    fullName: "Jane Smith",
-    email: "jane@example.com",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Jane",
-  },
-  {
-    id: "3",
-    fullName: "Mike Johnson",
-    email: "mike@example.com",
-    avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Mike",
-  },
-]
+type ExpenseFormValues = z.infer<typeof expenseSchema>
 
-// Helper function to format numbers in Vietnamese style (dot as thousands separator)
-const formatNumberVN = (value: number): string => {
-  return value.toLocaleString("de-DE", {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 2,
-  })
-}
+const EPSILON = 0.01
 
 export default function AddExpenseModal({
   isOpen,
   onOpenChange,
   groupId,
   onSuccess,
-  groupMembers = defaultGroupMembers,
 }: AddExpenseModalProps) {
   const currentUser = useAppSelector((state) => state.auth.user)
+  const queryClient = useQueryClient()
   const { addTransaction } = useTransaction()
+  const { uploadUrlProof } = useUploadProof()
+  const [isUploading, setIsUploading] = useState(false)
+  const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
 
-  // Step state
-  const [step, setStep] = useState(1)
-  const [searchQuery, setSearchQuery] = useState("")
-
-  // Create a full member list ensuring currentUser is ALWAYS at the top
-  const fullMemberList: EnhancedMember[] = useMemo(() => {
-    if (!currentUser) return groupMembers as EnhancedMember[]
-
-    const currentUserNumId = parseInt(currentUser.userId, 10)
-
-    // Check if current user exists in the list
-    const currentUserExists = groupMembers.some(
-      (member) => parseInt(member.id, 10) === currentUserNumId
-    )
-
-    // Create enhanced member for current user
-    const currentUserMember: EnhancedMember = {
-      id: currentUser.userId,
-      fullName: "You",
-      email: currentUser.email || "",
-      avatar: currentUser.avatar || "",
-      isCurrentUser: true,
-    }
-
-    // Return list with current user at top, avoiding duplicates
-    if (currentUserExists) {
-      // Map to add isCurrentUser flag to existing current user entry
-      return groupMembers.map((member) =>
-        parseInt(member.id, 10) === currentUserNumId
-          ? { ...member, isCurrentUser: true, fullName: "You" }
-          : member
-      ) as EnhancedMember[]
-    }
-
-    // Prepend current user if not in list
-    return [currentUserMember, ...(groupMembers as EnhancedMember[])]
-  }, [currentUser, groupMembers])
-
-  // Filter members based on search query
-  const filteredMemberList = useMemo(() => {
-    if (!searchQuery.trim()) return fullMemberList
-
-    const lowerQuery = searchQuery.toLowerCase()
-    return fullMemberList.filter(
-      (member) =>
-        member.fullName.toLowerCase().includes(lowerQuery) ||
-        member?.email?.toLowerCase().includes(lowerQuery)
-    )
-  }, [fullMemberList, searchQuery])
+  const parsedGroupId = useMemo(() => {
+    const numericId = Number(groupId)
+    return Number.isNaN(numericId) || numericId <= 0 ? 0 : numericId
+  }, [groupId])
 
   const {
     register,
     handleSubmit,
     setValue,
+    reset,
     control,
     formState: { errors },
-    reset,
-    trigger,
-  } = useForm<CreateExpenseFormData>({
-    resolver: zodResolver(createExpenseSchema),
-    mode: "onBlur",
+  } = useForm<ExpenseFormValues>({
+    resolver: zodResolver(expenseSchema),
     defaultValues: {
       amount: 0,
       description: "",
-      payerId:
-        currentUser?.userId ||
-        (groupMembers.length > 0 ? groupMembers[0].id : ""),
+      receiptUrl: "",
       splitStrategy: "EQUALLY",
       debtIds: [],
       splitAmounts: {},
     },
   })
 
-  const amount = useWatch({ control, name: "amount" })
+  const amount = useWatch({ control, name: "amount" }) || 0
   const splitStrategy = useWatch({ control, name: "splitStrategy" })
   const debtIds = useWatch({ control, name: "debtIds" })
-  const splitAmounts = useWatch({ control, name: "splitAmounts" })
-  const description = useWatch({ control, name: "description" })
+  const splitAmounts = useWatch({ control, name: "splitAmounts" }) || {}
 
-  // Calculate per-person amount for EQUALLY strategy
-  const perPersonAmount = useMemo(() => {
-    if (splitStrategy === "EQUALLY" && debtIds.length > 0 && amount > 0) {
-      return amount / debtIds.length
-    }
-    return 0
-  }, [amount, debtIds.length, splitStrategy])
+  const { members } = useGetGroupMembers(parsedGroupId)
 
-  // Enhanced validation with strict checks and remaining amounts
-  const splitValidation = useMemo(() => {
-    if (!splitAmounts || amount === 0) {
-      return { isValid: true, total: 0, remaining: 0, error: "" }
-    }
-
-    if (splitStrategy === "EXACTLY") {
-      const total = Object.values(splitAmounts).reduce(
-        (sum, val) => sum + (val || 0),
-        0
-      )
-      const remaining = amount - total
-      const isValid = Math.abs(remaining) < 0.01
-
-      if (total > amount + 0.01) {
-        return {
-          total,
-          remaining,
-          isValid: false,
-          error: `⚠️ Total exceeds amount by ${formatNumberVN(total - amount)} VND`,
-        }
-      }
-
-      return {
-        total,
-        remaining,
-        isValid,
-        error: isValid
-          ? ""
-          : `Remaining: ${formatNumberVN(remaining)} VND to allocate`,
-      }
-    }
-
-    if (splitStrategy === "PERCENTAGE") {
-      const total = Object.values(splitAmounts).reduce(
-        (sum, val) => sum + (val || 0),
-        0
-      )
-      const isValid = Math.abs(total - 100) < 0.01
-
-      if (total > 100 + 0.01) {
-        return {
-          total,
-          remaining: 0,
-          isValid: false,
-          error: `⚠️ Total exceeds 100% by ${(total - 100).toFixed(1)}%`,
-        }
-      }
-
-      return {
-        total,
-        remaining: 100 - total,
-        isValid,
-        error: isValid
-          ? ""
-          : `${(100 - total).toFixed(1)}% remaining to allocate`,
-      }
-    }
-
-    return { isValid: true, total: 0, remaining: 0, error: "" }
-  }, [splitStrategy, splitAmounts, amount])
-
-  // Handle debt IDs checkbox changes
-  const handleDebtIdToggle = (userId: string, checked: boolean) => {
-    const userIdNum = parseInt(userId, 10)
-    const currentDebtIds = debtIds || []
-    const newDebtIds = checked
-      ? [...currentDebtIds, userIdNum]
-      : currentDebtIds.filter((id) => id !== userIdNum)
-    setValue("debtIds", newDebtIds)
-
-    // Initialize splitAmounts for new participants
-    if (checked && splitStrategy !== "EQUALLY") {
-      const newSplitAmounts = { ...splitAmounts }
-      newSplitAmounts[userId] = 0
-      setValue("splitAmounts", newSplitAmounts)
-    }
-  }
-
-  // Handle split amount changes
-  const handleSplitAmountChange = (userId: string, value: string) => {
-    const newSplitAmounts = { ...splitAmounts }
-    newSplitAmounts[userId] = value ? parseFloat(value) : 0
-    setValue("splitAmounts", newSplitAmounts)
-  }
-
-  // Step 1 validation - validate amount and description
-  const handleStep1Next = async () => {
-    const isValid = await trigger(["amount", "description"])
-    if (isValid) {
-      setStep(2)
-    }
-  }
-
-  // Step 2 validation - validate split strategy and participants
-  const handleStep2Next = () => {
-    if (splitValidation.isValid && debtIds.length > 0) {
-      setStep(3)
-    }
-  }
-
-  const onSubmit: SubmitHandler<CreateExpenseFormData> = async (data) => {
-    if (!groupId) {
-      console.error("Group ID is required")
-      return
-    }
-
-    if (!currentUser?.userId) {
-      console.error("Current user ID is required")
-      return
-    }
-
-    // Prepare splitAmounts based on strategy
-    let finalSplitAmounts: Record<number, number> | null = null
-
-    if (data.splitStrategy === "EQUALLY") {
-      finalSplitAmounts = {}
-      data.debtIds.forEach((userId) => {
-        finalSplitAmounts![userId] = perPersonAmount
-      })
-    } else if (
-      data.splitStrategy === "EXACTLY" ||
-      data.splitStrategy === "PERCENTAGE"
-    ) {
-      finalSplitAmounts = {}
-      Object.entries(data.splitAmounts || {}).forEach(([userId, amount]) => {
-        finalSplitAmounts![parseInt(userId, 10)] = amount
-      })
-    }
-
-    const payload = {
-      groupId,
-      payerId: parseInt(currentUser.userId, 10),
-      amount: data.amount,
-      description: data.description,
-      taskId: null,
-      stategy: data.splitStrategy,
-      type: "EXPENSE" as const,
-      splitAmounts: finalSplitAmounts,
-      debtIds: data.debtIds,
-    }
-
-    addTransaction.mutate(payload, {
-      onSuccess: () => {
-        reset()
-        setStep(1)
-        setSearchQuery("")
-        onOpenChange(false)
-        onSuccess?.()
-      },
-    })
-  }
+  const memberList = useMemo(
+    () => (members.data?.data || []).filter((member) => member != null),
+    [members.data]
+  )
 
   const handleOpenChange = (open: boolean) => {
     if (!open) {
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl)
+      }
+      setPreviewUrl(null)
+      setSelectedFile(null)
+      setValue("receiptUrl", "", { shouldDirty: true })
+      setIsUploading(false)
       reset()
-      setStep(1)
-      setSearchQuery("")
     }
     onOpenChange(open)
   }
 
-  // Calculate final split amounts for review with rounding fix
-  const reviewSplitAmounts: Record<string, number> = useMemo(() => {
-    const result: Record<string, number> = {}
+  useEffect(() => {
+    if (!parsedGroupId || memberList.length === 0) {
+      return
+    }
 
-    if (splitStrategy === "EQUALLY") {
-      debtIds.forEach((userId) => {
-        result[userId] = perPersonAmount
-      })
-    } else if (splitStrategy === "EXACTLY" || splitStrategy === "PERCENTAGE") {
-      if (splitStrategy === "EXACTLY") {
-        Object.entries(splitAmounts || {}).forEach(([userId, splitAmount]) => {
-          result[userId] = splitAmount
-        })
-      } else {
-        // PERCENTAGE - convert percentage to actual amount with rounding
-        let total = 0
-        const entries = Object.entries(splitAmounts || {})
-        entries.forEach(([userId, percentage], index) => {
-          let calculatedAmount = (percentage / 100) * amount
+    const selectedIds = memberList.map((member) => Number(member.id))
+    setValue("debtIds", selectedIds, { shouldDirty: true })
+  }, [parsedGroupId, memberList, setValue])
 
-          // On the last entry, adjust to ensure total matches exactly
-          if (index === entries.length - 1) {
-            calculatedAmount = amount - total
-          } else {
-            calculatedAmount = Math.round(calculatedAmount * 100) / 100
-            total += calculatedAmount
-          }
+  const handleMemberToggle = (userId: number) => {
+    const nextIds = debtIds.includes(userId)
+      ? debtIds.filter((id) => id !== userId)
+      : [...debtIds, userId]
 
-          result[userId] = calculatedAmount
-        })
+    setValue("debtIds", nextIds, { shouldDirty: true })
+  }
+
+  const handleManualAmountChange = (userId: number, value: string) => {
+    const numeric = value ? Number(value) : 0
+    const safeValue = Number.isNaN(numeric) ? 0 : Math.max(0, numeric)
+
+    setValue(
+      "splitAmounts",
+      {
+        ...splitAmounts,
+        [userId]: safeValue,
+      },
+      { shouldDirty: true }
+    )
+  }
+
+  const preventInvalidNumericKeys = (
+    event: React.KeyboardEvent<HTMLInputElement>
+  ) => {
+    if (event.key === "-" || event.key === "e" || event.key === "E") {
+      event.preventDefault()
+    }
+  }
+
+  const handleReceiptSelected = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const file = event.target.files?.[0]
+    if (!file) {
+      return
+    }
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select an image file")
+      event.target.value = ""
+      return
+    }
+
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl)
+    }
+
+    setSelectedFile(file)
+    setPreviewUrl(URL.createObjectURL(file))
+    setValue("receiptUrl", "", { shouldDirty: true })
+    event.target.value = ""
+  }
+
+  const handleRemoveReceipt = () => {
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl)
+    }
+    setPreviewUrl(null)
+    setSelectedFile(null)
+    setValue("receiptUrl", "", { shouldDirty: true })
+  }
+
+  const selectedMembersCount = debtIds.length
+
+  const perPersonAmount = useMemo(() => {
+    if (!amount || selectedMembersCount === 0) {
+      return 0
+    }
+    return amount / selectedMembersCount
+  }, [amount, selectedMembersCount])
+
+  const exactlyAllocated = useMemo(() => {
+    return debtIds.reduce((sum, memberId) => {
+      const value = Number(splitAmounts[memberId] || 0)
+      return sum + (Number.isNaN(value) ? 0 : value)
+    }, 0)
+  }, [debtIds, splitAmounts])
+
+  const percentageAllocated = useMemo(() => {
+    return debtIds.reduce((sum, memberId) => {
+      const value = Number(splitAmounts[memberId] || 0)
+      return sum + (Number.isNaN(value) ? 0 : value)
+    }, 0)
+  }, [debtIds, splitAmounts])
+
+  const isAllocationValid = useMemo(() => {
+    if (splitStrategy === "EXACTLY") {
+      return Math.abs(exactlyAllocated - amount) < EPSILON
+    }
+
+    if (splitStrategy === "PERCENTAGE") {
+      return Math.abs(percentageAllocated - 100) < EPSILON
+    }
+
+    return true
+  }, [amount, exactlyAllocated, percentageAllocated, splitStrategy])
+
+  const summaryText = useMemo(() => {
+    if (splitStrategy === "EXACTLY") {
+      return `Allocated: ${formatCurrency(exactlyAllocated)} / ${formatCurrency(amount)}`
+    }
+
+    if (splitStrategy === "PERCENTAGE") {
+      return `Allocated: ${percentageAllocated.toFixed(2)}% / 100%`
+    }
+
+    return `Each selected member: ${formatCurrency(perPersonAmount)}`
+  }, [
+    amount,
+    exactlyAllocated,
+    percentageAllocated,
+    perPersonAmount,
+    splitStrategy,
+  ])
+
+  const summaryTone =
+    splitStrategy === "EQUALLY"
+      ? "text-muted-foreground"
+      : isAllocationValid
+        ? "text-emerald-600"
+        : "text-red-500"
+
+  const onSubmit: SubmitHandler<ExpenseFormValues> = async (values) => {
+    if (!currentUser?.userId || !parsedGroupId) {
+      return
+    }
+
+    if (!isAllocationValid) {
+      return
+    }
+
+    const finalSplitAmounts: Record<number, number> | null =
+      values.splitStrategy === "EXACTLY" ||
+      values.splitStrategy === "PERCENTAGE"
+        ? values.debtIds.reduce(
+            (acc, memberId) => {
+              const value = Number(values.splitAmounts?.[memberId] || 0)
+              acc[memberId] = Number.isNaN(value) ? 0 : value
+              return acc
+            },
+            {} as Record<number, number>
+          )
+        : null
+
+    let uploadedReceiptUrl: string | undefined = values.receiptUrl || undefined
+
+    if (selectedFile) {
+      setIsUploading(true)
+      try {
+        const uploadRes = await uploadUrlProof.mutateAsync(selectedFile)
+        uploadedReceiptUrl = uploadRes.data
+        setValue("receiptUrl", uploadRes.data, { shouldDirty: true })
+      } catch {
+        uploadedReceiptUrl = undefined
+        setValue("receiptUrl", "", { shouldDirty: true })
+        toast.error("Receipt upload failed. Saving expense without receipt.")
+      } finally {
+        setIsUploading(false)
       }
     }
 
-    return result
-  }, [splitStrategy, debtIds, splitAmounts, perPersonAmount, amount])
+    await addTransaction.mutateAsync({
+      groupId: parsedGroupId,
+      payerId: Number(currentUser.userId),
+      amount: values.amount,
+      description: values.description,
+      receiptUrl: uploadedReceiptUrl,
+      taskId: null,
+      stategy: mapSplitStrategyToBackend(
+        values.splitStrategy as SplitStrategyEnum
+      ),
+      type: mapTransactionTypeToBackend("EXPENSE"),
+      splitAmounts: finalSplitAmounts,
+      debtIds: values.debtIds,
+    })
+
+    queryClient.invalidateQueries({ queryKey: ["transactionsByGroupId"] })
+    queryClient.invalidateQueries({ queryKey: ["myTransactions"] })
+    if (previewUrl) {
+      URL.revokeObjectURL(previewUrl)
+    }
+    setPreviewUrl(null)
+    setSelectedFile(null)
+    reset()
+    onOpenChange(false)
+    onSuccess?.()
+  }
+
+  const footerDisabled =
+    addTransaction.isPending ||
+    isUploading ||
+    !parsedGroupId ||
+    !amount ||
+    amount <= 0 ||
+    selectedMembersCount === 0 ||
+    !isAllocationValid
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogContent className="flex max-h-[90vh] w-[95vw] max-w-sm flex-col overflow-hidden p-0 md:max-w-2xl lg:max-w-5xl">
-        {/* Compact Header with Title and Action Buttons */}
-        <div className="border-b border-gray-200 bg-white px-4 py-3 md:px-6">
-          <div className="mb-3 flex items-start justify-between gap-4 pr-12">
-            <div className="flex-1">
-              <h2 className="text-base leading-tight font-bold">Add Expense</h2>
-              <p className="mt-0.5 text-xs leading-tight text-muted-foreground">
-                Split with group members
-              </p>
-            </div>
-            <div className="flex shrink-0 gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className="whitespace-nowrap"
-                onClick={() => {
-                  if (step > 1) {
-                    setStep(step - 1)
-                  } else {
-                    handleOpenChange(false)
-                  }
-                }}
-              >
-                {step === 1 ? "Cancel" : "Back"}
-              </Button>
+      <DialogContent className="flex max-h-[90vh] flex-col overflow-hidden p-0 sm:max-w-2xl">
+        <DialogHeader className="p-6 pb-4">
+          <DialogTitle>Add Expense</DialogTitle>
+          <DialogDescription>
+            Enter amount, choose split mode, and allocate member shares.
+          </DialogDescription>
+        </DialogHeader>
 
-              {step < 3 ? (
-                <Button
-                  type="button"
-                  size="sm"
-                  onClick={() => {
-                    if (step === 1) {
-                      handleStep1Next()
-                    } else if (step === 2) {
-                      handleStep2Next()
-                    }
-                  }}
-                  disabled={
-                    step === 1 && (!amount || errors.amount)
-                      ? true
-                      : step === 2 &&
-                          (!splitValidation.isValid || debtIds.length === 0)
-                        ? true
-                        : false
-                  }
-                  className="gap-1 whitespace-nowrap"
-                >
-                  Next
-                  <ChevronRight className="h-3 w-3" />
-                </Button>
-              ) : (
-                <Button
-                  type="submit"
-                  size="sm"
-                  disabled={addTransaction.isPending}
-                  className="gap-1 whitespace-nowrap"
-                  onClick={handleSubmit(onSubmit)}
-                >
-                  {addTransaction.isPending ? (
-                    <>
-                      <Loader2 className="h-3 w-3 animate-spin" />
-                      Adding
-                    </>
-                  ) : (
-                    <>
-                      Confirm
-                      <Check className="h-3 w-3" />
-                    </>
-                  )}
-                </Button>
-              )}
-            </div>
-          </div>
-
-          {/* Stepper - Labels Centered Above Circles */}
-          <div className="flex items-end justify-center gap-4 pt-1">
-            {[1, 2, 3].map((stepNum, index) => (
-              <React.Fragment key={stepNum}>
-                <div className="flex w-12 shrink-0 flex-col items-center">
-                  {/* Step Label - Above Circle */}
-                  <p className="mb-1 text-center text-xs font-semibold text-muted-foreground uppercase">
-                    {stepNum === 1
-                      ? "Details"
-                      : stepNum === 2
-                        ? "Split"
-                        : "Review"}
-                  </p>
-
-                  {/* Indicator Circle */}
-                  <div
-                    className={cn(
-                      "flex h-6 w-6 items-center justify-center rounded-full text-xs font-semibold transition-all",
-                      step >= stepNum
-                        ? "bg-primary text-white shadow-sm"
-                        : "bg-gray-200 text-gray-600"
-                    )}
-                  >
-                    {step > stepNum ? <Check className="h-3 w-3" /> : stepNum}
-                  </div>
-                </div>
-
-                {/* Connector Line */}
-                {index < 2 && (
-                  <div
-                    className={cn(
-                      "mb-3 h-0.5 grow transition-all",
-                      step > stepNum ? "bg-primary" : "bg-gray-200"
-                    )}
+        <form
+          className="flex min-h-0 flex-1 flex-col"
+          onSubmit={handleSubmit(onSubmit)}
+        >
+          <div className="flex-1 space-y-6 overflow-y-auto p-6">
+            <section className="rounded-2xl border border-border/60 bg-muted/20 p-4 md:p-6">
+              <div className="flex flex-col items-center gap-2">
+                <div className="relative w-full max-w-sm">
+                  <span className="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2 text-5xl font-bold text-muted-foreground">
+                    ₫
+                  </span>
+                  <Input
+                    id="amount"
+                    type="number"
+                    placeholder="0"
+                    min={0}
+                    step="1"
+                    onKeyDown={preventInvalidNumericKeys}
+                    className="h-20 w-full border-none bg-transparent pr-4 pl-16 text-center text-5xl font-bold focus-visible:ring-0 md:text-6xl"
+                    {...register("amount", { valueAsNumber: true })}
                   />
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Amount must be greater than 0
+                </p>
+                <Input
+                  id="description"
+                  placeholder="What was this for? (e.g., Dinner, Taxi)"
+                  className="mx-auto mt-4 w-full max-w-xs border-none bg-transparent text-center text-lg text-muted-foreground shadow-none focus-visible:ring-0"
+                  {...register("description")}
+                />
+                {errors.description && (
+                  <p className="text-center text-xs text-destructive">
+                    {errors.description.message}
+                  </p>
                 )}
-              </React.Fragment>
-            ))}
-          </div>
-        </div>
-
-        {/* Scrollable Content */}
-        <div className="min-h-100 flex-1 overflow-y-auto px-4 py-4 md:px-6 md:py-6">
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            {/* STEP 1: DETAILS - Responsive 2-Column Layout */}
-            {step === 1 && (
-              <div className="flex flex-col gap-6 md:flex-row md:gap-8">
-                {/* LEFT COLUMN: Intro Card (Mobile: Top, Desktop: 40%) */}
-                <div className="flex flex-col items-center justify-center md:w-2/5">
-                  <div className="rounded-lg border border-gray-200 bg-linear-to-br from-blue-50 to-indigo-50 p-8 text-center">
-                    <Avatar className="mx-auto mb-4 h-16 w-16">
-                      {currentUser?.avatar && (
-                        <img
-                          src={currentUser.avatar}
-                          alt={currentUser.userName}
-                        />
-                      )}
-                    </Avatar>
-                    <p className="text-sm font-semibold text-foreground">
-                      Hi, {currentUser?.userName || "there"}!
-                    </p>
-                    <p className="mt-2 text-xs text-muted-foreground">
-                      Let's start a new expense.
-                    </p>
-                    <p className="mt-4 text-xs leading-relaxed text-muted-foreground">
-                      Enter the amount, add a description, and we'll split it up
-                      with your group members.
-                    </p>
-                  </div>
-                </div>
-
-                {/* RIGHT COLUMN: Input Fields (Mobile: Below Card, Desktop: 60%) */}
-                <div className="w-full space-y-6 md:w-3/5">
-                  <div className="space-y-3">
-                    <Label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-                      Amount *
-                    </Label>
-                    <div className="flex items-center gap-2">
-                      <div className="relative flex-1">
-                        <Input
-                          type="number"
-                          placeholder="0"
-                          step="0.01"
-                          min="0"
-                          className={cn(
-                            "h-16 border-2 text-2xl font-bold",
-                            errors.amount
-                              ? "border-destructive"
-                              : "border-transparent focus-visible:border-ring"
-                          )}
-                          {...register("amount", { valueAsNumber: true })}
-                          autoFocus
-                        />
-                      </div>
-                      <span className="shrink-0 text-lg font-semibold text-muted-foreground">
-                        VND
-                      </span>
-                    </div>
-                    {errors.amount && (
-                      <p className="text-sm font-medium text-destructive">
-                        {errors.amount.message}
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="space-y-3">
-                    <Label
-                      htmlFor="description"
-                      className="text-xs font-semibold tracking-wider text-muted-foreground uppercase"
-                    >
-                      Description (Optional)
-                    </Label>
-                    <textarea
-                      id="description"
-                      placeholder="What is this expense for? (e.g., Dinner at restaurant, groceries, gas...)"
-                      className="min-h-28 w-full resize-none rounded-lg border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
-                      {...register("description")}
-                    />
-                  </div>
-                </div>
+                {errors.amount && (
+                  <p className="text-center text-xs text-destructive">
+                    {errors.amount.message}
+                  </p>
+                )}
               </div>
-            )}
+            </section>
 
-            {/* STEP 2: SPLIT - DESKTOP 3:7 RATIO */}
-            {step === 2 && (
-              <div className="space-y-6">
-                {/* 2-Column Layout: Strategy (30%) + Members (70%) */}
-                <div className="flex flex-col gap-6 md:flex-row">
-                  {/* LEFT COLUMN: Split Strategies (30%) */}
-                  <div className="w-full shrink-0 space-y-3 md:w-1/3">
-                    <Label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-                      How to Split? *
-                    </Label>
-                    <div className="space-y-3">
-                      {SPLIT_STRATEGIES.map((strategy) => (
-                        <button
-                          key={strategy.value}
-                          type="button"
-                          onClick={() =>
-                            setValue(
-                              "splitStrategy",
-                              strategy.value as SplitStrategyEnum
-                            )
-                          }
-                          className={cn(
-                            "flex w-full flex-col items-center gap-2 rounded-lg border-2 p-4 text-center transition-all duration-200",
-                            splitStrategy === strategy.value
-                              ? `${strategy.bgColor} ${strategy.borderColor} shadow-md`
-                              : "border-gray-200 bg-white hover:border-gray-300"
-                          )}
-                        >
-                          <div
-                            className={cn(
-                              "transition-colors duration-200",
-                              splitStrategy === strategy.value
-                                ? strategy.color
-                                : "text-gray-400"
-                            )}
-                          >
-                            {strategy.icon}
-                          </div>
-                          <div>
-                            <p className="text-sm leading-tight font-semibold text-foreground">
-                              {strategy.label}
-                            </p>
-                            <p className="mt-1 text-xs text-muted-foreground">
-                              {strategy.description}
-                            </p>
-                          </div>
-                        </button>
-                      ))}
-                    </div>
+            <section className="space-y-4">
+              <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                <Label>Split Mode</Label>
+                <Tabs
+                  value={splitStrategy}
+                  onValueChange={(value) =>
+                    setValue(
+                      "splitStrategy",
+                      value as ExpenseFormValues["splitStrategy"],
+                      { shouldDirty: true }
+                    )
+                  }
+                >
+                  <TabsList className="grid w-full grid-cols-3 md:w-auto">
+                    <TabsTrigger value="EQUALLY">EQUALLY</TabsTrigger>
+                    <TabsTrigger value="EXACTLY">EXACTLY</TabsTrigger>
+                    <TabsTrigger value="PERCENTAGE">PERCENTAGE</TabsTrigger>
+                  </TabsList>
+                </Tabs>
+              </div>
+
+              <div className="sticky top-0 z-10 rounded-lg border border-border bg-background/95 px-3 py-2 text-sm backdrop-blur">
+                <p className={summaryTone}>{summaryText}</p>
+              </div>
+
+              <div className="space-y-3">
+                {members.isFetching ? (
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Loading members...
                   </div>
+                ) : !parsedGroupId ? (
+                  <p className="rounded-lg border border-dashed p-4 text-sm text-muted-foreground">
+                    Missing group context. Reopen this modal from a group
+                    details page.
+                  </p>
+                ) : memberList.length === 0 ? (
+                  <p className="rounded-lg border border-dashed p-4 text-sm text-muted-foreground">
+                    This group has no members yet.
+                  </p>
+                ) : (
+                  memberList.map((member) => {
+                    const memberId = Number(member.id)
+                    const isChecked = debtIds.includes(memberId)
+                    const initials =
+                      member.fullName
+                        ?.split(" ")
+                        .map((chunk) => chunk[0])
+                        .join("")
+                        .slice(0, 2)
+                        .toUpperCase() || "?"
 
-                  {/* RIGHT COLUMN: Members List (70%) */}
-                  <div className="w-full space-y-3 md:w-2/3">
-                    <Label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-                      Who is involved? *
-                    </Label>
+                    const value = Number(splitAmounts[memberId] || 0)
+                    const calculatedAmount = amount * (value / 100)
 
-                    {/* Search Bar */}
-                    <div className="relative">
-                      <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                      <Input
-                        type="text"
-                        placeholder="Search by name or email..."
-                        className="pl-9"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                      />
-                    </div>
-
-                    {/* Members List */}
-                    <div className="max-h-72 space-y-2 overflow-y-auto rounded-lg border border-gray-200 bg-white p-3">
-                      {filteredMemberList.length > 0 ? (
-                        filteredMemberList.map((member) => (
-                          <div
-                            key={member.id}
-                            className="flex items-center gap-3 rounded-md p-3 transition-colors hover:bg-slate-50"
-                          >
+                    return (
+                      <div
+                        key={member.id}
+                        className="rounded-xl border border-border/60 bg-card p-4"
+                      >
+                        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                          <div className="flex min-w-0 items-center gap-3">
                             <Checkbox
-                              id={`member-${member.id}`}
-                              checked={debtIds.includes(
-                                parseInt(member.id, 10)
-                              )}
-                              onCheckedChange={(checked) =>
-                                handleDebtIdToggle(member.id, !!checked)
+                              checked={isChecked}
+                              onCheckedChange={() =>
+                                handleMemberToggle(memberId)
                               }
-                              className="mt-0.5 shrink-0"
                             />
-
-                            <Avatar className="h-9 w-9 shrink-0">
-                              {member.avatar && (
-                                <img
-                                  src={member.avatar}
-                                  alt={member.fullName}
-                                />
-                              )}
+                            <Avatar>
+                              <AvatarImage
+                                src={member.avatar}
+                                alt={member.fullName}
+                              />
+                              <AvatarFallback>{initials}</AvatarFallback>
                             </Avatar>
-
-                            <label
-                              htmlFor={`member-${member.id}`}
-                              className="min-w-0 flex-1 cursor-pointer"
-                            >
-                              <p className="truncate text-sm font-medium text-foreground">
+                            <div className="min-w-0">
+                              <p className="truncate text-sm font-semibold text-foreground">
                                 {member.fullName}
-                                {member.isCurrentUser && (
-                                  <span className="ml-1 text-xs text-muted-foreground">
-                                    (me)
-                                  </span>
-                                )}
                               </p>
                               <p className="truncate text-xs text-muted-foreground">
-                                {member.email}
+                                {member.email || "No email"}
                               </p>
-                            </label>
+                            </div>
+                          </div>
 
-                            {debtIds.includes(parseInt(member.id, 10)) &&
-                              (splitStrategy === "EXACTLY" ||
-                                splitStrategy === "PERCENTAGE") && (
-                                <div className="flex shrink-0 items-center gap-2">
+                          <div className="w-full sm:w-auto sm:shrink-0">
+                            {splitStrategy === "EQUALLY" ? (
+                              <div className="rounded-md border bg-muted/30 px-3 py-2 text-right text-sm font-semibold text-foreground sm:min-w-35">
+                                {isChecked
+                                  ? formatCurrency(perPersonAmount)
+                                  : "-"}
+                              </div>
+                            ) : splitStrategy === "EXACTLY" ? (
+                              <Input
+                                type="number"
+                                step="0.01"
+                                min={0}
+                                onKeyDown={preventInvalidNumericKeys}
+                                className="sm:w-40"
+                                value={splitAmounts[memberId] || ""}
+                                onChange={(event) =>
+                                  handleManualAmountChange(
+                                    memberId,
+                                    event.target.value
+                                  )
+                                }
+                                disabled={!isChecked}
+                              />
+                            ) : (
+                              <div className="flex items-center gap-2">
+                                <div className="relative w-28">
                                   <Input
                                     type="number"
-                                    step={
-                                      splitStrategy === "PERCENTAGE"
-                                        ? "1"
-                                        : "0.01"
-                                    }
-                                    placeholder={
-                                      splitStrategy === "PERCENTAGE"
-                                        ? "0"
-                                        : "0.00"
-                                    }
-                                    min="0"
-                                    max={
-                                      splitStrategy === "PERCENTAGE"
-                                        ? "100"
-                                        : undefined
-                                    }
-                                    className="h-8 w-20 text-right text-sm"
-                                    value={splitAmounts?.[member.id] ?? ""}
-                                    onChange={(e) =>
-                                      handleSplitAmountChange(
-                                        member.id,
-                                        e.target.value
+                                    step="0.01"
+                                    min={0}
+                                    max={100}
+                                    onKeyDown={preventInvalidNumericKeys}
+                                    className="pr-6"
+                                    value={splitAmounts[memberId] || ""}
+                                    onChange={(event) =>
+                                      handleManualAmountChange(
+                                        memberId,
+                                        event.target.value
                                       )
                                     }
+                                    disabled={!isChecked}
                                   />
-                                  <span className="w-8 shrink-0 text-right text-xs font-semibold text-muted-foreground">
-                                    {splitStrategy === "PERCENTAGE"
-                                      ? "%"
-                                      : "VND"}
+                                  <span className="pointer-events-none absolute top-1/2 right-2 -translate-y-1/2 text-xs text-muted-foreground">
+                                    %
                                   </span>
                                 </div>
-                              )}
-                          </div>
-                        ))
-                      ) : (
-                        <p className="py-8 text-center text-sm text-muted-foreground">
-                          No members found
-                        </p>
-                      )}
-                    </div>
-
-                    {errors.debtIds && (
-                      <p className="text-sm font-medium text-destructive">
-                        {errors.debtIds.message}
-                      </p>
-                    )}
-
-                    {/* Validation Summary */}
-                    {debtIds.length > 0 &&
-                      (splitStrategy === "EXACTLY" ||
-                        splitStrategy === "PERCENTAGE") && (
-                        <div
-                          className={cn(
-                            "flex items-start gap-2 rounded-lg p-3 text-sm",
-                            splitValidation.isValid
-                              ? "border border-green-200 bg-green-50 text-green-800"
-                              : splitValidation.error?.includes("⚠️")
-                                ? "border border-red-200 bg-red-50 text-red-800"
-                                : "border border-amber-200 bg-amber-50 text-amber-800"
-                          )}
-                        >
-                          {!splitValidation.isValid && (
-                            <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
-                          )}
-                          <div className="flex-1">
-                            {splitStrategy === "EXACTLY" ? (
-                              <>
-                                <p className="text-xs font-semibold">
-                                  Total: {formatNumberVN(splitValidation.total)}{" "}
-                                  / {formatNumberVN(amount)} VND
+                                <p className="text-xs text-muted-foreground">
+                                  {formatCurrency(calculatedAmount)}
                                 </p>
-                                {splitValidation.error && (
-                                  <p className="mt-0.5 text-xs">
-                                    {splitValidation.error}
-                                  </p>
-                                )}
-                              </>
-                            ) : (
-                              <>
-                                <p className="text-xs font-semibold">
-                                  Total: {splitValidation.total.toFixed(1)}% /
-                                  100%
-                                </p>
-                                {splitValidation.error && (
-                                  <p className="mt-0.5 text-xs">
-                                    {splitValidation.error}
-                                  </p>
-                                )}
-                              </>
+                              </div>
                             )}
                           </div>
                         </div>
-                      )}
+                      </div>
+                    )
+                  })
+                )}
 
-                    {/* Equal Split Preview */}
-                    {splitStrategy === "EQUALLY" && debtIds.length > 0 && (
-                      <div className="rounded-lg border border-blue-200 bg-blue-50 p-3 text-sm text-blue-800">
-                        <p className="text-xs font-semibold">
-                          Splitting {formatNumberVN(amount)} VND equally
-                        </p>
-                        <p className="mt-1 text-xs">
-                          {debtIds.length} people ×{" "}
-                          {formatNumberVN(perPersonAmount)} VND each
-                        </p>
+                {errors.debtIds && (
+                  <p className="text-xs text-destructive">
+                    {errors.debtIds.message}
+                  </p>
+                )}
+              </div>
+            </section>
+
+            <section className="space-y-3 rounded-xl border border-border/60 bg-muted/20 p-4">
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="text-sm font-semibold text-foreground">
+                    Receipt (Optional)
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Upload an image as proof for this expense.
+                  </p>
+                </div>
+                <Button type="button" variant="outline" asChild>
+                  <label
+                    htmlFor="receipt-upload"
+                    className="flex cursor-pointer items-center gap-2"
+                  >
+                    <Paperclip className="h-4 w-4" />
+                    Upload Receipt
+                  </label>
+                </Button>
+              </div>
+
+              <input
+                id="receipt-upload"
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleReceiptSelected}
+              />
+
+              {previewUrl && (
+                <div className="relative flex items-start gap-3 rounded-lg border bg-background p-3">
+                  <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-md border">
+                    <img
+                      src={previewUrl}
+                      alt="Receipt preview"
+                      className="h-full w-full object-cover"
+                    />
+                    {isUploading && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-background/70">
+                        <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
                       </div>
                     )}
                   </div>
-                </div>
-              </div>
-            )}
-
-            {/* STEP 3: REVIEW - DESKTOP 2:3 RATIO */}
-            {step === 3 && (
-              <div className="flex flex-col gap-6 md:flex-row">
-                {/* LEFT COLUMN: Summary (40%) - Sticky on Desktop */}
-                <div className="w-full shrink-0 md:w-[40%]">
-                  <div className="sticky top-6 space-y-4 rounded-lg border border-gray-200 bg-linear-to-br from-slate-50 to-slate-100 p-6">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <p className="mb-1 text-xs font-semibold text-muted-foreground uppercase">
-                          Total Amount
-                        </p>
-                        <p className="overflow-hidden text-2xl font-bold break-all text-foreground md:text-3xl">
-                          {formatNumberVN(amount)}
-                          <span className="ml-2 text-lg font-semibold text-muted-foreground">
-                            VND
-                          </span>
-                        </p>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium text-foreground">
+                      {isUploading
+                        ? "Uploading receipt..."
+                        : "Receipt ready to upload"}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {isUploading
+                        ? "Please wait while your image is being processed"
+                        : selectedFile
+                          ? `Selected: ${selectedFile.name}`
+                          : "You can still save expense without receipt."}
+                    </p>
+                    {isUploading && (
+                      <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
+                        <div className="h-full w-1/2 animate-pulse rounded-full bg-primary" />
                       </div>
-                      <div className="rounded-full bg-white p-3 shadow-sm">
-                        <Banknote className="h-6 w-6 text-green-600" />
-                      </div>
-                    </div>
-
-                    <hr className="border-gray-300" />
-
-                    <div>
-                      <p className="mb-2 text-xs font-semibold text-muted-foreground uppercase">
-                        Paid by
-                      </p>
-                      <div className="flex items-center gap-3">
-                        <Avatar className="h-8 w-8">
-                          {currentUser?.avatar && (
-                            <img
-                              src={currentUser.avatar}
-                              alt={currentUser.userName}
-                            />
-                          )}
-                        </Avatar>
-                        <p className="text-sm font-semibold text-foreground">
-                          {currentUser?.userName || "You"}
-                        </p>
-                      </div>
-                    </div>
-
-                    <hr className="border-gray-300" />
-
-                    {description && (
-                      <>
-                        <div>
-                          <p className="mb-2 text-xs font-semibold text-muted-foreground uppercase">
-                            Description
-                          </p>
-                          <p className="line-clamp-3 text-sm text-foreground">
-                            {description}
-                          </p>
-                        </div>
-                        <hr className="border-gray-300" />
-                      </>
                     )}
-
-                    <div>
-                      <p className="mb-2 text-xs font-semibold text-muted-foreground uppercase">
-                        Split Strategy
-                      </p>
-                      <p className="text-sm font-semibold text-foreground">
-                        {SPLIT_STRATEGIES.find((s) => s.value === splitStrategy)
-                          ?.label || "Equally"}
-                      </p>
-                    </div>
                   </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon-sm"
+                    onClick={handleRemoveReceipt}
+                    disabled={isUploading}
+                    aria-label="Remove receipt"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
                 </div>
+              )}
 
-                {/* RIGHT COLUMN: Split Breakdown (60%) */}
-                <div className="w-full md:w-[60%]">
-                  <div className="space-y-3">
-                    <Label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-                      Split Breakdown ({debtIds.length} person
-                      {debtIds.length !== 1 ? "s" : ""})
-                    </Label>
-
-                    <div className="max-h-96 divide-y overflow-y-auto rounded-lg border border-gray-200 bg-white">
-                      {debtIds.map((userId) => {
-                        const member = fullMemberList.find(
-                          (m) => parseInt(m.id, 10) === userId
-                        )
-                        const userIdStr = userId.toString()
-                        const splitAmount = reviewSplitAmounts[userIdStr] || 0
-
-                        return (
-                          <div
-                            key={userId}
-                            className="flex items-center justify-between p-4 transition-colors hover:bg-slate-50"
-                          >
-                            <div className="flex min-w-0 flex-1 items-center gap-3">
-                              <Avatar className="h-9 w-9 shrink-0">
-                                {member?.avatar && (
-                                  <img
-                                    src={member.avatar}
-                                    alt={member?.fullName}
-                                  />
-                                )}
-                              </Avatar>
-                              <div className="min-w-0">
-                                <p className="truncate text-sm font-semibold text-foreground">
-                                  {member?.fullName}
-                                </p>
-                                <p className="truncate text-xs text-muted-foreground">
-                                  {member?.email}
-                                </p>
-                              </div>
-                            </div>
-                            <div className="ml-4 shrink-0 text-right">
-                              <p className="text-sm font-bold text-foreground">
-                                {formatNumberVN(splitAmount)}
-                              </p>
-                              <p className="text-xs text-muted-foreground">
-                                VND
-                              </p>
-                              {splitStrategy === "PERCENTAGE" && (
-                                <p className="mt-0.5 text-xs text-muted-foreground">
-                                  {splitAmounts?.[member?.id || ""] || 0}%
-                                </p>
-                              )}
-                            </div>
-                          </div>
-                        )
-                      })}
-                    </div>
-                  </div>
+              {!previewUrl && (
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <ImageIcon className="h-4 w-4" />
+                  JPG, PNG, WEBP supported.
                 </div>
-              </div>
-            )}
-          </form>
-        </div>
+              )}
+            </section>
+          </div>
+
+          <DialogFooter className="mt-auto border-t bg-background p-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => handleOpenChange(false)}
+            >
+              Cancel
+            </Button>
+            <Button type="submit" disabled={footerDisabled}>
+              {addTransaction.isPending ? "Saving..." : "Save Expense"}
+            </Button>
+          </DialogFooter>
+        </form>
       </DialogContent>
     </Dialog>
   )
