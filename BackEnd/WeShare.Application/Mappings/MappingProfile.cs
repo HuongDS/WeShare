@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using WeShare.Application.Dtos.Event;
 using WeShare.Application.Dtos.Group;
+using WeShare.Application.Dtos.GroupDebt;
 using WeShare.Application.Dtos.GroupMember;
 using WeShare.Application.Dtos.Task;
 using WeShare.Application.Dtos.Transaction;
@@ -68,6 +69,8 @@ namespace WeShare.Core.Mappings
             CreateMap<Task, TaskViewDto>();
             CreateMap<EventUpdateDto, Event>();
             CreateMap<TaskCreateDto, Task>();
+            CreateMap<GroupMember, GroupMemberDetailsViewDto>();
+            CreateMap<GroupDebt, GroupDebtViewDto>();
         }
     }
 }

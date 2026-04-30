@@ -61,6 +61,7 @@ namespace WeShare.Core.Constants
         // GroupMember
         public static string GROUP_MEMBER_NOT_FOUND = "Group member not found! Please try again.";
         public static string INSUFFICIENT_BALANCE = "Insufficient balance to perform this action!";
+        public static string ONLY_LEADER_CAN_VIEW = "Only leader can view all members!";
 
         // Event
         public static string EVENT_NOT_FOUND = "Event not found! Please try again.";
