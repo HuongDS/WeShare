@@ -8,6 +8,7 @@ using AutoMapper;
 using WeShare.Application.Dtos.Group;
 using WeShare.Application.Dtos.GroupMember;
 using WeShare.Application.Dtos.Other;
+using WeShare.Application.Dtos.User;
 using WeShare.Application.Interfaces;
 using WeShare.Core.Constants;
 using WeShare.Core.Entities;
@@ -130,6 +131,7 @@ namespace WeShare.Application.Services
             }
             storedGroup.Type = data.Type;
             storedGroup.Name = data.Name;
+            storedGroup.Description = data.Description;
             groupRepo.Update(storedGroup);
             await _unitOfWork.CompleteAsync();
             return await GetByIdAsync(data.GroupId);
@@ -149,6 +151,18 @@ namespace WeShare.Application.Services
             }
             await groupRepo.Delete(groupId);
             await _unitOfWork.CompleteAsync();
+        }
+        public async Task<IEnumerable<UserViewDto>> GetGroupMembersAsync(int groupId)
+        {
+            var groupRepo = _unitOfWork.Repository<Group>();
+            var storedGroup = await groupRepo.GetByIdAsync(groupId);
+            if (storedGroup is null)
+            {
+                throw new BadRequestException(ErrorMessage.GROUP_NOT_FOUND);
+            }
+            var memberInGroups = await _groupMemberRepository.GetAsync(groupId);
+            var res = _mapper.Map<IEnumerable<UserViewDto>>(memberInGroups.Select(m => m.User));
+            return res;
         }
     }
 }

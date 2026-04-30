@@ -79,4 +79,18 @@ export const transactionApi = {
     )
     return res.data
   },
+  uploadProof: async (file: File) => {
+    const formData = new FormData()
+    formData.append("file", file)
+    const res = await axiosClient.post<ResponseDto<string>>(
+      "/transaction/upload-proof",
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    )
+    return res.data
+  },
 }

@@ -20,11 +20,14 @@ namespace WeShare.API.Controllers
     {
         private readonly ITransactionServices _transactionServices;
         private readonly ICurrentUserService _currentUserService;
+        private readonly IFileServices _fileServices;
 
-        public TransactionController(ITransactionServices transactionServices, ICurrentUserService currentUserService)
+        public TransactionController(ITransactionServices transactionServices, ICurrentUserService currentUserService,
+            IFileServices fileServices)
         {
             _transactionServices = transactionServices;
             _currentUserService = currentUserService;
+            _fileServices = fileServices;
         }
         [HttpPost]
         public async Task<IActionResult> AddTransaction([FromBody] CreateTransactionDto data)
@@ -132,6 +135,18 @@ namespace WeShare.API.Controllers
                 Status = (int)HttpStatusCode.OK,
                 Message = SuccessMessage.ADD_SETTLEMENTS_SUCCESSFULLY,
                 Data = res
+            });
+        }
+        [HttpPost("upload-proof")]
+        public async Task<IActionResult> UploadProof(IFormFile file)
+        {
+            var userId = _currentUserService.GetUserId();
+            var res = await _fileServices.UploadImageAsync(file, "WeShare/proof");
+            return Ok(new ResponseDto<string>
+            {
+                Status = (int)HttpStatusCode.OK,
+                Message = SuccessMessage.UPLOAD_PROOF_SUCCESSFULLY,
+                Data = res.Url
             });
         }
     }
