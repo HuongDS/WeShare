@@ -8,8 +8,8 @@ namespace WeShare.Application.Dtos.User
 {
     public class UpdatePaymentDto
     {
-        public string BankName { get; set; }
-        public string BankAccount { get; set; }
-        public string BankBin { get; set; }
+        public string BankName { get; set; } = string.Empty;
+        public string BankAccount { get; set; } = string.Empty;
+        public string BankBin { get; set; } = string.Empty;
     }
 }

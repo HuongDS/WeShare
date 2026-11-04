@@ -28,7 +28,7 @@ namespace WeShare.Application.Services
             var cachedBanks = await _cacheServices.GetAsync(cacheBanksKey);
             if (!string.IsNullOrEmpty(cachedBanks))
             {
-                return System.Text.Json.JsonSerializer.Deserialize<List<BankDto>>(cachedBanks);
+                return System.Text.Json.JsonSerializer.Deserialize<List<BankDto>>(cachedBanks) ?? new List<BankDto>();
             }
 
             var client = _httpClientFactory.CreateClient();

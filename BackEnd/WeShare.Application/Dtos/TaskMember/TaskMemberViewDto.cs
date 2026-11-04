@@ -14,6 +14,6 @@ namespace WeShare.Application.Dtos.TaskMember
         public int UserId { get; set; }
         public int GroupId { get; set; }
         public TaskStatusEnum Status { get; set; }
-        public UserViewDto User { get; set; }
+        public UserViewDto? User { get; set; }
     }
 }

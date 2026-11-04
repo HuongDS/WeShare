@@ -1,9 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using WeShare.Core.Enums;
 using WeShare.Core.Interfaces;
 
@@ -19,16 +16,19 @@ namespace WeShare.Core.Entities
         public decimal Amount { get; set; }
         public string? Description { get; set; }
         public int? TaskId { get; set; }
-        public DateTime? Created_At { get; set; }
+        [Column("Created_At")]
+        public DateTime? CreatedAt { get; set; }
+        [NotMapped]
+        public DateTime? Created_At { get => CreatedAt; set => CreatedAt = value; }
         public SplitStrategyEnum SplitStrategy { get; set; }
         public TransactionTypeEnum Type { get; set; }
         public TransactionPaymentTypeEnum PaymentType { get; set; }
         public string? ProofUrl { get; set; }
         public TransactionStatusEnum Status { get; set; }
-        public Group Group { get; set; }
+        public Group Group { get; set; } = null!;
 
         [ForeignKey("PayerId")]
-        public User Payer { get; set; }
-        public ICollection<TransactionSplit> TransactionSplits { get; set; }
+        public User Payer { get; set; } = null!;
+        public ICollection<TransactionSplit> TransactionSplits { get; set; } = new List<TransactionSplit>();
     }
 }

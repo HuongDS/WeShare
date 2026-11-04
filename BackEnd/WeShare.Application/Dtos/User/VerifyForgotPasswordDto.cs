@@ -8,7 +8,7 @@ namespace WeShare.Application.Dtos.User
 {
     public class VerifyForgotPasswordDto
     {
-        public string Email { get; set; }
-        public string Otp { get; set; }
+        public string Email { get; set; } = string.Empty;
+        public string Otp { get; set; } = string.Empty;
     }
 }

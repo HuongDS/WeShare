@@ -36,7 +36,7 @@ namespace WeShare.Application.Services
         public async Task<PageResultDto<GroupMemberDetailsViewDto>> GetGroupMembersAsync(int userId, int groupId, int pageSize, int pageIndex)
         {
             var user = await _groupMemberRepository.GetGroupMemberAsync(userId, groupId);
-            if (user.Role != Core.Enums.GroupRoleEnum.Leader)
+            if (user == null || user.Role != Core.Enums.GroupRoleEnum.Leader)
             {
                 throw new BadRequestException(ErrorMessage.ONLY_LEADER_CAN_VIEW);
             }

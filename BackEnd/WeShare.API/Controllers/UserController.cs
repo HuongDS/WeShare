@@ -99,6 +99,7 @@ namespace WeShare.API.Controllers
         {
             var userId = _currentUserService.GetUserId();
             var uploadResult = await _fileServices.UploadImageAsync(file, "WeShare/Avatars");
+            if (uploadResult == null) throw new WeShare.Core.Exceptions.BadRequestException(WeShare.Core.Constants.ErrorMessage.SOME_THING_WENT_WRONG);
             var res = await _userServices.UpdateAvatarAsync(userId, uploadResult.Url, uploadResult.PublicId);
             return Ok(new ResponseDto<UserViewDto>
             {

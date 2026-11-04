@@ -28,7 +28,7 @@ namespace WeShare.Application.Services
             _cloudinary = new Cloudinary(acc);
         }
 
-        public async Task<Dtos.Cloudinary.ImageUploadResult> UploadImageAsync(IFormFile file, string folderName)
+        public async Task<Dtos.Cloudinary.ImageUploadResult?> UploadImageAsync(IFormFile file, string folderName)
         {
             if (file.Length > 0)
             {

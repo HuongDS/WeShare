@@ -15,9 +15,7 @@ var connectionStrings = builder.Configuration.GetConnectionString("DefaultConnec
 builder.Services.AddDbContext<WeShareDbContext>(options => options.UseNpgsql(connectionStrings, b => b.MigrationsAssembly("WeShare.Infrastructure")));
 
 // Add services to the container.
-
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(option =>
 {
@@ -42,10 +40,12 @@ builder.Services.AddSwaggerGen(option =>
                     Id = "Bearer"
                 }
             },
-            new string[]{ }
+            Array.Empty<string>()
         }
     });
 });
+
+var jwtSecret = builder.Configuration["JwtSettings:Secret"] ?? "DefaultFallbackSecretKeyForWeShareApp2026!";
 builder.Services.AddAuthentication(opt =>
 {
     opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -59,14 +59,16 @@ builder.Services.AddAuthentication(opt =>
         opt.TokenValidationParameters = new TokenValidationParameters
         {
             ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(builder.Configuration["JwtSettings:Secret"])),
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtSecret)),
             ValidateIssuer = false,
             ValidateAudience = false,
             ValidateLifetime = true,
             ClockSkew = TimeSpan.Zero
         };
     });
-builder.Services.AddSingleton<IConnectionMultiplexer>(sp => ConnectionMultiplexer.Connect(builder.Configuration.GetConnectionString("RedisConnection")));
+
+var redisConnection = builder.Configuration.GetConnectionString("RedisConnection") ?? "localhost:6379";
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp => ConnectionMultiplexer.Connect(redisConnection));
 builder.Services.AddAppDI();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
@@ -79,11 +81,9 @@ builder.Services.AddCors(options =>
         .AllowCredentials());
 });
 
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-
 app.UseMiddleware<GlobalExceptionMiddleware>();
 
 if (app.Environment.IsDevelopment())
@@ -93,12 +93,9 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseCors("AllowAll");
-
 app.UseAuthentication();
 app.UseAuthorization();
-
 app.MapControllers();
 
 app.Run();

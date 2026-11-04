@@ -8,7 +8,7 @@ namespace WeShare.Application.Dtos.User
 {
     public class UpdateUserDto
     {
-        public string FullName { get; set; }
+        public string FullName { get; set; } = string.Empty;
         public string? Avatar { get; set; }
     }
 }

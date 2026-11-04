@@ -1,10 +1,5 @@
-﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using WeShare.Core.Enums;
 
 namespace WeShare.Core.Entities
@@ -17,8 +12,8 @@ namespace WeShare.Core.Entities
 
         [Column(TypeName = "decimal(18,2)")]
         public decimal Balance { get; set; }
-        public User User { get; set; }
-        public Group Group { get; set; }
-        public ICollection<TaskMember> TaskMembers { get; set; }
+        public User User { get; set; } = null!;
+        public Group Group { get; set; } = null!;
+        public ICollection<TaskMember> TaskMembers { get; set; } = new List<TaskMember>();
     }
 }

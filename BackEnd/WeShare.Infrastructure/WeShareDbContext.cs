@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System;
 using Microsoft.EntityFrameworkCore;
 using WeShare.Core.Entities;
 
@@ -14,20 +10,27 @@ namespace WeShare.Infrastructure
         {
         }
 
-        public DbSet<User> Users { get; set; }
-        public DbSet<Event> Events { get; set; }
-        public DbSet<Group> Groups { get; set; }
-        public DbSet<GroupDebt> GroupDebts { get; set; }
-        public DbSet<GroupMember> GroupMembers { get; set; }
-        public DbSet<WeShare.Core.Entities.Task> Tasks { get; set; }
-        public DbSet<Transaction> Transactions { get; set; }
-        public DbSet<TransactionSplit> TransactionSplits { get; set; }
-        public DbSet<RefreshToken> RefreshTokens { get; set; }
-        public DbSet<TaskMember> TaskMembers { get; set; }
-        public DbSet<Notification> Notifications { get; set; }
+        public DbSet<User> Users { get; set; } = null!;
+        public DbSet<Event> Events { get; set; } = null!;
+        public DbSet<Group> Groups { get; set; } = null!;
+        public DbSet<GroupDebt> GroupDebts { get; set; } = null!;
+        public DbSet<GroupMember> GroupMembers { get; set; } = null!;
+        public DbSet<WeShare.Core.Entities.Task> Tasks { get; set; } = null!;
+        public DbSet<Transaction> Transactions { get; set; } = null!;
+        public DbSet<TransactionSplit> TransactionSplits { get; set; } = null!;
+        public DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
+        public DbSet<TaskMember> TaskMembers { get; set; } = null!;
+        public DbSet<Notification> Notifications { get; set; } = null!;
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<User>(u =>
+            {
+                u.HasIndex(x => x.Email).IsUnique();
+            });
+
             modelBuilder.Entity<GroupMember>(e =>
             {
                 e.HasKey(gm => new { gm.UserId, gm.GroupId });
@@ -41,6 +44,8 @@ namespace WeShare.Infrastructure
                  .WithMany(g => g.GroupMembers)
                  .HasForeignKey(gm => gm.GroupId)
                  .OnDelete(DeleteBehavior.Cascade);
+
+                e.HasIndex(gm => gm.GroupId);
             });
 
             modelBuilder.Entity<TransactionSplit>(e =>
@@ -56,6 +61,8 @@ namespace WeShare.Infrastructure
                  .WithMany()
                  .HasForeignKey(ts => ts.DebtorId)
                  .OnDelete(DeleteBehavior.Cascade);
+
+                e.HasIndex(ts => ts.DebtorId);
             });
 
             modelBuilder.Entity<Transaction>(e =>
@@ -69,6 +76,10 @@ namespace WeShare.Infrastructure
                  .WithMany()
                  .HasForeignKey(t => t.PayerId)
                  .OnDelete(DeleteBehavior.Restrict);
+
+                e.HasIndex(t => t.GroupId);
+                e.HasIndex(t => t.PayerId);
+                e.HasIndex(t => t.CreatedAt);
             });
 
             modelBuilder.Entity<GroupDebt>(e =>
@@ -87,6 +98,8 @@ namespace WeShare.Infrastructure
                  .WithMany()
                  .HasForeignKey(gd => gd.ToUserId)
                  .OnDelete(DeleteBehavior.Restrict);
+
+                e.HasIndex(gd => new { gd.GroupId, gd.FromUserId, gd.ToUserId });
             });
 
             modelBuilder.Entity<Event>(e =>
@@ -95,6 +108,8 @@ namespace WeShare.Infrastructure
                  .WithMany(g => g.Events)
                  .HasForeignKey(ev => ev.GroupId)
                  .OnDelete(DeleteBehavior.Cascade);
+
+                e.HasIndex(ev => ev.GroupId);
             });
 
             modelBuilder.Entity<WeShare.Core.Entities.Task>(e =>
@@ -105,7 +120,9 @@ namespace WeShare.Infrastructure
                  .OnDelete(DeleteBehavior.Cascade);
 
                 e.Property(t => t.Id)
-                .UseHiLo("task_hilo_sequence");
+                 .UseHiLo("task_hilo_sequence");
+
+                e.HasIndex(t => t.EventId);
             });
 
             modelBuilder.Entity<RefreshToken>(entity =>
@@ -113,9 +130,12 @@ namespace WeShare.Infrastructure
                 entity.HasKey(rt => rt.Id);
 
                 entity.HasOne(rt => rt.User)
-                .WithMany()
-                .HasForeignKey(rt => rt.UserId)
-                .OnDelete(DeleteBehavior.Cascade);
+                 .WithMany()
+                 .HasForeignKey(rt => rt.UserId)
+                 .OnDelete(DeleteBehavior.Cascade);
+
+                entity.HasIndex(rt => rt.Token).IsUnique();
+                entity.HasIndex(rt => rt.UserId);
             });
 
             modelBuilder.Entity<Group>()
@@ -148,6 +168,8 @@ namespace WeShare.Infrastructure
                     .WithMany()
                     .HasForeignKey(no => no.ReceiveId)
                     .OnDelete(DeleteBehavior.Cascade);
+
+                n.HasIndex(no => new { no.ReceiveId, no.IsRead });
             });
         }
     }

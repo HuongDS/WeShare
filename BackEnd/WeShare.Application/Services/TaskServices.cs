@@ -1,3 +1,4 @@
+using WeShare.Core.Exceptions;
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -76,7 +77,7 @@ namespace WeShare.Application.Services
             var entity = await taskRepo.GetByIdAsync(data.TaskId);
             if (entity == null)
             {
-                throw new Exception(ErrorMessage.TASK_NOT_FOUND);
+                throw new NotFoundException(ErrorMessage.TASK_NOT_FOUND);
             }
             entity = _mapper.Map(data, entity);
             var oldTaskMembers = await _taskMemberRepository.GetByTaskIdAsync(data.TaskId);
@@ -108,10 +109,10 @@ namespace WeShare.Application.Services
         public async Task<TaskViewDto> GetByIdAsync(int taskId)
         {
             var taskRepo = _unitOfWork.Repository<WeShare.Core.Entities.Task>();
-            var entity = taskRepo.GetByIdAsync(taskId);
+            var entity = await taskRepo.GetByIdAsync(taskId);
             if (entity == null)
             {
-                throw new Exception(ErrorMessage.TASK_NOT_FOUND);
+                throw new NotFoundException(ErrorMessage.TASK_NOT_FOUND);
             }
             return _mapper.Map<TaskViewDto>(entity);
         }

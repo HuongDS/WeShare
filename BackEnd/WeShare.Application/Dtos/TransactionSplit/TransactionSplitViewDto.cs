@@ -11,7 +11,7 @@ namespace WeShare.Application.Dtos.TransactionSplit
     public class TransactionSplitViewDto
     {
         public int TransactionId { get; set; }
-        public UserViewDto Debtor { get; set; }
+        public UserViewDto? Debtor { get; set; }
         public decimal OwedAmount { get; set; }
     }
 }

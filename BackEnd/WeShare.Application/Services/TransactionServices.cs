@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -54,7 +54,7 @@ namespace WeShare.Application.Services
                 Amount = data.Amount,
                 Description = data.Description,
                 Created_At = DateTime.UtcNow,
-                SplitStrategy = data.Stategy,
+                SplitStrategy = data.Strategy,
                 Type = data.Type,
                 ProofUrl = data.ReceiptUrl
             };
@@ -70,16 +70,16 @@ namespace WeShare.Application.Services
             }
             payerMember.Balance += data.Amount;
             var newTransactionSplits = new Dictionary<int, decimal>();
-            //if (data.Stategy != Core.Enums.SplitStrategyEnum.EQUALLY)
+            //if (data.Strategy != Core.Enums.SplitStrategyEnum.EQUALLY)
             //{
-            //    newTransactionSplits = CalculateSplitHelper.CalculateSplitAmount(data.Amount, data.DebtIds, data.Stategy, data.SplitAmounts);
+            //    newTransactionSplits = CalculateSplitHelper.CalculateSplitAmount(data.Amount, data.DebtIds, data.Strategy, data.SplitAmounts);
             //}
             //else
             //{
-            //    newTransactionSplits = CalculateSplitHelper.CalculateSplitAmount(data.Amount, data.DebtIds, data.Stategy, data.SplitAmounts);
+            //    newTransactionSplits = CalculateSplitHelper.CalculateSplitAmount(data.Amount, data.DebtIds, data.Strategy, data.SplitAmounts);
             //}
 
-            newTransactionSplits = CalculateSplitHelper.CalculateSplitAmount(data.Amount, data.DebtIds, data.Stategy, data.SplitAmounts);
+            newTransactionSplits = CalculateSplitHelper.CalculateSplitAmount(data.Amount, data.DebtIds, data.Strategy, data.SplitAmounts);
 
             var notiRepo = _unitOfWork.Repository<Notification>();
 
@@ -128,7 +128,7 @@ namespace WeShare.Application.Services
                 Amount = newTransaction.Amount,
                 Description = newTransaction.Description,
                 Task = newTransaction.TaskId.HasValue ? _mapper.Map<TaskViewDto>(task) : null,
-                CreatedAt = newTransaction.Created_At.Value,
+                CreatedAt = (newTransaction.CreatedAt ?? DateTime.UtcNow),
                 SplitStrategy = newTransaction.SplitStrategy,
                 TransactionSplits = _mapper.Map<IEnumerable<TransactionSplitViewDto>>(newTransaction.TransactionSplits)
             };
@@ -233,7 +233,7 @@ namespace WeShare.Application.Services
                 Amount = transaction.Amount,
                 Description = transaction.Description,
                 Task = transaction.TaskId.HasValue ? _mapper.Map<TaskViewDto>(task) : null,
-                CreatedAt = transaction.Created_At.Value,
+                CreatedAt = (transaction.Created_At ?? DateTime.UtcNow),
                 SplitStrategy = transaction.SplitStrategy,
                 TransactionSplits = _mapper.Map<IEnumerable<TransactionSplitViewDto>>(transaction.TransactionSplits)
             };
@@ -263,7 +263,7 @@ namespace WeShare.Application.Services
                     Amount = transaction.Amount,
                     Description = transaction.Description,
                     Task = transaction.TaskId.HasValue ? _mapper.Map<TaskViewDto>(task) : null,
-                    CreatedAt = transaction.Created_At.Value,
+                    CreatedAt = (transaction.Created_At ?? DateTime.UtcNow),
                     SplitStrategy = transaction.SplitStrategy,
                     TransactionSplits = _mapper.Map<IEnumerable<TransactionSplitViewDto>>(transaction.TransactionSplits),
                     ProofUrl = transaction.ProofUrl
@@ -303,7 +303,7 @@ namespace WeShare.Application.Services
                     Amount = transaction.Amount,
                     Description = transaction.Description,
                     Task = transaction.TaskId.HasValue ? _mapper.Map<TaskViewDto>(task) : null,
-                    CreatedAt = transaction.Created_At.Value,
+                    CreatedAt = (transaction.Created_At ?? DateTime.UtcNow),
                     SplitStrategy = transaction.SplitStrategy,
                     TransactionSplits = _mapper.Map<IEnumerable<TransactionSplitViewDto>>(transaction.TransactionSplits)
                 };
@@ -518,3 +518,5 @@ namespace WeShare.Application.Services
         }
     }
 }
+
+

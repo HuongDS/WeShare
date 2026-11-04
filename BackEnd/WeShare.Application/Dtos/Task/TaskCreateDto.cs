@@ -11,9 +11,9 @@ namespace WeShare.Application.Dtos.Task
     public class TaskCreateDto
     {
         public int? EventId { get; set; }
-        public IEnumerable<int> AssigneeIds { get; set; }
+        public IEnumerable<int> AssigneeIds { get; set; } = new List<int>();
         public int GroupId { get; set; }
-        public string Title { get; set; }
+        public string Title { get; set; } = string.Empty;
         public string? Description { get; set; }
         public TaskStatusEnum Status { get; set; } = TaskStatusEnum.Created;
     }

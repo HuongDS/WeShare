@@ -9,7 +9,7 @@ namespace WeShare.Application.Dtos.Group
 {
     public class CreateGroupDto
     {
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
         public GroupTypeEnum Type { get; set; }
         public string? Description { get; set; }
     }

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System;
 using System.Threading.Tasks;
 
 namespace WeShare.Core.Interfaces
@@ -10,7 +7,6 @@ namespace WeShare.Core.Interfaces
     {
         Task CommitTransactionAsync();
         Task<int> CompleteAsync();
-        void Dispose();
         IGenericRepository<T> Repository<T>() where T : class, IEntity;
         Task RollBackTransactionAsync();
         Task StartTransactionAsync();

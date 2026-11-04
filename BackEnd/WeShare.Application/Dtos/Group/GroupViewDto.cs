@@ -12,9 +12,9 @@ namespace WeShare.Application.Dtos.Group
     public class GroupViewDto
     {
         public int Id { get; set; }
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
         public GroupTypeEnum Type { get; set; }
-        public IEnumerable<GroupMemberViewDto> Members { get; set; }
-        public string Description { get; set; }
+        public IEnumerable<GroupMemberViewDto> Members { get; set; } = new List<GroupMemberViewDto>();
+        public string Description { get; set; } = string.Empty;
     }
 }

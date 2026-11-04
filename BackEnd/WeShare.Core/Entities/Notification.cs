@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System;
 using WeShare.Core.Enums;
 using WeShare.Core.Interfaces;
 
@@ -12,13 +8,13 @@ namespace WeShare.Core.Entities
     {
         public int Id { get; set; }
         public int ReceiveId { get; set; }
-        public string Title { get; set; }
-        public string Message { get; set; }
+        public string Title { get; set; } = string.Empty;
+        public string Message { get; set; } = string.Empty;
         public bool IsRead { get; set; }
         public NotificationTypeEnum Type { get; set; }
         public int? RelatedTransactionId { get; set; }
         public int? RelatedGroupId { get; set; }
-        public DateTime Created_At { get; set; }
-        public User Receiver { get; set; }
+        public DateTime Created_At { get; set; } = DateTime.UtcNow;
+        public User Receiver { get; set; } = null!;
     }
 }

@@ -137,11 +137,11 @@ namespace WeShare.API.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetTasks([FromQuery] int pageSize, [FromQuery] int pageIndex, [FromQuery] string? key, [FromQuery] WeShare.Core.Enums.TaskStatusEnum? status)
+        public async Task<IActionResult> GetTasks([FromQuery] int pageSize, [FromQuery] int pageIndex, [FromQuery] WeShare.Core.Enums.TaskStatusEnum? status = null, [FromQuery] string? key = null)
         {
             try
             {
-                var res = await _taskServices.GetAsync(pageSize, pageIndex, key, status);
+                var res = await _taskServices.GetAsync(pageSize, pageIndex, key ?? "", status);
                 return Ok(new ResponseDto<WeShare.Core.Other.PageResultDto<WeShare.Application.Dtos.Task.TaskViewDto>>
                 {
                     Status = (int)HttpStatusCode.OK,

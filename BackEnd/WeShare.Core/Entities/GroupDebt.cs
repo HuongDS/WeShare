@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+using System;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using WeShare.Core.Interfaces;
 
 namespace WeShare.Core.Entities
@@ -16,11 +12,11 @@ namespace WeShare.Core.Entities
         public int ToUserId { get; set; }
         [Column(TypeName = "decimal(18,2)")]
         public decimal Amount { get; set; }
-        public DateTime Updated_At { get; set; }
-        public Group Group { get; set; }
+        public DateTime Updated_At { get; set; } = DateTime.UtcNow;
+        public Group Group { get; set; } = null!;
         [ForeignKey("FromUserId")]
-        public User FromUser { get; set; }
+        public User FromUser { get; set; } = null!;
         [ForeignKey("ToUserId")]
-        public User ToUser { get; set; }
+        public User ToUser { get; set; } = null!;
     }
 }

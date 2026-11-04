@@ -9,10 +9,10 @@ namespace WeShare.Application.Dtos.VietQr
     public class BankDto
     {
         public int Id { get; set; }
-        public string Name { get; set; }
-        public string Code { get; set; }
-        public string Bin { get; set; }
-        public string ShortName { get; set; }
-        public string Logo { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Code { get; set; } = string.Empty;
+        public string Bin { get; set; } = string.Empty;
+        public string ShortName { get; set; } = string.Empty;
+        public string Logo { get; set; } = string.Empty;
     }
 }

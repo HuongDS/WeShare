@@ -13,10 +13,10 @@ namespace WeShare.Application.Dtos.Task
     {
         public int Id { get; set; }
         public int? EventId { get; set; }
-        public string Title { get; set; }
+        public string Title { get; set; } = string.Empty;
         public string? Description { get; set; }
         public TaskStatusEnum Status { get; set; }
         public EventViewDto? Event { get; set; }
-        public IEnumerable<WeShare.Core.Entities.TaskMember> TaskMembers { get; set; }
+        public IEnumerable<WeShare.Core.Entities.TaskMember> TaskMembers { get; set; } = new List<WeShare.Core.Entities.TaskMember>();
     }
 }

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using WeShare.Core.Enums;
 
 namespace WeShare.Core.Entities
 {
@@ -14,8 +8,8 @@ namespace WeShare.Core.Entities
         public int DebtorId { get; set; }
         [Column(TypeName = "decimal(18,2)")]
         public decimal OwedAmount { get; set; }
-        public Transaction Transaction { get; set; }
+        public Transaction Transaction { get; set; } = null!;
         [ForeignKey("DebtorId")]
-        public User Debtor { get; set; }
+        public User Debtor { get; set; } = null!;
     }
 }

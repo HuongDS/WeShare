@@ -142,6 +142,7 @@ namespace WeShare.API.Controllers
         {
             var userId = _currentUserService.GetUserId();
             var res = await _fileServices.UploadImageAsync(file, "WeShare/proof");
+            if (res == null) throw new WeShare.Core.Exceptions.BadRequestException(WeShare.Core.Constants.ErrorMessage.SOME_THING_WENT_WRONG);
             return Ok(new ResponseDto<string>
             {
                 Status = (int)HttpStatusCode.OK,

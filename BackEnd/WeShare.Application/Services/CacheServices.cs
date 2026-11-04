@@ -23,7 +23,7 @@ namespace WeShare.Application.Services
             await _dbRedis.StringSetAsync(key, value, TimeSpan.FromMinutes(expireMins));
         }
 
-        public async Task<string> GetAsync(string email)
+        public async Task<string?> GetAsync(string email)
         {
             var key = $"email:{email}";
             var value = await _dbRedis.StringGetAsync(key);

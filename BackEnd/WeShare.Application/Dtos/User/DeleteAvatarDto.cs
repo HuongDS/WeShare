@@ -8,6 +8,6 @@ namespace WeShare.Application.Dtos.User
 {
     public class DeleteAvatarDto
     {
-        public string AvatarPublicId { get; set; }
+        public string AvatarPublicId { get; set; } = string.Empty;
     }
 }

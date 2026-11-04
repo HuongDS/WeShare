@@ -82,7 +82,7 @@ namespace WeShare.Infrastructure.Services
             await _cacheServices.RemoveAsync(key);
             var userRepo = _unitOfWork.Repository<User>();
             var decryptEntity = JsonSerializer.Deserialize<RegisterDto>(entity);
-            string hashPassword = BCrypt.Net.BCrypt.HashPassword(decryptEntity.Password);
+            string hashPassword = BCrypt.Net.BCrypt.HashPassword(decryptEntity?.Password ?? "");
             var newUser = _mapper.Map<User>(decryptEntity);
             newUser.PasswordHashed = hashPassword;
             await userRepo.AddAsync(newUser);
@@ -111,8 +111,8 @@ namespace WeShare.Infrastructure.Services
             {
                 throw new BadRequestException(ErrorMessage.EMAIL_OR_PASSWORD_IS_INCORRECT);
             }
-            var user = checkEmailExist.FirstOrDefault();
-            if (!BCrypt.Net.BCrypt.Verify(data.Password, user.PasswordHashed))
+            var user = checkEmailExist.FirstOrDefault() ?? throw new BadRequestException(ErrorMessage.EMAIL_OR_PASSWORD_IS_INCORRECT);
+            if (string.IsNullOrEmpty(user.PasswordHashed) || !BCrypt.Net.BCrypt.Verify(data.Password, user.PasswordHashed))
             {
                 throw new BadRequestException(ErrorMessage.EMAIL_OR_PASSWORD_IS_INCORRECT);
             }
@@ -233,7 +233,8 @@ namespace WeShare.Infrastructure.Services
         private (string TokenString, string Id) GenerateJwtToken(User user)
         {
             var jwtHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.ASCII.GetBytes(_configuration["JwtSettings:Secret"]);
+            var secret = _configuration["JwtSettings:Secret"] ?? "DefaultFallbackSecretKeyForWeShareApp2026!";
+            var key = Encoding.ASCII.GetBytes(secret);
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
@@ -317,6 +318,7 @@ namespace WeShare.Infrastructure.Services
             }
             await _cacheServices.RemoveAsync(key);
             var decryptEntity = JsonSerializer.Deserialize<ForgotPasswordDto>(entity);
+            if (decryptEntity == null) throw new BadRequestException(ErrorMessage.OTP_IS_INVALID);
             var user = await _unitOfWork.Repository<User>().FirstOrDefaultAsync(u => u.Email == decryptEntity.Email);
             if (user == null)
             {
