@@ -1,6 +1,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using WeShare.Core.Entities;
+using WeShare.Core.Interfaces;
 
 namespace WeShare.Infrastructure
 {
@@ -22,13 +23,64 @@ namespace WeShare.Infrastructure
         public DbSet<TaskMember> TaskMembers { get; set; } = null!;
         public DbSet<Notification> Notifications { get; set; } = null!;
 
+        public override int SaveChanges(bool acceptAllChangesOnSuccess)
+        {
+            ApplyAuditInfo();
+            return base.SaveChanges(acceptAllChangesOnSuccess);
+        }
+
+        public override System.Threading.Tasks.Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, System.Threading.CancellationToken cancellationToken = default)
+        {
+            ApplyAuditInfo();
+            return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+        }
+
+        private void ApplyAuditInfo()
+        {
+            var now = DateTime.UtcNow;
+            foreach (var entry in ChangeTracker.Entries())
+            {
+                if (entry.Entity is ISoftDeletable softDeletable && entry.State == EntityState.Deleted)
+                {
+                    entry.State = EntityState.Modified;
+                    softDeletable.IsDeleted = true;
+                    softDeletable.DeletedAt = now;
+                }
+
+                if (entry.Entity is BaseAuditableEntity auditable)
+                {
+                    if (entry.State == EntityState.Added)
+                    {
+                        if (auditable.CreatedAt == default) auditable.CreatedAt = now;
+                    }
+                    else if (entry.State == EntityState.Modified)
+                    {
+                        entry.Property(nameof(BaseAuditableEntity.CreatedAt)).IsModified = false;
+                        auditable.UpdatedAt = now;
+                    }
+                }
+                else if (entry.Entity is GroupDebt debt)
+                {
+                    if (entry.State == EntityState.Added && debt.CreatedAt == default) debt.CreatedAt = now;
+                    else if (entry.State == EntityState.Modified) debt.UpdatedAt = now;
+                }
+                else if (entry.Entity is GroupMember member && entry.State == EntityState.Added && member.JoinedAt == default)
+                {
+                    member.JoinedAt = now;
+                }
+            }
+        }
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<User>(u =>
             {
+                u.Property(x => x.FullName).IsRequired().HasMaxLength(100);
+                u.Property(x => x.Email).IsRequired().HasMaxLength(150);
                 u.HasIndex(x => x.Email).IsUnique();
+                u.HasQueryFilter(x => !x.IsDeleted);
+                u.HasIndex(x => x.IsDeleted);
             });
 
             modelBuilder.Entity<GroupMember>(e =>
@@ -63,6 +115,7 @@ namespace WeShare.Infrastructure
                  .OnDelete(DeleteBehavior.Cascade);
 
                 e.HasIndex(ts => ts.DebtorId);
+                e.ToTable(tb => tb.HasCheckConstraint("CK_TransactionSplits_OwedAmount", "\"OwedAmount\" >= 0"));
             });
 
             modelBuilder.Entity<Transaction>(e =>
@@ -80,6 +133,9 @@ namespace WeShare.Infrastructure
                 e.HasIndex(t => t.GroupId);
                 e.HasIndex(t => t.PayerId);
                 e.HasIndex(t => t.CreatedAt);
+                e.HasQueryFilter(t => !t.IsDeleted);
+                e.HasIndex(t => t.IsDeleted);
+                e.ToTable(tb => tb.HasCheckConstraint("CK_Transactions_Amount", "\"Amount\" > 0"));
             });
 
             modelBuilder.Entity<GroupDebt>(e =>
@@ -99,7 +155,12 @@ namespace WeShare.Infrastructure
                  .HasForeignKey(gd => gd.ToUserId)
                  .OnDelete(DeleteBehavior.Restrict);
 
-                e.HasIndex(gd => new { gd.GroupId, gd.FromUserId, gd.ToUserId });
+                e.HasIndex(gd => new { gd.GroupId, gd.FromUserId, gd.ToUserId }).IsUnique();
+                e.ToTable(tb =>
+                {
+                    tb.HasCheckConstraint("CK_GroupDebts_Amount", "\"Amount\" > 0");
+                    tb.HasCheckConstraint("CK_GroupDebts_Users", "\"FromUserId\" <> \"ToUserId\"");
+                });
             });
 
             modelBuilder.Entity<Event>(e =>
@@ -110,6 +171,8 @@ namespace WeShare.Infrastructure
                  .OnDelete(DeleteBehavior.Cascade);
 
                 e.HasIndex(ev => ev.GroupId);
+                e.HasQueryFilter(ev => !ev.IsDeleted);
+                e.HasIndex(ev => ev.IsDeleted);
             });
 
             modelBuilder.Entity<WeShare.Core.Entities.Task>(e =>
@@ -119,10 +182,9 @@ namespace WeShare.Infrastructure
                  .HasForeignKey(t => t.EventId)
                  .OnDelete(DeleteBehavior.Cascade);
 
-                e.Property(t => t.Id)
-                 .UseHiLo("task_hilo_sequence");
-
                 e.HasIndex(t => t.EventId);
+                e.HasQueryFilter(t => !t.IsDeleted);
+                e.HasIndex(t => t.IsDeleted);
             });
 
             modelBuilder.Entity<RefreshToken>(entity =>
@@ -138,9 +200,13 @@ namespace WeShare.Infrastructure
                 entity.HasIndex(rt => rt.UserId);
             });
 
-            modelBuilder.Entity<Group>()
-                .Property(g => g.Id)
-                .UseHiLo("group_hilo_sequence");
+            modelBuilder.Entity<Group>(g =>
+            {
+                g.Property(x => x.Name).IsRequired().HasMaxLength(100);
+                g.Property(x => x.Description).HasMaxLength(500);
+                g.HasQueryFilter(x => !x.IsDeleted);
+                g.HasIndex(x => x.IsDeleted);
+            });
 
             modelBuilder.Entity<TaskMember>(e =>
             {

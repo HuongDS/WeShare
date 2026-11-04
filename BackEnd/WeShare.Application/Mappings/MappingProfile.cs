@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -54,14 +54,14 @@ namespace WeShare.Core.Mappings
             CreateMap<Transaction, TransactionViewDto>()
                 .ForMember(dest => dest.Payer, opt => opt.Ignore())
                 .ForMember(dest => dest.Task, opt => opt.Ignore())
-                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.Created_At))
+                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => src.CreatedAt))
                 .ForMember(dest => dest.TransactionSplits, opt => opt.Ignore());
             CreateMap<CreateTransactionDto, Transaction>();
             CreateMap<TransactionSplitCreateDto, TransactionSplit>();
             CreateMap<TransactionSplit, TransactionSplitViewDto>();
             CreateMap<Entities.Task, TaskViewDto>();
             CreateMap<CreateSettlementDto, Transaction>()
-                .ForMember(dest => dest.Created_At, opt => opt.MapFrom(src => DateTime.UtcNow))
+                .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => DateTime.UtcNow))
                 .ForMember(dest => dest.SplitStrategy, opt => opt.MapFrom(src => SplitStrategyEnum.OTHER))
                 .ForMember(dest => dest.Type, opt => opt.MapFrom(src => TransactionTypeEnum.PAYMENT));
             CreateMap<EventCreateDto, Event>();

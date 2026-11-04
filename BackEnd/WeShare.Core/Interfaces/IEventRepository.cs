@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,6 +10,6 @@ namespace WeShare.Core.Interfaces
 {
     public interface IEventRepository : IGenericRepository<WeShare.Core.Entities.Event>
     {
-        Task<PageResultDto<Event>> GetWithPaginationAsync(int pageSize, int pageIndex, string key, DateTime? date, DateTime? time, IEnumerable<int> groupIds);
+        Task<PageResultDto<Event>> GetWithPaginationAsync(int pageSize, int pageIndex, string key, DateTime? date, IEnumerable<int> groupIds);
     }
 }

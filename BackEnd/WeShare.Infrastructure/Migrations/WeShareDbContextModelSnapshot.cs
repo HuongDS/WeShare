@@ -22,12 +22,6 @@ namespace WeShare.Infrastructure.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.HasSequence("group_hilo_sequence")
-                .IncrementsBy(10);
-
-            modelBuilder.HasSequence("task_hilo_sequence")
-                .IncrementsBy(10);
-
             modelBuilder.Entity("WeShare.Core.Entities.Event", b =>
                 {
                     b.Property<int>("Id")
@@ -36,25 +30,36 @@ namespace WeShare.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime?>("Date")
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Description")
                         .HasColumnType("text");
 
+                    b.Property<DateTime?>("EventDate")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<int>("GroupId")
                         .HasColumnType("integer");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<DateTime?>("Time")
+                    b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
                     b.HasIndex("GroupId");
+
+                    b.HasIndex("IsDeleted");
 
                     b.ToTable("Events");
                 });
@@ -65,19 +70,35 @@ namespace WeShare.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseHiLo(b.Property<int>("Id"), "group_hilo_sequence");
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Description")
-                        .HasColumnType("text");
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
 
                     b.Property<int>("Type")
                         .HasColumnType("integer");
 
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("IsDeleted");
 
                     b.ToTable("Groups");
                 });
@@ -93,6 +114,9 @@ namespace WeShare.Infrastructure.Migrations
                     b.Property<decimal>("Amount")
                         .HasColumnType("decimal(18,2)");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<int>("FromUserId")
                         .HasColumnType("integer");
 
@@ -102,18 +126,24 @@ namespace WeShare.Infrastructure.Migrations
                     b.Property<int>("ToUserId")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime>("Updated_At")
+                    b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.HasKey("Id");
 
                     b.HasIndex("FromUserId");
 
-                    b.HasIndex("GroupId");
-
                     b.HasIndex("ToUserId");
 
-                    b.ToTable("GroupDebts");
+                    b.HasIndex("GroupId", "FromUserId", "ToUserId")
+                        .IsUnique();
+
+                    b.ToTable("GroupDebts", t =>
+                        {
+                            t.HasCheckConstraint("CK_GroupDebts_Amount", "\"Amount\" > 0");
+
+                            t.HasCheckConstraint("CK_GroupDebts_Users", "\"FromUserId\" <> \"ToUserId\"");
+                        });
                 });
 
             modelBuilder.Entity("WeShare.Core.Entities.GroupMember", b =>
@@ -126,6 +156,9 @@ namespace WeShare.Infrastructure.Migrations
 
                     b.Property<decimal>("Balance")
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("JoinedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("Role")
                         .HasColumnType("integer");
@@ -145,7 +178,7 @@ namespace WeShare.Infrastructure.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTime>("Created_At")
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<bool>("IsRead")
@@ -177,7 +210,7 @@ namespace WeShare.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ReceiveId");
+                    b.HasIndex("ReceiveId", "IsRead");
 
                     b.ToTable("Notifications");
                 });
@@ -215,6 +248,9 @@ namespace WeShare.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("Token")
+                        .IsUnique();
+
                     b.HasIndex("UserId");
 
                     b.ToTable("RefreshTokens");
@@ -226,13 +262,22 @@ namespace WeShare.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("integer");
 
-                    NpgsqlPropertyBuilderExtensions.UseHiLo(b.Property<int>("Id"), "task_hilo_sequence");
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Description")
                         .HasColumnType("text");
 
                     b.Property<int?>("EventId")
                         .HasColumnType("integer");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
 
                     b.Property<int>("Status")
                         .HasColumnType("integer");
@@ -241,9 +286,14 @@ namespace WeShare.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.HasKey("Id");
 
                     b.HasIndex("EventId");
+
+                    b.HasIndex("IsDeleted");
 
                     b.ToTable("Tasks");
                 });
@@ -280,7 +330,10 @@ namespace WeShare.Infrastructure.Migrations
                     b.Property<decimal>("Amount")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<DateTime?>("Created_At")
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Description")
@@ -288,6 +341,9 @@ namespace WeShare.Infrastructure.Migrations
 
                     b.Property<int>("GroupId")
                         .HasColumnType("integer");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
 
                     b.Property<int>("PayerId")
                         .HasColumnType("integer");
@@ -310,13 +366,23 @@ namespace WeShare.Infrastructure.Migrations
                     b.Property<int>("Type")
                         .HasColumnType("integer");
 
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("CreatedAt");
 
                     b.HasIndex("GroupId");
 
+                    b.HasIndex("IsDeleted");
+
                     b.HasIndex("PayerId");
 
-                    b.ToTable("Transactions");
+                    b.ToTable("Transactions", t =>
+                        {
+                            t.HasCheckConstraint("CK_Transactions_Amount", "\"Amount\" > 0");
+                        });
                 });
 
             modelBuilder.Entity("WeShare.Core.Entities.TransactionSplit", b =>
@@ -334,7 +400,10 @@ namespace WeShare.Infrastructure.Migrations
 
                     b.HasIndex("DebtorId");
 
-                    b.ToTable("TransactionSplits");
+                    b.ToTable("TransactionSplits", t =>
+                        {
+                            t.HasCheckConstraint("CK_TransactionSplits_OwedAmount", "\"OwedAmount\" >= 0");
+                        });
                 });
 
             modelBuilder.Entity("WeShare.Core.Entities.User", b =>
@@ -357,21 +426,40 @@ namespace WeShare.Infrastructure.Migrations
                     b.Property<string>("BankName")
                         .HasColumnType("text");
 
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("DefaultBankAccount")
                         .HasColumnType("text");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(150)
+                        .HasColumnType("character varying(150)");
 
                     b.Property<string>("FullName")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
 
                     b.Property<string>("PasswordHashed")
                         .HasColumnType("text");
 
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("Email")
+                        .IsUnique();
+
+                    b.HasIndex("IsDeleted");
 
                     b.ToTable("Users");
                 });

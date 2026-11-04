@@ -6,9 +6,8 @@ using WeShare.Core.Interfaces;
 
 namespace WeShare.Core.Entities
 {
-    public class Transaction : IEntity
+    public class Transaction : BaseAuditableEntity
     {
-        public int Id { get; set; }
         public int GroupId { get; set; }
         public int PayerId { get; set; }
 
@@ -16,10 +15,6 @@ namespace WeShare.Core.Entities
         public decimal Amount { get; set; }
         public string? Description { get; set; }
         public int? TaskId { get; set; }
-        [Column("Created_At")]
-        public DateTime? CreatedAt { get; set; }
-        [NotMapped]
-        public DateTime? Created_At { get => CreatedAt; set => CreatedAt = value; }
         public SplitStrategyEnum SplitStrategy { get; set; }
         public TransactionTypeEnum Type { get; set; }
         public TransactionPaymentTypeEnum PaymentType { get; set; }
