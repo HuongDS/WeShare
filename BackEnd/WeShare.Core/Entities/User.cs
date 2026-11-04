@@ -3,9 +3,8 @@ using WeShare.Core.Interfaces;
 
 namespace WeShare.Core.Entities
 {
-    public class User : IEntity
+    public class User : BaseAuditableEntity
     {
-        public int Id { get; set; }
         public string FullName { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
         public string? Avatar { get; set; }

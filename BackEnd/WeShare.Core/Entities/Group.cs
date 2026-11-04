@@ -5,9 +5,8 @@ using WeShare.Core.Interfaces;
 
 namespace WeShare.Core.Entities
 {
-    public class Group : IEntity
+    public class Group : BaseAuditableEntity
     {
-        public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public GroupTypeEnum Type { get; set; }
         public string? Description { get; set; }

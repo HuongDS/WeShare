@@ -10,6 +10,6 @@ namespace WeShare.Application.Dtos.GroupDebt
         public UserViewDto? FromUser { get; set; }
         public UserViewDto? ToUser { get; set; }
         public decimal Amount { get; set; }
-        public DateTime Updated_At { get; set; }
+        public DateTime UpdatedAt { get; set; }
     }
 }

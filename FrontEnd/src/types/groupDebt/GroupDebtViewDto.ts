@@ -6,5 +6,5 @@ export interface GroupDebtViewDto {
   fromUser: UserViewDto
   toUser: UserViewDto
   amount: number
-  updated_At: Date
+  updatedAt: Date
 }

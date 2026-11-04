@@ -14,7 +14,7 @@ namespace WeShare.Core.Entities
         public NotificationTypeEnum Type { get; set; }
         public int? RelatedTransactionId { get; set; }
         public int? RelatedGroupId { get; set; }
-        public DateTime Created_At { get; set; } = DateTime.UtcNow;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
         public User Receiver { get; set; } = null!;
     }
 }

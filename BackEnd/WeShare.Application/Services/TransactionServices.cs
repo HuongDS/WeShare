@@ -53,7 +53,7 @@ namespace WeShare.Application.Services
                 PayerId = data.PayerId,
                 Amount = data.Amount,
                 Description = data.Description,
-                Created_At = DateTime.UtcNow,
+                CreatedAt = DateTime.UtcNow,
                 SplitStrategy = data.Strategy,
                 Type = data.Type,
                 ProofUrl = data.ReceiptUrl
@@ -103,7 +103,7 @@ namespace WeShare.Application.Services
                     Type = Core.Enums.NotificationTypeEnum.PAYMENT,
                     RelatedTransactionId = newTransaction.Id,
                     RelatedGroupId = data.GroupId,
-                    Created_At = DateTime.UtcNow
+                    CreatedAt = DateTime.UtcNow
                 };
                 await notiRepo.AddAsync(newNoti);
             }
@@ -128,7 +128,7 @@ namespace WeShare.Application.Services
                 Amount = newTransaction.Amount,
                 Description = newTransaction.Description,
                 Task = newTransaction.TaskId.HasValue ? _mapper.Map<TaskViewDto>(task) : null,
-                CreatedAt = (newTransaction.CreatedAt ?? DateTime.UtcNow),
+                CreatedAt = newTransaction.CreatedAt,
                 SplitStrategy = newTransaction.SplitStrategy,
                 TransactionSplits = _mapper.Map<IEnumerable<TransactionSplitViewDto>>(newTransaction.TransactionSplits)
             };
@@ -233,7 +233,7 @@ namespace WeShare.Application.Services
                 Amount = transaction.Amount,
                 Description = transaction.Description,
                 Task = transaction.TaskId.HasValue ? _mapper.Map<TaskViewDto>(task) : null,
-                CreatedAt = (transaction.Created_At ?? DateTime.UtcNow),
+                CreatedAt = transaction.CreatedAt,
                 SplitStrategy = transaction.SplitStrategy,
                 TransactionSplits = _mapper.Map<IEnumerable<TransactionSplitViewDto>>(transaction.TransactionSplits)
             };
@@ -263,7 +263,7 @@ namespace WeShare.Application.Services
                     Amount = transaction.Amount,
                     Description = transaction.Description,
                     Task = transaction.TaskId.HasValue ? _mapper.Map<TaskViewDto>(task) : null,
-                    CreatedAt = (transaction.Created_At ?? DateTime.UtcNow),
+                    CreatedAt = transaction.CreatedAt,
                     SplitStrategy = transaction.SplitStrategy,
                     TransactionSplits = _mapper.Map<IEnumerable<TransactionSplitViewDto>>(transaction.TransactionSplits),
                     ProofUrl = transaction.ProofUrl
@@ -303,7 +303,7 @@ namespace WeShare.Application.Services
                     Amount = transaction.Amount,
                     Description = transaction.Description,
                     Task = transaction.TaskId.HasValue ? _mapper.Map<TaskViewDto>(task) : null,
-                    CreatedAt = (transaction.Created_At ?? DateTime.UtcNow),
+                    CreatedAt = transaction.CreatedAt,
                     SplitStrategy = transaction.SplitStrategy,
                     TransactionSplits = _mapper.Map<IEnumerable<TransactionSplitViewDto>>(transaction.TransactionSplits)
                 };
@@ -413,7 +413,7 @@ namespace WeShare.Application.Services
                 Type = Core.Enums.NotificationTypeEnum.PAYMENT,
                 RelatedTransactionId = newSettlement.Id,
                 RelatedGroupId = data.GroupId,
-                Created_At = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow
             };
             await _unitOfWork.Repository<Notification>().AddAsync(newNotification);
             await _unitOfWork.CompleteAsync();
@@ -483,7 +483,7 @@ namespace WeShare.Application.Services
                 Type = Core.Enums.NotificationTypeEnum.PAYMENT,
                 RelatedTransactionId = transaction.Id,
                 RelatedGroupId = transaction.GroupId,
-                Created_At = DateTime.UtcNow
+                CreatedAt = DateTime.UtcNow
             };
             await _unitOfWork.Repository<Notification>().AddAsync(newNotification);
             await _unitOfWork.CompleteAsync();
@@ -501,7 +501,7 @@ namespace WeShare.Application.Services
                 Description = t.Description,
                 Payer = _mapper.Map<UserViewDto>(t.Payer),
                 GroupId = t.GroupId,
-                CreatedAt = t.Created_At,
+                CreatedAt = t.CreatedAt,
                 SplitStrategy = t.SplitStrategy,
                 TransactionSplits = _mapper.Map<IEnumerable<TransactionSplitViewDto>>(t.TransactionSplits),
                 ProofUrl = t.ProofUrl,

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using WeShare.Core.Enums;
@@ -9,6 +10,7 @@ namespace WeShare.Core.Entities
         public int UserId { get; set; }
         public int GroupId { get; set; }
         public GroupRoleEnum Role { get; set; }
+        public DateTime JoinedAt { get; set; }
 
         [Column(TypeName = "decimal(18,2)")]
         public decimal Balance { get; set; }

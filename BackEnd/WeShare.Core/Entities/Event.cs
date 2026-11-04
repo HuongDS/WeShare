@@ -4,9 +4,8 @@ using WeShare.Core.Interfaces;
 
 namespace WeShare.Core.Entities
 {
-    public class Event : IEntity
+    public class Event : BaseAuditableEntity
     {
-        public int Id { get; set; }
         public int GroupId { get; set; }
         public string Name { get; set; } = string.Empty;
         public string? Description { get; set; }
