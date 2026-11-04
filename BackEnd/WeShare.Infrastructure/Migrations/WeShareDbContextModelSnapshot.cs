@@ -33,11 +33,11 @@ namespace WeShare.Infrastructure.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
-                    b.Property<DateTime?>("Date")
-                        .HasColumnType("timestamp with time zone");
-
                     b.Property<string>("Description")
                         .HasColumnType("text");
+
+                    b.Property<DateTime?>("EventDate")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int>("GroupId")
                         .HasColumnType("integer");
@@ -45,9 +45,6 @@ namespace WeShare.Infrastructure.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<DateTime?>("Time")
-                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");

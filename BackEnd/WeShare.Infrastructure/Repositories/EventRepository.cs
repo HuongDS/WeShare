@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,13 +16,13 @@ namespace WeShare.Infrastructure.Repositories
         {
         }
 
-        public async Task<PageResultDto<Event>> GetWithPaginationAsync(int pageSize, int pageIndex, string key, DateTime? date, DateTime? time, IEnumerable<int> groupIds)
+        public async Task<PageResultDto<Event>> GetWithPaginationAsync(int pageSize, int pageIndex, string key, DateTime? date, IEnumerable<int> groupIds)
         {
+            var dayStart = DateTime.SpecifyKind((date ?? DateTime.UtcNow).Date, DateTimeKind.Utc);
             var query = _dbSet.Where(e => groupIds.Contains(e.GroupId));
             query = query.Where(e => e.Name.Contains(key) ||
             (e.Description != null && e.Description.Contains(key)) ||
-            (date.HasValue && e.Date == date.Value.Date) ||
-            (time.HasValue && e.Time == time.Value)).AsQueryable();
+            (date.HasValue && e.EventDate >= dayStart && e.EventDate < dayStart.AddDays(1))).AsQueryable();
             return await PaginationExtension.PaginationAsync<Event>(query, pageSize, pageIndex);
         }
     }

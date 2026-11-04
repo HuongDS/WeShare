@@ -9,8 +9,8 @@ namespace WeShare.Core.Entities
         public int GroupId { get; set; }
         public string Name { get; set; } = string.Empty;
         public string? Description { get; set; }
-        public DateTime? Date { get; set; }
-        public DateTime? Time { get; set; }
+        /// <summary>Scheduled date and time of the event (UTC).</summary>
+        public DateTime? EventDate { get; set; }
         public ICollection<Task> Tasks { get; set; } = new List<Task>();
         public Group Group { get; set; } = null!;
     }

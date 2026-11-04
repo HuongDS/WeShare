@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -33,7 +33,7 @@ namespace WeShare.Application.Services
             var entity = await eventRepo.GetByIdAsync(eventId);
             if (entity == null)
             {
-                throw new Exception(ErrorMessage.EVENT_NOT_FOUND);
+                throw new WeShare.Core.Exceptions.NotFoundException(ErrorMessage.EVENT_NOT_FOUND);
             }
             return _mapper.Map<EventViewDto>(entity);
         }
@@ -45,10 +45,10 @@ namespace WeShare.Application.Services
             return _mapper.Map<IEnumerable<EventViewDto>>(entities);
         }
 
-        public async Task<PageResultDto<EventViewDto>> GetAsync(int userId, int pageSize, int pageIndex, string key, DateTime? date, DateTime? time)
+        public async Task<PageResultDto<EventViewDto>> GetAsync(int userId, int pageSize, int pageIndex, string key, DateTime? date)
         {
             var groupIds = await _groupMemberRepository.GetGroupIdsAsync(userId);
-            var result = await _eventRepository.GetWithPaginationAsync(pageSize, pageIndex, key, date, time, groupIds);
+            var result = await _eventRepository.GetWithPaginationAsync(pageSize, pageIndex, key, date, groupIds);
             var mappedItems = _mapper.Map<List<EventViewDto>>(result.Items);
             return new PageResultDto<EventViewDto>
             {
@@ -89,7 +89,7 @@ namespace WeShare.Application.Services
             var entity = await _eventRepository.GetByIdAsync(data.Id);
             if (entity is null)
             {
-                throw new Exception(ErrorMessage.EVENT_NOT_FOUND);
+                throw new WeShare.Core.Exceptions.NotFoundException(ErrorMessage.EVENT_NOT_FOUND);
             }
             //entity = _mapper.Map<Core.Entities.Event>(data); // create a new entity from data
             _mapper.Map(data, entity); // map data to existing entity - dont create a new one
@@ -103,7 +103,7 @@ namespace WeShare.Application.Services
             var entity = await _eventRepository.GetByIdAsync(eventId);
             if (entity is null)
             {
-                throw new Exception(ErrorMessage.EVENT_NOT_FOUND);
+                throw new WeShare.Core.Exceptions.NotFoundException(ErrorMessage.EVENT_NOT_FOUND);
             }
             _eventRepository.Delete(entity);
             await _unitOfWork.CompleteAsync();

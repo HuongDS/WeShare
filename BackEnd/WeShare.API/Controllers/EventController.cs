@@ -1,4 +1,4 @@
-﻿using System.Net;
+using System.Net;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -95,8 +95,7 @@ namespace WeShare.API.Controllers
             [FromQuery] int pageSize,
             [FromQuery] int pageIndex,
             [FromQuery] string key = "",
-            [FromQuery] DateTime? date = null,
-            [FromQuery] DateTime? time = null)
+            [FromQuery] DateTime? date = null)
         {
             try
             {
@@ -110,7 +109,7 @@ namespace WeShare.API.Controllers
                         Data = false
                     });
                 }
-                var res = await _eventServices.GetAsync(int.Parse(userId), pageSize, pageIndex, key, date, time);
+                var res = await _eventServices.GetAsync(int.Parse(userId), pageSize, pageIndex, key, date);
                 return Ok(new ResponseDto<PageResultDto<EventViewDto>>
                 {
                     Status = (int)HttpStatusCode.OK,
