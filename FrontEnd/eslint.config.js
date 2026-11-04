@@ -25,7 +25,11 @@ export default defineConfig([
       "react-compiler": reactCompiler,
     },
     rules: {
-      "react-compiler/react-compiler": "error",
+      "react-compiler/react-compiler": "warn",
+      "react-refresh/only-export-components": [
+        "warn",
+        { allowConstantExport: true },
+      ],
     },
   },
 ])

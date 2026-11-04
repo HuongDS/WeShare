@@ -85,11 +85,11 @@ export default function SettlementsTable({
   const { groupDebtThatIAmOwed } = useGetGroupDebtThatIAmOwed(groupId)
   const currentUserId = useAppSelector((state) => state.auth.user?.userId)
 
-  const myDebts = myGroupDebts.data?.data || []
-  const owedToMe = groupDebtThatIAmOwed.data?.data || []
 
   const isLoading = myGroupDebts.isLoading || groupDebtThatIAmOwed.isLoading
   const combinedDebts: CombinedDebtItem[] = useMemo(() => {
+    const myDebts = myGroupDebts.data?.data || []
+    const owedToMe = groupDebtThatIAmOwed.data?.data || []
     return [
       ...myDebts.map((debt) => ({
         id: `owed-${debt.id}`,
@@ -104,7 +104,7 @@ export default function SettlementsTable({
         member: debt.fromUser,
       })),
     ]
-  }, [myDebts, owedToMe])
+  }, [myGroupDebts.data?.data, groupDebtThatIAmOwed.data?.data])
 
   const filteredDebts = useMemo(() => {
     const normalizedQuery = searchQuery.trim().toLowerCase()

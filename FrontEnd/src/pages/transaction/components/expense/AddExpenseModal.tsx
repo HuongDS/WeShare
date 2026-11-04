@@ -93,7 +93,8 @@ export default function AddExpenseModal({
   const amount = useWatch({ control, name: "amount" }) || 0
   const splitStrategy = useWatch({ control, name: "splitStrategy" })
   const debtIds = useWatch({ control, name: "debtIds" })
-  const splitAmounts = useWatch({ control, name: "splitAmounts" }) || {}
+  const splitAmountsRaw = useWatch({ control, name: "splitAmounts" })
+  const splitAmounts = useMemo(() => splitAmountsRaw || {}, [splitAmountsRaw])
 
   const { members } = useGetGroupMembers(parsedGroupId)
 
@@ -294,6 +295,9 @@ export default function AddExpenseModal({
       description: values.description,
       receiptUrl: uploadedReceiptUrl,
       taskId: null,
+      strategy: mapSplitStrategyToBackend(
+        values.splitStrategy as SplitStrategyEnum
+      ),
       stategy: mapSplitStrategyToBackend(
         values.splitStrategy as SplitStrategyEnum
       ),

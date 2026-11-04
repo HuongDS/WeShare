@@ -1,4 +1,5 @@
 import * as React from "react"
+import { cn } from "@/lib/utils"
 
 export interface SwitchProps extends React.InputHTMLAttributes<HTMLInputElement> {
   onCheckedChange?: (checked: boolean) => void
@@ -6,7 +7,7 @@ export interface SwitchProps extends React.InputHTMLAttributes<HTMLInputElement>
 
 const Switch = React.forwardRef<HTMLInputElement, SwitchProps>(
   ({ className, onCheckedChange, checked, ...props }, ref) => (
-    <label className="flex cursor-pointer items-center gap-2">
+    <label className={cn("flex cursor-pointer items-center gap-2", className)}>
       <input
         type="checkbox"
         ref={ref}

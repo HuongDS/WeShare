@@ -3,7 +3,7 @@ import { Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { useGetTransactions } from "@/hooks/transaction/useTransaction"
 import ExpenseList from "@/pages/transaction/components/expense/ExpenseList"
-import AddExpenseModal from "@/pages/transaction/components/expense/AddExpenseModal_v4"
+import AddExpenseModal from "@/pages/transaction/components/expense/AddExpenseModal"
 
 interface ExpensesTabProps {
   groupId: string

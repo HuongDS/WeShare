@@ -7,7 +7,8 @@ export interface CreateTransactionDto {
   amount: number
   description?: string | null
   taskId?: number | null
-  stategy: number | SplitStrategyEnum
+  strategy?: number | SplitStrategyEnum
+  stategy?: number | SplitStrategyEnum
   type: number | TransactionTypeEnumString
   splitAmounts?: Record<number, number> | null
   debtIds: number[]
