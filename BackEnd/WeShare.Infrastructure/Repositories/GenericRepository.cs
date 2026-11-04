@@ -52,7 +52,7 @@ namespace WeShare.Infrastructure.Repositories
             {
                 foreach (var include in includes)
                 {
-                    query.Include(include);
+                    query = query.Include(include);
                 }
             }
             return await query.Where(predicate).ToListAsync();
@@ -101,9 +101,17 @@ namespace WeShare.Infrastructure.Repositories
             return await _dbSet.FirstOrDefaultAsync(predicate);
         }
         public async Task<(IEnumerable<T> Items, int TotalCount)> GetPagedAsync(
-    Expression<Func<T, bool>> predicate, int pageIndex, int pageSize)
+    Expression<Func<T, bool>> predicate, int pageIndex, int pageSize, params Expression<Func<T, object>>[] includes)
         {
             var query = _context.Set<T>().AsQueryable();
+
+            if (includes != null)
+            {
+                foreach (var include in includes)
+                {
+                    query = query.Include(include);
+                }
+            }
 
             if (predicate != null)
             {

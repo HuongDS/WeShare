@@ -93,4 +93,20 @@ export const transactionApi = {
     )
     return res.data
   },
+  getTransactionByPayerId: async (
+    groupId: number,
+    payerId: string | number,
+    pageSize: number,
+    pageIndex: number
+  ) => {
+    const res = await axiosClient.get<
+      ResponseDto<PageResultResponse<TransactionViewDto>>
+    >(`/transaction/group/${groupId}/payer/${payerId}`, {
+      params: {
+        pageSize,
+        pageIndex,
+      },
+    })
+    return res.data
+  },
 }

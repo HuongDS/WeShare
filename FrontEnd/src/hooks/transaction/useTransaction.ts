@@ -124,3 +124,24 @@ export const useUploadProof = () => {
   })
   return { uploadUrlProof }
 }
+
+export const useGetTransactionByPayerId = (
+  groupId: number,
+  payerId: string | number,
+  pageSize: number,
+  pageIndex: number,
+  enabled = true
+) => {
+  const transactionsByPayerId = useQuery({
+    queryKey: ["transactionsByPayerId", groupId, payerId, pageSize, pageIndex],
+    queryFn: () =>
+      transactionApi.getTransactionByPayerId(
+        groupId,
+        payerId,
+        pageSize,
+        pageIndex
+      ),
+    enabled,
+  })
+  return { transactionsByPayerId }
+}

@@ -489,5 +489,32 @@ namespace WeShare.Application.Services
             await _unitOfWork.CompleteAsync();
             return transaction.Id;
         }
+        public async Task<PageResultDto<TransactionViewDto>> GetTransactionsByGroupIdAndPayerIdAsync(int groupId, int payerId, int pageSize, int pageIndex)
+        {
+            var (transactions, totalCount) = await _unitOfWork.Repository<Core.Entities.Transaction>()
+                .GetPagedAsync(t => t.GroupId == groupId && t.PayerId == payerId, pageIndex, pageSize,
+                t => t.Payer, t => t.TransactionSplits);
+            var transactionDtos = transactions.Select(t => new TransactionViewDto
+            {
+                Id = t.Id,
+                Amount = t.Amount,
+                Description = t.Description,
+                Payer = _mapper.Map<UserViewDto>(t.Payer),
+                GroupId = t.GroupId,
+                CreatedAt = t.Created_At,
+                SplitStrategy = t.SplitStrategy,
+                TransactionSplits = _mapper.Map<IEnumerable<TransactionSplitViewDto>>(t.TransactionSplits),
+                ProofUrl = t.ProofUrl,
+
+            }).ToList();
+
+            return new PageResultDto<TransactionViewDto>
+            {
+                Items = transactionDtos,
+                TotalItems = totalCount,
+                PageSize = pageSize,
+                PageIndex = pageIndex
+            };
+        }
     }
 }

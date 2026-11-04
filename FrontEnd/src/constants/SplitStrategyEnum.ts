@@ -16,3 +16,20 @@ export const mapSplitStrategyToBackend = (
       return 0
   }
 }
+
+export const mapSplitStrategyToBackend_num_to_string = (
+  strategy: number | SplitStrategyEnum
+): string => {
+  switch (strategy) {
+    case 0:
+      return "EQUALLY"
+    case 1:
+      return "EXACTLY"
+    case 2:
+      return "PERCENTAGE"
+    case 3:
+      return "OTHER"
+    default:
+      return "EQUALLY"
+  }
+}

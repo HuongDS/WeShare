@@ -22,6 +22,6 @@ namespace WeShare.Core.Interfaces
         Task<(IEnumerable<T> Items, int TotalCount)> GetPagedAsync(
             Expression<Func<T, bool>> predicate,
             int pageIndex,
-            int pageSize);
+            int pageSize, params Expression<Func<T, object>>[] includes);
     }
 }

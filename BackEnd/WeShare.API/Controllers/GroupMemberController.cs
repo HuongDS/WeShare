@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using WeShare.Application.Dtos.GroupMember;
 using WeShare.Application.Interfaces;
@@ -12,6 +13,7 @@ namespace WeShare.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class GroupMemberController : ControllerBase
     {
         private readonly IGroupMemberServices _groupMemberServices;

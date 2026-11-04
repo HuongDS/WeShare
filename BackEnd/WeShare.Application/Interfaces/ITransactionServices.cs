@@ -17,6 +17,7 @@ namespace WeShare.Application.Interfaces
         Task<bool> DeleteTransactionAsync(int userId, int transactionId);
         Task<IEnumerable<int>> GetDebtIdsAsync(int transactionId);
         Task<TransactionViewDto> GetTransactionDetailsAsync(int transactionId);
+        Task<PageResultDto<TransactionViewDto>> GetTransactionsByGroupIdAndPayerIdAsync(int groupId, int payerId, int pageSize, int pageIndex);
         Task<PageResultDto<TransactionViewDto>> GetTransactionsByGroupIdAsync(int groupId, int pageSize, int pageIndex);
         Task<PageResultDto<TransactionViewDto>> GetTransactionsByPayerIdAsync(int payerId, int pageSize, int pageIndex);
         Task<bool> IsUserPayerOfTransactionAsync(int userId, int transactionId);

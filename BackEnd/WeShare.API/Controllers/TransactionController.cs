@@ -149,5 +149,16 @@ namespace WeShare.API.Controllers
                 Data = res.Url
             });
         }
+        [HttpGet("group/{groupId}/payer/{payerId}")]
+        public async Task<IActionResult> GetTransactionsByGroupIdAndPayerId([FromRoute] int groupId, [FromRoute] int payerId, [FromQuery] int pageSize, [FromQuery] int pageIndex)
+        {
+            var res = await _transactionServices.GetTransactionsByGroupIdAndPayerIdAsync(groupId, payerId, pageSize, pageIndex);
+            return Ok(new ResponseDto<PageResultDto<TransactionViewDto>>
+            {
+                Status = (int)HttpStatusCode.OK,
+                Message = SuccessMessage.GET_TRANSACTIONS_SUCCESSFULLY,
+                Data = res
+            });
+        }
     }
 }

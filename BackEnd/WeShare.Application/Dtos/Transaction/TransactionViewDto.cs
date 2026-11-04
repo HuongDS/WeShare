@@ -20,7 +20,7 @@ namespace WeShare.Application.Dtos.Transaction
         public decimal Amount { get; set; }
         public string? Description { get; set; }
         public TaskViewDto? Task { get; set; }
-        public DateTime CreatedAt { get; set; }
+        public DateTime? CreatedAt { get; set; }
         public SplitStrategyEnum SplitStrategy { get; set; }
         public IEnumerable<TransactionSplitViewDto> TransactionSplits { get; set; }
         public string? ProofUrl { get; set; }

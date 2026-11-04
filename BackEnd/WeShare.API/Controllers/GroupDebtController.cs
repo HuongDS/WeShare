@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using WeShare.Application.Dtos.GroupDebt;
 using WeShare.Application.Interfaces;
@@ -11,6 +12,7 @@ namespace WeShare.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class GroupDebtController : ControllerBase
     {
         private readonly IGroupDebtServices _groupDebtServices;
