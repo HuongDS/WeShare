@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,6 +11,7 @@ namespace WeShare.Application.Interfaces
     public interface ITransactionServices
     {
         Task<int> ConfirmSettlementAsync(int transactionId, int userId);
+        Task<int> RejectSettlementAsync(int transactionId, int userId);
         Task<IEnumerable<int>> CreateMultiSettlementAsyc(int userId, List<CreateSettlementDto> data);
         Task<int> CreateSingleSettlementAsync(int userId, CreateSettlementDto data);
         Task<TransactionViewDto> CreateTransactionAsync(int userId, CreateTransactionDto data);

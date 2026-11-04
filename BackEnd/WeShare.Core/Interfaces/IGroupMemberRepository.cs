@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -23,6 +23,8 @@ namespace WeShare.Core.Interfaces
         Task<PageResultDto<GroupMember>> GetGroupMembersPaginationAsync(int groupId, int pageSize, int pageIndex);
         System.Threading.Tasks.Task RevertTransactionAsync(GroupMember data, decimal balance);
         GroupMember Update(GroupMember data);
+        System.Threading.Tasks.Task UpdateBalanceAsync(int groupId, int userId, decimal amountDelta);
+        System.Threading.Tasks.Task UpdateBalancesRange(int groupId, Dictionary<int, decimal> groupMemberIds);
         System.Threading.Tasks.Task UpdateBalancesRange(Dictionary<int, decimal> groupMemberIds);
         System.Threading.Tasks.Task UpdateBalancesRange(int userId, decimal amount);
     }

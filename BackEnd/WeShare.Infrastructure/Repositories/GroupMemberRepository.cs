@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -9,7 +9,6 @@ using WeShare.Core.Entities;
 using WeShare.Core.Interfaces;
 using WeShare.Core.Other;
 using WeShare.Infrastructure.Extension;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace WeShare.Infrastructure.Repositories
 {
@@ -89,6 +88,30 @@ namespace WeShare.Infrastructure.Repositories
             entity.Balance += balance;
             _context.GroupMembers.Update(entity);
         }
+
+        public async System.Threading.Tasks.Task UpdateBalanceAsync(int groupId, int userId, decimal amountDelta)
+        {
+            var entity = await _context.GroupMembers.FirstOrDefaultAsync(gm => gm.GroupId == groupId && gm.UserId == userId);
+            if (entity != null)
+            {
+                entity.Balance += amountDelta;
+                _context.GroupMembers.Update(entity);
+            }
+        }
+
+        public async System.Threading.Tasks.Task UpdateBalancesRange(int groupId, Dictionary<int, decimal> groupMemberIds)
+        {
+            var memberIds = groupMemberIds.Keys.ToList();
+            var entities = await _context.GroupMembers
+                .Where(gm => gm.GroupId == groupId && memberIds.Contains(gm.UserId))
+                .ToListAsync();
+            foreach (var entity in entities)
+            {
+                entity.Balance += groupMemberIds[entity.UserId];
+            }
+            _context.GroupMembers.UpdateRange(entities);
+        }
+
         public async System.Threading.Tasks.Task UpdateBalancesRange(Dictionary<int, decimal> groupMemberIds)
         {
             var entities = await _context.GroupMembers.Where(gm => groupMemberIds.Keys.Contains(gm.UserId)).ToListAsync();
@@ -98,6 +121,7 @@ namespace WeShare.Infrastructure.Repositories
             }
             _context.GroupMembers.UpdateRange(entities);
         }
+
         public async System.Threading.Tasks.Task UpdateBalancesRange(int userId, decimal amount)
         {
             var entity = await _context.GroupMembers.FirstOrDefaultAsync(gm => gm.UserId == userId);
@@ -107,6 +131,7 @@ namespace WeShare.Infrastructure.Repositories
                 _context.GroupMembers.Update(entity);
             }
         }
+
         public async Task<decimal> GetBalanceInGroupAsync(int groupId, int userId)
         {
             var entity = await _context.GroupMembers.FirstOrDefaultAsync(gm => gm.GroupId == groupId && gm.UserId == userId);
