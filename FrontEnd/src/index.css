@@ -6,6 +6,18 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
+    --color-forest-ink: #163300;
+    --color-lime-voltage: #9fe870;
+    --color-spruce: #054d28;
+    --color-linen-mist: #e2f6d5;
+    --color-signal-blue: #0b4c72;
+    --color-alarm-red: #cb272f;
+    --color-charcoal: #454745;
+    --color-obsidian: #0e0f0c;
+    --color-pebble: #868685;
+    --color-slate: #6a6c6a;
+    --color-fog: #e8ebe6;
+    --color-paper: #ffffff;
     --font-heading: var(--font-sans);
     --font-sans: 'Noto Sans Variable', sans-serif;
     --color-sidebar-ring: var(--sidebar-ring);

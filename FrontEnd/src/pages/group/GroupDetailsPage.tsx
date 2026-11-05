@@ -167,7 +167,7 @@ export default function GroupDetailsPage() {
           </TabsContent>
 
           <TabsContent value="expenses">
-            <ExpensesTab groupId={id || ""} />
+            <ExpensesTab groupId={id || ""} groupName={groupData.name} />
           </TabsContent>
 
           <TabsContent value="settlements">

@@ -1,0 +1,110 @@
+import { useLocation, useNavigate } from "react-router-dom"
+import { Home, Users, Plus, User, Receipt } from "lucide-react"
+import { motion } from "framer-motion"
+import { cn } from "@/lib/utils"
+
+interface BottomNavProps {
+  onQuickAdd?: () => void
+}
+
+export default function BottomNav({ onQuickAdd }: BottomNavProps) {
+  const location = useLocation()
+  const navigate = useNavigate()
+
+  const navItems = [
+    {
+      id: "dashboard",
+      label: "Home",
+      icon: Home,
+      path: "/dashboard",
+    },
+    {
+      id: "groups",
+      label: "Groups",
+      icon: Users,
+      path: "/groups",
+    },
+    {
+      id: "quick-add",
+      label: "New",
+      isAction: true,
+      icon: Plus,
+    },
+    {
+      id: "expenses",
+      label: "Activity",
+      icon: Receipt,
+      path: "/expenses",
+    },
+    {
+      id: "profile",
+      label: "Profile",
+      icon: User,
+      path: "/profile",
+    },
+  ]
+
+  const isActive = (path?: string) => {
+    if (!path) return false
+    if (path === "/groups") return location.pathname.startsWith("/groups")
+    return location.pathname === path
+  }
+
+  const handleAction = () => {
+    if (onQuickAdd) {
+      onQuickAdd()
+    } else {
+      navigate("/groups")
+    }
+  }
+
+  return (
+    <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-border/80 bg-background/95 pb-safe backdrop-blur-md lg:hidden">
+      <div className="mx-auto flex h-16 max-w-md items-center justify-around px-2">
+        {navItems.map((item) => {
+          if (item.isAction) {
+            return (
+              <motion.button
+                key={item.id}
+                type="button"
+                whileTap={{ scale: 0.92 }}
+                onClick={handleAction}
+                aria-label="Add new expense or group"
+                className="-mt-5 flex h-12 w-12 items-center justify-center rounded-full bg-lime-voltage text-forest-ink shadow-lg shadow-lime-voltage/30 transition-transform focus:outline-none"
+              >
+                <item.icon className="h-6 w-6 stroke-[2.5]" />
+              </motion.button>
+            )
+          }
+
+          const active = isActive(item.path)
+          const Icon = item.icon
+
+          return (
+            <button
+              key={item.id}
+              type="button"
+              onClick={() => item.path && navigate(item.path)}
+              className={cn(
+                "relative flex flex-col items-center justify-center py-1 px-3 text-xs font-medium transition-colors focus:outline-none",
+                active
+                  ? "text-forest-ink dark:text-lime-voltage font-semibold"
+                  : "text-muted-foreground hover:text-foreground"
+              )}
+            >
+              {active && (
+                <motion.div
+                  layoutId="bottomNavIndicator"
+                  className="absolute -top-1 h-1 w-6 rounded-full bg-lime-voltage"
+                  transition={{ type: "spring", stiffness: 400, damping: 30 }}
+                />
+              )}
+              <Icon className="h-5 w-5 mb-0.5" />
+              <span>{item.label}</span>
+            </button>
+          )
+        })}
+      </div>
+    </nav>
+  )
+}
