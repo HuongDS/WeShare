@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from "react-router-dom"
-import { Home, Users, Plus, User, Receipt } from "lucide-react"
+import { Home, Users, Plus, User } from "lucide-react"
 import { motion } from "framer-motion"
 import { cn } from "@/lib/utils"
 
@@ -29,12 +29,6 @@ export default function BottomNav({ onQuickAdd }: BottomNavProps) {
       label: "New",
       isAction: true,
       icon: Plus,
-    },
-    {
-      id: "expenses",
-      label: "Activity",
-      icon: Receipt,
-      path: "/expenses",
     },
     {
       id: "profile",
@@ -86,9 +80,9 @@ export default function BottomNav({ onQuickAdd }: BottomNavProps) {
               type="button"
               onClick={() => item.path && navigate(item.path)}
               className={cn(
-                "relative flex flex-col items-center justify-center py-1 px-3 text-xs font-medium transition-colors focus:outline-none",
+                "relative flex flex-col items-center justify-center py-1 px-4 text-xs font-medium transition-colors focus:outline-none",
                 active
-                  ? "text-forest-ink dark:text-lime-voltage font-semibold"
+                  ? "text-forest-ink dark:text-lime-voltage font-bold"
                   : "text-muted-foreground hover:text-foreground"
               )}
             >
@@ -99,8 +93,13 @@ export default function BottomNav({ onQuickAdd }: BottomNavProps) {
                   transition={{ type: "spring", stiffness: 400, damping: 30 }}
                 />
               )}
-              <Icon className="h-5 w-5 mb-0.5" />
-              <span>{item.label}</span>
+              <Icon
+                className={cn(
+                  "h-5 w-5 transition-transform",
+                  active && "scale-110"
+                )}
+              />
+              <span className="mt-1 text-[11px] tracking-tight">{item.label}</span>
             </button>
           )
         })}

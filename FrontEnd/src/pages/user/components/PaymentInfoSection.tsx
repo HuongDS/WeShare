@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/popover"
 import type { UserViewDto } from "@/types/user/UserViewDto"
 import type { BankDto } from "@/types/banks/BankDto"
+import { cn } from "@/lib/utils"
 
 const paymentProfileSchema = z.object({
   bankId: z.string().min(1, "Please select a bank"),
@@ -92,58 +93,65 @@ export function PaymentInfoSection({
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.2 }}
     >
-      <Card className="border border-slate-200 bg-white p-6">
+      <Card className="rounded-3xl border border-border/80 bg-card p-6 shadow-xs">
         {!isEditing ? (
           // Read-Only View
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h2 className="text-lg font-semibold text-slate-900">
+              <h2 className="text-lg font-bold tracking-tight text-foreground">
                 Payment Information
               </h2>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setIsEditing(true)}
-                className="gap-2 hover:bg-slate-100"
+                className="gap-2 rounded-full hover:bg-muted text-foreground"
               >
                 <Edit2 className="h-4 w-4" />
-                Edit Payment Info
+                Edit Bank Info
               </Button>
             </div>
 
-            <div className="space-y-4 rounded-lg bg-slate-50 p-4">
+            <div className="space-y-4 rounded-2xl bg-muted/40 border border-border/60 p-5">
               <div>
-                <p className="text-xs font-medium text-slate-500">Bank</p>
-                <div className="mt-3 flex items-center gap-3">
-                  {userData?.bankName !== undefined ? (
+                <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  Default Bank
+                </p>
+                <div className="mt-2.5 flex items-center gap-3">
+                  {userData?.bankName ? (
                     <>
                       {currentBank?.logo && (
-                        <img
-                          src={currentBank.logo}
-                          alt={currentBank.shortName}
-                          className="h-12 w-12 object-contain"
-                        />
+                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-card border border-border p-1.5 shadow-xs">
+                          <img
+                            src={currentBank.logo}
+                            alt={currentBank.shortName}
+                            className="h-full w-full object-contain"
+                          />
+                        </div>
                       )}
                       <div>
-                        <p className="text-lg font-medium text-slate-900">
-                          {currentBank?.name || "N/A"}
+                        <p className="text-base font-bold text-foreground">
+                          {currentBank?.name || userData.bankName}
                         </p>
-                        <p className="text-xs text-slate-500">
+                        <p className="text-xs text-muted-foreground">
                           {currentBank?.shortName || ""}
                         </p>
                       </div>
                     </>
                   ) : (
-                    <p className="text-lg font-medium text-slate-900">N/A</p>
+                    <p className="text-base font-semibold text-muted-foreground">
+                      No bank connected yet
+                    </p>
                   )}
                 </div>
               </div>
+
               <div>
-                <p className="text-xs font-medium text-slate-500">
+                <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
                   Account Number
                 </p>
-                <p className="mt-1 font-mono text-sm font-semibold text-slate-900">
-                  {userData?.defaultBankAccount || "N/A"}
+                <p className="mt-1 font-mono text-base font-bold text-foreground tracking-wider">
+                  {userData?.defaultBankAccount || "Not provided"}
                 </p>
               </div>
             </div>
@@ -151,26 +159,29 @@ export function PaymentInfoSection({
         ) : (
           // Edit Mode
           <div className="space-y-4">
-            <h2 className="text-lg font-semibold text-slate-900">
+            <h2 className="text-lg font-bold tracking-tight text-foreground">
               Edit Payment Information
             </h2>
 
             <form onSubmit={handleSubmit(handleFormSubmit)}>
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {/* Bank Selection with Combobox */}
                 <div>
-                  <Label className="text-slate-700">Bank</Label>
+                  <Label className="text-sm font-semibold text-foreground">
+                    Bank
+                  </Label>
                   <Popover open={bankOpen} onOpenChange={setBankOpen}>
                     <PopoverTrigger asChild>
                       <Button
                         variant="outline"
                         role="combobox"
-                        className={`mt-2 w-full justify-between border-slate-300 ${
-                          !selectedBankName ? "text-slate-400" : ""
-                        }`}
+                        className={cn(
+                          "mt-1.5 w-full justify-between rounded-xl border-input bg-background py-5 text-foreground hover:bg-muted/40",
+                          !selectedBankName && "text-muted-foreground"
+                        )}
                       >
                         {selectedBank ? (
-                          <div className="flex items-center gap-2">
+                          <div className="flex items-center gap-2.5 truncate">
                             {selectedBank.logo && (
                               <img
                                 src={selectedBank.logo}
@@ -178,7 +189,7 @@ export function PaymentInfoSection({
                                 className="h-4 w-4 object-contain"
                               />
                             )}
-                            <span>{selectedBank.name}</span>
+                            <span className="truncate">{selectedBank.name}</span>
                           </div>
                         ) : (
                           "Select a bank..."
@@ -187,29 +198,29 @@ export function PaymentInfoSection({
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent
-                      className="w-125 max-w-[90vw] p-0 sm:w-150"
+                      className="w-[380px] max-w-[90vw] p-0 rounded-2xl border-border bg-card shadow-xl"
                       align="start"
                     >
                       <div className="space-y-2 p-3">
                         {/* Search Input */}
-                        <div className="sticky top-0 z-10 flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-3 py-2">
-                          <Search className="h-4 w-4 shrink-0 text-slate-400" />
+                        <div className="sticky top-0 z-10 flex items-center gap-2 rounded-xl border border-input bg-muted/40 px-3 py-2">
+                          <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
                           <input
                             placeholder="Search banks..."
                             value={bankSearchValue}
                             onChange={(e) => setBankSearchValue(e.target.value)}
-                            className="flex-1 bg-transparent outline-none"
+                            className="flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
                           />
                         </div>
 
                         {/* Bank Options Grid */}
-                        <div className="max-h-96 overflow-y-auto">
+                        <div className="max-h-72 overflow-y-auto">
                           {filteredBanks.length === 0 ? (
-                            <p className="py-8 text-center text-sm text-slate-500">
+                            <p className="py-8 text-center text-sm text-muted-foreground">
                               No banks found
                             </p>
                           ) : (
-                            <div className="grid grid-cols-2 gap-2 p-2 md:grid-cols-3">
+                            <div className="grid grid-cols-2 gap-2 p-1">
                               {filteredBanks.map((bank) => (
                                 <button
                                   key={bank.id}
@@ -219,34 +230,35 @@ export function PaymentInfoSection({
                                     setBankOpen(false)
                                     setBankSearchValue("")
                                   }}
-                                  className={`flex flex-col items-center gap-2 rounded-lg border-2 p-3 text-center transition-all ${
+                                  className={cn(
+                                    "flex flex-col items-center gap-2 rounded-xl border-2 p-3 text-center transition-all",
                                     selectedBankName === bank.shortName
-                                      ? "border-primary bg-primary/5"
-                                      : "border-slate-200 hover:border-slate-300 hover:bg-slate-50"
-                                  }`}
+                                      ? "border-forest-ink bg-linen-mist/30 dark:border-lime-voltage dark:bg-lime-voltage/10"
+                                      : "border-border hover:border-border/80 hover:bg-muted/40"
+                                  )}
                                 >
                                   {bank.logo ? (
                                     <img
                                       src={bank.logo}
                                       alt={bank.shortName}
-                                      className="h-10 w-10 object-contain"
+                                      className="h-9 w-9 object-contain"
                                     />
                                   ) : (
-                                    <div className="flex h-10 w-10 items-center justify-center rounded bg-slate-200 text-xs font-semibold text-slate-600">
+                                    <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-muted text-xs font-bold text-foreground">
                                       {bank.shortName?.substring(0, 2)}
                                     </div>
                                   )}
                                   <div className="w-full">
-                                    <p className="text-xs font-semibold text-slate-900">
+                                    <p className="text-xs font-bold text-foreground truncate">
                                       {bank.shortName}
                                     </p>
-                                    <p className="line-clamp-2 text-xs text-slate-500">
+                                    <p className="line-clamp-1 text-[10px] text-muted-foreground">
                                       {bank.name}
                                     </p>
                                   </div>
                                   {selectedBankName === bank.shortName && (
-                                    <div className="mt-1 rounded-full bg-primary p-0.5">
-                                      <Check className="h-3 w-3 text-white" />
+                                    <div className="mt-0.5 rounded-full bg-forest-ink dark:bg-lime-voltage text-paper dark:text-forest-ink p-0.5">
+                                      <Check className="h-3 w-3 stroke-[3]" />
                                     </div>
                                   )}
                                 </button>
@@ -258,7 +270,7 @@ export function PaymentInfoSection({
                     </PopoverContent>
                   </Popover>
                   {errors.bankId && (
-                    <p className="mt-1 text-xs text-red-500">
+                    <p className="mt-1 text-xs text-alarm-red">
                       {errors.bankId.message}
                     </p>
                   )}
@@ -266,18 +278,18 @@ export function PaymentInfoSection({
 
                 {/* Account Number */}
                 <div>
-                  <Label htmlFor="bankAccountNumber" className="text-slate-700">
+                  <Label htmlFor="bankAccountNumber" className="text-sm font-semibold text-foreground">
                     Account Number
                   </Label>
                   <Input
                     id="bankAccountNumber"
                     type="text"
                     placeholder="Enter your bank account number"
-                    className="mt-2 border-slate-300 bg-white py-6 text-slate-900 placeholder:text-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20"
+                    className="mt-1.5 rounded-xl border-input bg-background py-5 font-mono text-foreground placeholder:text-muted-foreground focus:border-forest-ink dark:focus:border-lime-voltage"
                     {...register("bankAccountNumber")}
                   />
                   {errors.bankAccountNumber && (
-                    <p className="mt-1 text-xs text-red-500">
+                    <p className="mt-1 text-xs text-alarm-red">
                       {errors.bankAccountNumber.message}
                     </p>
                   )}
@@ -288,7 +300,7 @@ export function PaymentInfoSection({
                 <Button
                   type="submit"
                   disabled={isPending}
-                  className="gap-2 bg-linear-to-r from-primary to-primary/80 text-white hover:from-primary/90 hover:to-primary/70"
+                  className="rounded-full bg-lime-voltage hover:bg-lime-voltage/90 text-forest-ink font-bold shadow-xs px-5 gap-2"
                 >
                   {isPending ? (
                     <>
@@ -297,7 +309,7 @@ export function PaymentInfoSection({
                     </>
                   ) : (
                     <>
-                      <Check className="h-4 w-4" />
+                      <Check className="h-4 w-4 stroke-[2.5]" />
                       Save Changes
                     </>
                   )}
@@ -306,7 +318,7 @@ export function PaymentInfoSection({
                   type="button"
                   variant="ghost"
                   onClick={() => setIsEditing(false)}
-                  className="gap-2"
+                  className="rounded-full gap-2 hover:bg-muted"
                 >
                   <X className="h-4 w-4" />
                   Cancel

@@ -68,17 +68,17 @@ export default function LoginForm({
       className="space-y-4"
     >
       {/* Email Field */}
-      <motion.div variants={itemVariants} className="space-y-2">
-        <Label htmlFor="login-email" className="text-slate-700">
+      <motion.div variants={itemVariants} className="space-y-1.5">
+        <Label htmlFor="login-email" className="text-xs font-semibold text-foreground">
           Email Address
         </Label>
         <div className="relative">
-          <Mail className="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 text-slate-400" />
+          <Mail className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             id="login-email"
             type="email"
             placeholder="you@example.com"
-            className="border-slate-300 bg-white py-6 pl-10 text-slate-900 placeholder:text-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20"
+            className="rounded-xl border-input bg-background py-5 pl-10 text-foreground placeholder:text-muted-foreground focus:border-forest-ink dark:focus:border-lime-voltage"
             value={loginEmail}
             onChange={(e) => setLoginEmail(e.target.value)}
             required
@@ -87,17 +87,17 @@ export default function LoginForm({
       </motion.div>
 
       {/* Password Field */}
-      <motion.div variants={itemVariants} className="space-y-2">
-        <Label htmlFor="login-password" className="text-slate-700">
+      <motion.div variants={itemVariants} className="space-y-1.5">
+        <Label htmlFor="login-password" className="text-xs font-semibold text-foreground">
           Password
         </Label>
         <div className="relative">
-          <Lock className="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 text-slate-400" />
+          <Lock className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             id="login-password"
             type="password"
             placeholder="••••••••"
-            className="border-slate-300 bg-white py-6 pl-10 text-slate-900 placeholder:text-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20"
+            className="rounded-xl border-input bg-background py-5 pl-10 text-foreground placeholder:text-muted-foreground focus:border-forest-ink dark:focus:border-lime-voltage"
             value={loginPassword}
             onChange={(e) => setLoginPassword(e.target.value)}
             required
@@ -110,7 +110,7 @@ export default function LoginForm({
         <button
           type="button"
           onClick={() => navigate("/forgot-password")}
-          className="text-sm text-primary transition-colors hover:text-primary/80"
+          className="text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors"
         >
           Forgot password?
         </button>
@@ -120,7 +120,7 @@ export default function LoginForm({
       <motion.div variants={itemVariants}>
         <Button
           type="submit"
-          className="w-full gap-2"
+          className="w-full rounded-full bg-lime-voltage hover:bg-lime-voltage/90 text-forest-ink font-bold shadow-xs py-5 gap-2"
           disabled={login.isPending}
         >
           {login.isPending ? (
@@ -131,7 +131,7 @@ export default function LoginForm({
           ) : (
             <>
               Sign In
-              <ArrowRight className="h-4 w-4" />
+              <ArrowRight className="h-4 w-4 stroke-[2.5]" />
             </>
           )}
         </Button>
