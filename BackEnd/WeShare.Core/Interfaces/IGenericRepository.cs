@@ -17,6 +17,9 @@ namespace WeShare.Core.Interfaces
         Task<IEnumerable<T>> GetAllAsync(params Expression<Func<T, object>>[] includes);
         Task<T?> GetByIdAsync(int id, params Expression<Func<T, object>>[] includes);
         Task<PageResultDto<T>> GetPagedAsync(int pageSize, int pageIndex, Expression<Func<T, bool>>? filter = null);
+        Task<PageResultDto<T>> QueryPageAsync(int pageSize, int pageIndex,
+            Expression<Func<T, bool>> filter, Func<IQueryable<T>, IOrderedQueryable<T>> order,
+            params Expression<Func<T, object>>[] includes);
         void Update(T entity);
         Task<(IEnumerable<T> Items, int TotalCount)> GetPagedAsync(
             Expression<Func<T, bool>> predicate,

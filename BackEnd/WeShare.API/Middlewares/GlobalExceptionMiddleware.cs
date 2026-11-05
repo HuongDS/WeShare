@@ -36,6 +36,22 @@ namespace WeShare.API.Middlewares
             int statusCode = (int)HttpStatusCode.InternalServerError;
             string message = ErrorMessage.INTERNAL_SERVER_ERROR;
 
+            if (exception is BusinessException business)
+            {
+                context.Response.StatusCode = business.StatusCode;
+                return context.Response.WriteAsJsonAsync(new {
+                    status = business.StatusCode, message = business.Message, data = (object?)null,
+                    error = new { code = business.Code }, traceId = context.TraceIdentifier
+                });
+            }
+            if (exception is Microsoft.EntityFrameworkCore.DbUpdateConcurrencyException)
+            {
+                context.Response.StatusCode = 412;
+                return context.Response.WriteAsJsonAsync(new {
+                    status = 412, message = "Dữ liệu đã thay đổi. Vui lòng tải lại.", data = (object?)null,
+                    error = new { code = "RESOURCE_VERSION_MISMATCH" }, traceId = context.TraceIdentifier
+                });
+            }
             if (exception is BadRequestException badRequestException)
             {
                 statusCode = (int)HttpStatusCode.BadRequest;

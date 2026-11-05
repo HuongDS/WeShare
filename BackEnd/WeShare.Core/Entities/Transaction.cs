@@ -15,6 +15,7 @@ namespace WeShare.Core.Entities
         public decimal Amount { get; set; }
         public string? Description { get; set; }
         public int? TaskId { get; set; }
+        public Task? Task { get; set; }
         public SplitStrategyEnum SplitStrategy { get; set; }
         public TransactionTypeEnum Type { get; set; }
         public TransactionPaymentTypeEnum PaymentType { get; set; }

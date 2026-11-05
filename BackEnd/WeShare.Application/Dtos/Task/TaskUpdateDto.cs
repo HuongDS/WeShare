@@ -9,6 +9,8 @@ namespace WeShare.Application.Dtos.Task
 {
     public class TaskUpdateDto
     {
+        public DateTime? DueAt { get; set; }
+        public int? EventId { get; set; }
         public int TaskId { get; set; }
         public IEnumerable<int> AssigneeIds { get; set; } = new List<int>();
         public string Title { get; set; } = string.Empty;

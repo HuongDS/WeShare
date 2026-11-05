@@ -10,6 +10,7 @@ namespace WeShare.Application.Dtos.Task
 {
     public class TaskCreateDto
     {
+        public DateTime? DueAt { get; set; }
         public int? EventId { get; set; }
         public IEnumerable<int> AssigneeIds { get; set; } = new List<int>();
         public int GroupId { get; set; }

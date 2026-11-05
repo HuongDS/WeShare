@@ -1,5 +1,10 @@
 import axios from "axios"
 
+// Feature forms handle permission/server errors inline without losing draft input.
+declare module "axios" {
+  interface AxiosRequestConfig { localErrors?: boolean }
+}
+
 const API_URL = import.meta.env.VITE_API_URL || "https://localhost:7133/api"
 
 const axiosClient = axios.create({
@@ -100,6 +105,8 @@ axiosClient.interceptors.response.use(
         isRefreshing = false
       }
     }
+
+    if (originalRequest?.localErrors) return Promise.reject(error)
 
     if (error.response?.status === 403) {
       window.location.href = "/403"

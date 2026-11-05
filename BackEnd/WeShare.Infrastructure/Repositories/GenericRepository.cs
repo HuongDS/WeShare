@@ -65,6 +65,18 @@ namespace WeShare.Infrastructure.Repositories
             await _dbSet.AddAsync(entity);
         }
 
+        public async Task<PageResultDto<T>> QueryPageAsync(int pageSize, int pageIndex,
+            Expression<Func<T, bool>> filter, Func<IQueryable<T>, IOrderedQueryable<T>> order,
+            params Expression<Func<T, object>>[] includes)
+        {
+            IQueryable<T> query = _dbSet.AsNoTracking().Where(filter);
+            var count = await query.CountAsync();
+            foreach (var include in includes) query = query.Include(include);
+            var items = await order(query).Skip((pageIndex - 1) * pageSize).Take(pageSize).ToListAsync();
+            return new PageResultDto<T> { Items = items, TotalItems = count,
+                TotalPages = (int)Math.Ceiling(count / (double)pageSize), PageIndex = pageIndex, PageSize = pageSize };
+        }
+
         public void Update(T entity)
         {
             _dbSet.Attach(entity);

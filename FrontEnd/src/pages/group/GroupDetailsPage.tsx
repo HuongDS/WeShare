@@ -1,4 +1,7 @@
-import { useMemo, useState } from "react"
+import { useMemo } from "react"
+import TasksTab from "./components/tabs/TasksTab"
+import EventsTab from "./components/tabs/EventsTab"
+import { useWorkNavigation } from "./components/work/WorkShared"
 import { Link, useNavigate, useParams } from "react-router-dom"
 import { ArrowLeft, Users } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -41,7 +44,9 @@ export default function GroupDetailsPage() {
   const navigate = useNavigate()
   const { id } = useParams()
   const groupId = Number(id)
-  const [activeTab, setActiveTab] = useState("general")
+  const { params, update } = useWorkNavigation()
+  const activeTab = params.get("tab") || "general"
+  const setActiveTab = (tab: string) => update({ tab })
 
   const { group } = useGetGroup(Number.isNaN(groupId) ? undefined : groupId)
   const groupData = group.data?.data || null
@@ -114,12 +119,12 @@ export default function GroupDetailsPage() {
           onValueChange={setActiveTab}
           className="space-y-4"
         >
-          <TabsList className="grid w-full grid-cols-4 bg-card">
+          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 bg-card">
             <TabsTrigger
               value="general"
               className="data-[state=active]:font-bold data-[state=active]:text-emerald-700"
             >
-              General (Settings){" "}
+              General
             </TabsTrigger>
             <TabsTrigger
               value="expenses"
@@ -138,6 +143,18 @@ export default function GroupDetailsPage() {
               className="data-[state=active]:font-bold data-[state=active]:text-emerald-700"
             >
               Members
+            </TabsTrigger>
+            <TabsTrigger
+              value="tasks"
+              className="data-[state=active]:font-bold data-[state=active]:text-emerald-700"
+            >
+              Tasks
+            </TabsTrigger>
+            <TabsTrigger
+              value="events"
+              className="data-[state=active]:font-bold data-[state=active]:text-emerald-700"
+            >
+              Events
             </TabsTrigger>
           </TabsList>
 
@@ -159,6 +176,14 @@ export default function GroupDetailsPage() {
 
           <TabsContent value="members">
             <MembersTab group={groupData} />
+          </TabsContent>
+
+          <TabsContent value="tasks">
+            <TasksTab groupId={groupId} />
+          </TabsContent>
+
+          <TabsContent value="events">
+            <EventsTab groupId={groupId} />
           </TabsContent>
         </Tabs>
       </div>

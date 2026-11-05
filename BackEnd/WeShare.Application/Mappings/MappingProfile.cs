@@ -59,7 +59,8 @@ namespace WeShare.Core.Mappings
             CreateMap<CreateTransactionDto, Transaction>();
             CreateMap<TransactionSplitCreateDto, TransactionSplit>();
             CreateMap<TransactionSplit, TransactionSplitViewDto>();
-            CreateMap<Entities.Task, TaskViewDto>();
+            CreateMap<TaskMember, AssigneeSummaryDto>();
+            CreateMap<Event, EventSummaryDto>().ForMember(d => d.Title, o => o.MapFrom(s => s.Name));
             CreateMap<CreateSettlementDto, Transaction>()
                 .ForMember(dest => dest.CreatedAt, opt => opt.MapFrom(src => DateTime.UtcNow))
                 .ForMember(dest => dest.SplitStrategy, opt => opt.MapFrom(src => SplitStrategyEnum.OTHER))
