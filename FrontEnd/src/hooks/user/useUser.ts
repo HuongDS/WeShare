@@ -111,3 +111,19 @@ export const useSearchUsers = (
 
   return { searchUsers }
 }
+
+export const useDashboardSummary = () => {
+  return useQuery({
+    queryKey: ["dashboardSummary"],
+    queryFn: userApi.getDashboardSummary,
+  })
+}
+
+export const useGlobalSearch = (query: string) => {
+  return useQuery({
+    queryKey: ["globalSearch", query],
+    queryFn: () => userApi.globalSearch(query),
+    enabled: query.trim().length > 0,
+    staleTime: 1000 * 30, // 30s
+  })
+}

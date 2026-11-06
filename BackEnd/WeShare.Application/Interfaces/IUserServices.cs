@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -15,5 +15,7 @@ namespace WeShare.Application.Interfaces
         Task UpdatePaymentInfor(int userId, UpdatePaymentDto data);
         Task<UserViewDto> UpdateAvatarAsync(int userId, string? url, string? publicId);
         Task<PageResultDto<UserViewDto>> GetUserProfilesAsync(string key, int pageSize, int pageIndex);
+        Task<DashboardSummaryDto> GetDashboardSummaryAsync(int userId);
+        Task<GlobalSearchResultDto> GlobalSearchAsync(int userId, string keyword);
     }
 }
