@@ -17,6 +17,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useGetGroupMembers } from "@/hooks/group/useGroup"
+import { TaskPicker } from "@/pages/group/components/work/WorkPicker"
+import type { TaskSummary } from "@/types/task/Task"
 import {
   useTransaction,
   useUploadProof,
@@ -65,6 +67,7 @@ export default function AddExpenseModal({
   const [isUploading, setIsUploading] = useState(false)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
+  const [selectedTask, setSelectedTask] = useState<TaskSummary | null>(null)
 
   const parsedGroupId = useMemo(() => {
     const numericId = Number(groupId)
@@ -112,6 +115,7 @@ export default function AddExpenseModal({
       setSelectedFile(null)
       setValue("receiptUrl", "", { shouldDirty: true })
       setIsUploading(false)
+      setSelectedTask(null)
       reset()
     }
     onOpenChange(open)
@@ -294,7 +298,7 @@ export default function AddExpenseModal({
       amount: values.amount,
       description: values.description,
       receiptUrl: uploadedReceiptUrl,
-      taskId: null,
+      taskId: selectedTask ? Number(selectedTask.id) : null,
       strategy: mapSplitStrategyToBackend(
         values.splitStrategy as SplitStrategyEnum
       ),
@@ -313,6 +317,7 @@ export default function AddExpenseModal({
     }
     setPreviewUrl(null)
     setSelectedFile(null)
+    setSelectedTask(null)
     reset()
     onOpenChange(false)
     onSuccess?.()
@@ -614,6 +619,17 @@ export default function AddExpenseModal({
                 </div>
               )}
             </section>
+
+            {parsedGroupId > 0 && (
+              <section className="space-y-2">
+                <TaskPicker
+                  groupId={parsedGroupId}
+                  value={selectedTask}
+                  onChange={setSelectedTask}
+                  disabled={addTransaction.isPending || isUploading}
+                />
+              </section>
+            )}
           </div>
 
           <DialogFooter className="mt-auto border-t bg-background p-4">

@@ -17,6 +17,27 @@ namespace WeShare.Infrastructure.Repositories
             _context = context;
         }
 
+        // A transaction-scoped PostgreSQL advisory lock serializes workflow mutations,
+        // including soft-delete checks. All Task/Event and expense-link writers use it.
+        public async Task<T> ExecuteWorkflowAsync<T>(Func<Task<T>> action)
+        {
+            await StartTransactionAsync();
+            try
+            {
+                await Microsoft.EntityFrameworkCore.RelationalDatabaseFacadeExtensions.ExecuteSqlRawAsync(
+                    _context.Database, "SELECT pg_advisory_xact_lock(781246901)");
+                var result = await action();
+                await CommitTransactionAsync();
+                return result;
+            }
+            catch
+            {
+                await RollBackTransactionAsync();
+                _context.ChangeTracker.Clear();
+                throw;
+            }
+        }
+
         public async Task<int> CompleteAsync()
         {
             return await _context.SaveChangesAsync();

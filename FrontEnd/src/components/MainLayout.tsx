@@ -2,6 +2,7 @@ import { useState, useEffect } from "react"
 import { Outlet } from "react-router-dom"
 import Sidebar from "@/components/Sidebar"
 import Header from "@/components/Header"
+import BottomNav from "@/components/BottomNav"
 import { Sheet, SheetContent, SheetTitle } from "@/components/ui/sheet"
 
 export default function MainLayout() {
@@ -19,7 +20,7 @@ export default function MainLayout() {
   }, [])
 
   return (
-    <div className="flex h-screen w-full bg-slate-50">
+    <div className="flex h-screen w-full bg-background text-foreground transition-colors duration-200">
       {/* Left: Desktop Sidebar - Hidden on mobile */}
       {!isMobile && (
         <Sidebar isOpen={false} onToggle={() => {}} isMobile={false} />
@@ -30,18 +31,21 @@ export default function MainLayout() {
         {/* Top: Sticky Floating Header */}
         <Header onMobileMenuOpen={() => setSidebarOpen(true)} />
 
-        {/* Bottom: Main Content - Scrollable with proper padding */}
-        <main className="flex-1 overflow-auto bg-slate-50 px-4 py-6 md:px-6 lg:py-8">
+        {/* Bottom: Main Content - Scrollable with proper padding (extra pb for Mobile BottomNav) */}
+        <main className="flex-1 overflow-auto bg-muted/20 px-3 py-4 sm:px-6 lg:py-6 pb-24 lg:pb-8">
           <Outlet />
         </main>
       </div>
+
+      {/* Mobile Bottom Navigation */}
+      {isMobile && <BottomNav />}
 
       {/* Mobile Sidebar Sheet */}
       {isMobile && (
         <Sheet open={sidebarOpen} onOpenChange={setSidebarOpen}>
           <SheetContent
             side="left"
-            className="flex w-64 flex-col p-0"
+            className="flex w-72 flex-col p-0 border-r border-border"
             onInteractOutside={() => {
               setSidebarOpen(false)
             }}

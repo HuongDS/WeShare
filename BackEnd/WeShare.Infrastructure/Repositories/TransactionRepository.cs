@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,9 +16,13 @@ namespace WeShare.Infrastructure.Repositories
         public TransactionRepository(WeShareDbContext context) : base(context)
         {
         }
-        public async Task<PageResultDto<Transaction>> GetTransactionsByGroupIdAsync(int groupId, int pageSize, int pageIndex)
+        public async Task<PageResultDto<Transaction>> GetTransactionsByGroupIdAsync(int groupId, int pageSize, int pageIndex, int? taskId = null)
         {
             var query = _dbSet.Where(t => t.GroupId == groupId);
+            if (taskId.HasValue)
+            {
+                query = query.Where(t => t.TaskId == taskId.Value);
+            }
             return await PaginationExtension.PaginationAsync(query, pageSize, pageIndex);
         }
         public async Task<PageResultDto<Transaction>> GetTransactionsByUserIdAsync(int userId, int pageSize, int pageIndex)

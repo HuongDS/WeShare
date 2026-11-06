@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,7 +12,7 @@ namespace WeShare.Core.Interfaces
     {
         System.Threading.Tasks.Task AddRangeAsync(List<Transaction> data);
         Task<Transaction?> GetTransactionDetailsAsync(int transactionId);
-        Task<PageResultDto<Transaction>> GetTransactionsByGroupIdAsync(int groupId, int pageSize, int pageIndex);
+        Task<PageResultDto<Transaction>> GetTransactionsByGroupIdAsync(int groupId, int pageSize, int pageIndex, int? taskId = null);
         Task<Transaction?> GetTransactionsByTaskIdAsync(int taskId);
         Task<PageResultDto<Transaction>> GetTransactionsByUserIdAsync(int userId, int pageSize, int pageIndex);
     }

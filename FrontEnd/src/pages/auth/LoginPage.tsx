@@ -17,98 +17,97 @@ export default function LoginPage() {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.2,
-        delayChildren: 0.3,
+        staggerChildren: 0.15,
+        delayChildren: 0.2,
       },
     },
   }
 
   const itemVariants: Variants = {
-    hidden: { opacity: 0, y: 20 },
+    hidden: { opacity: 0, y: 15 },
     visible: {
       opacity: 1,
       y: 0,
       transition: {
         type: "spring",
-        stiffness: 100,
-        damping: 10,
+        stiffness: 120,
+        damping: 12,
       },
     },
   }
 
   return (
-    <div className="min-h-screen overflow-hidden bg-linear-to-br from-white to-slate-50">
-      {/* Main Container */}
-      <div className="flex min-h-screen flex-col items-center justify-center p-6">
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          className="w-full max-w-md"
-        >
-          {/* Header Section */}
-          <motion.div variants={itemVariants} className="mb-12 text-center">
-            {/* Branding Icon */}
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ type: "spring", stiffness: 100, delay: 0.2 }}
-              className="mb-6 inline-flex items-center justify-center rounded-full bg-linear-to-br from-primary to-primary/80 p-3"
-            >
-              <Zap className="h-8 w-8 text-white" />
-            </motion.div>
-
-            {/* Welcome Message */}
-            <h2 className="mb-4 text-2xl font-bold text-slate-800">
-              Welcome Back
-            </h2>
-
-            {/* Auth Card */}
-            <motion.div variants={itemVariants}>
-              <Card className="border border-slate-200 bg-white shadow-lg">
-                <Tabs value={activeTab} onValueChange={setActiveTab}>
-                  {/* Tab List */}
-                  <TabsList className="grid w-full grid-cols-2 rounded-none border-b border-slate-200 bg-transparent p-0">
-                    <TabsTrigger
-                      value="login"
-                      className="flex h-12 items-center justify-center rounded-none border-b-2 border-transparent bg-transparent text-base text-slate-500 transition-all hover:text-slate-700 data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:font-bold data-[state=active]:text-primary data-[state=active]:shadow-none"
-                    >
-                      Login
-                    </TabsTrigger>
-
-                    <TabsTrigger
-                      value="register"
-                      className="flex h-12 items-center justify-center rounded-none border-b-2 border-transparent bg-transparent text-base text-slate-500 transition-all hover:text-slate-700 data-[state=active]:border-primary data-[state=active]:bg-transparent data-[state=active]:font-bold data-[state=active]:text-primary data-[state=active]:shadow-none"
-                    >
-                      Register
-                    </TabsTrigger>
-                  </TabsList>
-
-                  {/* Login Tab */}
-                  <TabsContent value="login" className="p-6">
-                    <LoginForm
-                      containerVariants={containerVariants}
-                      itemVariants={itemVariants}
-                    />
-                  </TabsContent>
-
-                  {/* Register Tab */}
-                  <TabsContent value="register" className="p-6">
-                    <RegisterForm
-                      containerVariants={containerVariants}
-                      itemVariants={itemVariants}
-                      isLoading={isLoging}
-                    />
-                  </TabsContent>
-                </Tabs>
-              </Card>
-            </motion.div>
-
-            {/* Social Auth Section */}
-            <SocialAuth itemVariants={itemVariants} />
+    <div className="min-h-screen overflow-hidden bg-background flex flex-col items-center justify-center p-4 sm:p-6">
+      <motion.div
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="w-full max-w-md space-y-6"
+      >
+        {/* Header Section */}
+        <motion.div variants={itemVariants} className="text-center space-y-3">
+          {/* Branding Icon */}
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: "spring", stiffness: 120, delay: 0.1 }}
+            className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-lime-voltage text-forest-ink shadow-md"
+          >
+            <Zap className="h-7 w-7 fill-current stroke-[2.5]" />
           </motion.div>
+
+          <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-foreground">
+            Welcome to WeShare
+          </h2>
+          <p className="text-xs sm:text-sm text-muted-foreground">
+            Smart bill splitting &amp; shared task management
+          </p>
         </motion.div>
-      </div>
+
+        {/* Auth Card */}
+        <motion.div variants={itemVariants}>
+          <Card className="rounded-3xl border border-border/80 bg-card p-6 shadow-xl space-y-6">
+            <Tabs value={activeTab} onValueChange={setActiveTab}>
+              {/* Tab List */}
+              <TabsList className="grid w-full grid-cols-2 rounded-full p-1 bg-muted/60 dark:bg-muted/30 border border-border/70">
+                <TabsTrigger
+                  value="login"
+                  className="rounded-full data-[state=active]:bg-lime-voltage data-[state=active]:text-forest-ink data-[state=active]:font-bold data-[state=active]:shadow-xs py-2 text-xs sm:text-sm transition-all"
+                >
+                  Log In
+                </TabsTrigger>
+
+                <TabsTrigger
+                  value="register"
+                  className="rounded-full data-[state=active]:bg-lime-voltage data-[state=active]:text-forest-ink data-[state=active]:font-bold data-[state=active]:shadow-xs py-2 text-xs sm:text-sm transition-all"
+                >
+                  Register
+                </TabsTrigger>
+              </TabsList>
+
+              {/* Login Tab */}
+              <TabsContent value="login" className="pt-4">
+                <LoginForm
+                  containerVariants={containerVariants}
+                  itemVariants={itemVariants}
+                />
+              </TabsContent>
+
+              {/* Register Tab */}
+              <TabsContent value="register" className="pt-4">
+                <RegisterForm
+                  containerVariants={containerVariants}
+                  itemVariants={itemVariants}
+                  isLoading={isLoging}
+                />
+              </TabsContent>
+            </Tabs>
+          </Card>
+        </motion.div>
+
+        {/* Social Auth Section */}
+        <SocialAuth itemVariants={itemVariants} />
+      </motion.div>
     </div>
   )
 }

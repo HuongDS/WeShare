@@ -47,6 +47,11 @@ namespace WeShare.Infrastructure
                     softDeletable.DeletedAt = now;
                 }
 
+                if (entry.State == EntityState.Modified)
+                {
+                    if (entry.Entity is WeShare.Core.Entities.Task task) task.Version = Guid.NewGuid();
+                    if (entry.Entity is Event ev) ev.Version = Guid.NewGuid();
+                }
                 if (entry.Entity is BaseAuditableEntity auditable)
                 {
                     if (entry.State == EntityState.Added)
@@ -130,6 +135,8 @@ namespace WeShare.Infrastructure
                  .HasForeignKey(t => t.PayerId)
                  .OnDelete(DeleteBehavior.Restrict);
 
+                e.HasOne(t => t.Task).WithMany().HasForeignKey(t => t.TaskId).OnDelete(DeleteBehavior.Restrict);
+                e.HasIndex(t => t.TaskId);
                 e.HasIndex(t => t.GroupId);
                 e.HasIndex(t => t.PayerId);
                 e.HasIndex(t => t.CreatedAt);
@@ -170,6 +177,11 @@ namespace WeShare.Infrastructure
                  .HasForeignKey(ev => ev.GroupId)
                  .OnDelete(DeleteBehavior.Cascade);
 
+                e.Property(ev => ev.Version).IsConcurrencyToken();
+                e.Property(ev => ev.Name).HasMaxLength(200);
+                e.Property(ev => ev.Description).HasMaxLength(5000);
+                e.Property(ev => ev.Location).HasMaxLength(500);
+                e.HasIndex(ev => new { ev.GroupId, ev.EventDate });
                 e.HasIndex(ev => ev.GroupId);
                 e.HasQueryFilter(ev => !ev.IsDeleted);
                 e.HasIndex(ev => ev.IsDeleted);
@@ -180,7 +192,13 @@ namespace WeShare.Infrastructure
                 e.HasOne(t => t.Event)
                  .WithMany(ev => ev.Tasks)
                  .HasForeignKey(t => t.EventId)
-                 .OnDelete(DeleteBehavior.Cascade);
+                 .OnDelete(DeleteBehavior.Restrict);
+
+                e.HasOne<Group>().WithMany().HasForeignKey(t => t.GroupId).OnDelete(DeleteBehavior.Restrict);
+                e.Property(t => t.Version).IsConcurrencyToken();
+                e.Property(t => t.Title).HasMaxLength(200);
+                e.Property(t => t.Description).HasMaxLength(5000);
+                e.HasIndex(t => new { t.GroupId, t.Status, t.DueAt });
 
                 e.HasIndex(t => t.EventId);
                 e.HasQueryFilter(t => !t.IsDeleted);

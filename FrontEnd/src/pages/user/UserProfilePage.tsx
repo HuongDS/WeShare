@@ -111,27 +111,27 @@ export default function UserProfilePage() {
     return (
       <div className="flex h-96 items-center justify-center">
         <div className="text-center">
-          <Loader2 className="mx-auto mb-4 h-8 w-8 animate-spin text-primary" />
-          <p className="text-sm text-slate-600">Loading profile...</p>
+          <Loader2 className="mx-auto mb-4 h-8 w-8 animate-spin text-lime-voltage" />
+          <p className="text-sm text-muted-foreground">Loading profile...</p>
         </div>
       </div>
     )
   }
 
   return (
-    <div className="w-full bg-slate-50 py-8">
-      <div className="mx-auto w-full max-w-4xl space-y-6 px-4">
+    <div className="w-full">
+      <div className="mx-auto w-full max-w-4xl space-y-6">
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="space-y-2"
+          className="space-y-1"
         >
-          <h1 className="text-3xl font-bold text-slate-900">
+          <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-foreground">
             Profile Settings
           </h1>
-          <p className="text-sm text-slate-500">
-            Manage your account information and payment settings.
+          <p className="text-sm text-muted-foreground">
+            Manage your personal identity, avatar, and payment preferences.
           </p>
         </motion.div>
 

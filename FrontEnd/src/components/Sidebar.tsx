@@ -4,18 +4,14 @@ import { useNavigate, useLocation } from "react-router-dom"
 import { motion } from "framer-motion"
 import {
   ChevronLeft,
-  ChevronRight,
   ChevronDown,
   Home,
   Users,
   LogOut,
   ShieldAlert,
   Zap,
-  Settings,
   User,
-  ChartColumnIncreasing,
 } from "lucide-react"
-import { Button } from "@/components/ui/button"
 import {
   Tooltip,
   TooltipContent,
@@ -29,6 +25,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { useAuth } from "@/hooks/auth/useAuth"
 import type { RootState } from "@/store/store"
+import { cn } from "@/lib/utils"
 
 interface MenuItem {
   id: string
@@ -47,20 +44,14 @@ const menuItems: MenuItem[] = [
   },
   {
     id: "groups",
-    label: "Groups",
+    label: "Groups & Events",
     icon: <Users className="h-5 w-5" />,
     href: "/groups",
   },
   {
-    id: "transactions",
-    label: "Transactions",
-    icon: <ChartColumnIncreasing className="h-5 w-5" />,
-  },
-
-  {
     id: "profile",
-    label: "Profile",
-    icon: <Settings className="h-5 w-5" />,
+    label: "Settings & Profile",
+    icon: <User className="h-5 w-5" />,
     href: "/profile",
   },
 ]
@@ -84,17 +75,13 @@ export default function Sidebar({
   const navigate = useNavigate()
   const location = useLocation()
   const [isExpanded, setIsExpanded] = useState(isMobileView ? true : !isMobile)
-  const [expandedParents, setExpandedParents] = useState<string[]>([
-    "transactions",
-  ])
+  const [expandedParents, setExpandedParents] = useState<string[]>([])
 
   const isActive = (href?: string) => {
     if (!href) return false
-
     if (href === "/groups") {
       return location.pathname.startsWith("/groups")
     }
-
     return location.pathname === href
   }
 
@@ -142,66 +129,81 @@ export default function Sidebar({
     <motion.aside
       initial={isMobile && !isMobileView ? { x: -300 } : { x: 0 }}
       animate={isMobile && !isMobileView ? { x: isOpen ? 0 : -300 } : { x: 0 }}
-      transition={{ duration: 0.3 }}
-      className={`${
+      transition={{ duration: 0.25 }}
+      className={cn(
         isMobile && !isMobileView
-          ? "fixed top-16 left-0 z-50 h-[calc(100vh-64px)] border-r border-slate-200 bg-white shadow-lg"
-          : "border-r border-slate-200 bg-white"
-      } ${sidebarWidth} flex flex-col transition-all duration-300`}
+          ? "fixed top-16 left-0 z-50 h-[calc(100vh-64px)] border-r border-border bg-card shadow-xl"
+          : "border-r border-border bg-card",
+        sidebarWidth,
+        "flex flex-col transition-all duration-300 select-none"
+      )}
     >
-      {/* Header with Logo & Toggle - Desktop Only (hidden in mobile view) */}
+      {/* Header with Logo & Toggle */}
       {!isMobile && !isMobileView && (
-        <div className="flex items-center justify-between border-b border-slate-200 px-4 py-4">
-          {/* Logo - Only show when expanded */}
+        <div className="flex h-16 items-center justify-between border-b border-border px-4">
+          {/* Logo */}
           {isExpanded ? (
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="flex items-center gap-2"
+              className="flex items-center gap-2.5 cursor-pointer"
+              onClick={() => navigate("/dashboard")}
             >
-              <div className="rounded-lg bg-gradient-to-br from-primary to-primary/80 p-2">
-                <Zap className="h-5 w-5 text-white" />
+              <div className="flex h-9 w-9 items-center justify-center rounded-full bg-lime-voltage text-forest-ink shadow-xs">
+                <Zap className="h-5 w-5 fill-current" />
               </div>
-              <span className="font-bold text-slate-900">WeShare</span>
+              <div className="flex flex-col">
+                <span className="font-black tracking-tight text-lg text-foreground leading-none">
+                  WeShare
+                </span>
+                <span className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground mt-0.5">
+                  Smart Splitter
+                </span>
+              </div>
             </motion.div>
           ) : (
-            <div className="h-10" />
+            <div
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-lime-voltage text-forest-ink cursor-pointer mx-auto shadow-xs"
+              onClick={() => navigate("/dashboard")}
+            >
+              <Zap className="h-5 w-5 fill-current" />
+            </div>
           )}
 
-          {/* Toggle Button - Always Visible on Same Line */}
-          <motion.button
-            onClick={toggleSidebar}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="rounded-lg p-2 transition-colors hover:bg-slate-100"
-            aria-label="Toggle sidebar"
-            type="button"
-          >
-            {isExpanded ? (
-              <ChevronLeft className="h-5 w-5 text-slate-600" />
-            ) : (
-              <ChevronRight className="h-5 w-5 text-slate-600" />
-            )}
-          </motion.button>
+          {/* Toggle Button */}
+          {isExpanded && (
+            <button
+              onClick={toggleSidebar}
+              className="rounded-full p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+              aria-label="Collapse sidebar"
+              type="button"
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </button>
+          )}
         </div>
       )}
 
       {/* Navigation Items */}
       <nav
-        className={`flex-1 space-y-1 ${isExpanded ? "px-3 py-4" : "flex flex-col items-center px-2 py-4"}`}
+        className={cn(
+          "flex-1 space-y-1.5 py-4",
+          isExpanded ? "px-3" : "flex flex-col items-center px-2"
+        )}
       >
         {menuItems.map((item) => {
           const active = isActive(item.href)
           const parentActive = isParentActive(item)
           const isParentExpanded = expandedParents.includes(item.id)
           const hasChildren = item.children && item.children.length > 0
+          const isItemActive = active || parentActive
 
           return (
-            <div key={item.id}>
+            <div key={item.id} className="w-full">
               <Tooltip delayDuration={200}>
                 <TooltipTrigger asChild>
-                  <motion.button
+                  <button
                     onClick={() => {
                       if (hasChildren) {
                         toggleParent(item.id)
@@ -209,244 +211,148 @@ export default function Sidebar({
                         handleMenuItemClick(item.href)
                       }
                     }}
-                    className={`relative flex items-center rounded-lg transition-all duration-200 ${
+                    className={cn(
+                      "relative flex items-center transition-all duration-200 outline-none",
                       isExpanded
-                        ? "w-full justify-start gap-3 px-4 py-3"
-                        : "h-12 w-12 justify-center"
-                    } ${
-                      active || parentActive
-                        ? "bg-slate-100 text-slate-900"
-                        : "text-slate-700 hover:bg-slate-100"
-                    }`}
-                    whileHover={{ x: isExpanded ? 5 : 0 }}
-                    whileTap={{ scale: 0.98 }}
+                        ? "w-full justify-start gap-3.5 px-4 py-2.5 rounded-full"
+                        : "h-11 w-11 justify-center rounded-full mx-auto",
+                      isItemActive
+                        ? "bg-lime-voltage text-forest-ink font-bold shadow-xs dark:bg-lime-voltage dark:text-forest-ink"
+                        : "text-foreground/80 hover:bg-muted hover:text-foreground font-medium"
+                    )}
                     type="button"
                   >
-                    {/* Active Left Indicator Bar */}
-                    {(active || parentActive) && (
-                      <motion.div
-                        layoutId={`activeIndicator-${item.id}`}
-                        className="absolute top-0 bottom-0 left-0 w-1 rounded-r-full bg-gradient-to-b from-primary to-primary/80"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        transition={{ duration: 0.2 }}
-                      />
-                    )}
-
                     <div className="flex-shrink-0">{item.icon}</div>
 
                     {isExpanded && (
-                      <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.2 }}
-                        className="flex flex-1 items-center justify-between"
-                      >
-                        <span
-                          className={`text-sm font-medium ${
-                            active || parentActive
-                              ? "font-semibold text-slate-900"
-                              : ""
-                          }`}
-                        >
+                      <div className="flex flex-1 items-center justify-between min-w-0">
+                        <span className="truncate text-sm tracking-tight">
                           {item.label}
                         </span>
 
-                        {/* Chevron for parent items */}
                         {hasChildren && (
-                          <motion.div
-                            animate={{ rotate: isParentExpanded ? 180 : 0 }}
-                            transition={{ duration: 0.2 }}
-                            className="flex-shrink-0"
-                          >
-                            <ChevronDown className="h-4 w-4 text-slate-500" />
-                          </motion.div>
+                          <ChevronDown
+                            className={cn(
+                              "h-4 w-4 transition-transform text-muted-foreground",
+                              isParentExpanded && "rotate-180"
+                            )}
+                          />
                         )}
-                      </motion.div>
+                      </div>
                     )}
-                  </motion.button>
+                  </button>
                 </TooltipTrigger>
-                {!isExpanded && !isMobile && !hasChildren && (
-                  <TooltipContent side="right" sideOffset={8}>
-                    {item.label}
+                {!isExpanded && !isMobileView && (
+                  <TooltipContent side="right">
+                    <p className="font-medium text-xs">{item.label}</p>
                   </TooltipContent>
                 )}
               </Tooltip>
 
-              {/* Child Menu Items */}
-              {hasChildren && isExpanded && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{
-                    opacity: isParentExpanded ? 1 : 0,
-                    height: isParentExpanded ? "auto" : 0,
-                  }}
-                  transition={{ duration: 0.2 }}
-                  className="space-y-1 overflow-hidden"
-                >
-                  {item?.children?.map((child) => {
+              {/* Sub-menu items (if any) */}
+              {hasChildren && isParentExpanded && isExpanded && (
+                <div className="mt-1 space-y-1 pl-11 pr-2">
+                  {item.children?.map((child) => {
                     const childActive = isActive(child.href)
                     return (
-                      <motion.button
+                      <button
                         key={child.id}
                         onClick={() => handleMenuItemClick(child.href)}
-                        className={`relative flex w-full items-center gap-3 rounded-lg px-4 py-2 pl-8 text-left text-sm transition-all duration-200 ${
+                        className={cn(
+                          "w-full text-left py-1.5 px-3 rounded-full text-xs transition-colors",
                           childActive
-                            ? "bg-primary/10 font-medium text-slate-900"
-                            : "text-slate-600 hover:bg-slate-100"
-                        }`}
-                        whileHover={{ x: 3 }}
-                        whileTap={{ scale: 0.98 }}
+                            ? "bg-muted font-bold text-foreground"
+                            : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
+                        )}
                         type="button"
                       >
-                        {/* Active indicator for child */}
-                        {childActive && (
-                          <motion.div
-                            layoutId={`activeIndicator-child-${child.id}`}
-                            className="absolute left-0 h-1 w-1 rounded-full bg-primary"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            transition={{ duration: 0.2 }}
-                          />
-                        )}
-                        <div className="flex-shrink-0">{child.icon}</div>
-                        <span className="text-sm font-medium">
-                          {child.label}
-                        </span>
-                      </motion.button>
+                        {child.label}
+                      </button>
                     )
                   })}
-                </motion.div>
+                </div>
               )}
             </div>
           )
         })}
       </nav>
 
-      {/* User Profile Footer */}
-      <div className="border-t border-slate-200 p-3">
+      {/* Footer Profile Section */}
+      <div className="border-t border-border p-3">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <motion.button
-              className={`flex items-center rounded-lg p-3 transition-all duration-200 ${
-                isExpanded ? "w-full justify-start" : "h-14 w-14 justify-center"
-              } hover:bg-slate-100`}
-              whileHover={{ scale: 1.02 }}
+            <button
+              className={cn(
+                "flex w-full items-center gap-3 rounded-2xl p-2 transition-colors hover:bg-muted text-left outline-none",
+                !isExpanded && "justify-center p-1.5"
+              )}
               type="button"
             >
-              {/* Avatar */}
-              <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-green-400 to-green-600">
-                {user?.avatar ? (
-                  <img
-                    src={user?.avatar}
-                    alt="Avatar"
-                    className="h-full w-full rounded-full object-cover object-center"
-                  />
-                ) : (
-                  <span className="text-sm font-bold text-white">
-                    {user?.userName
-                      ? user.userName.charAt(0).toUpperCase()
-                      : "U"}
-                  </span>
-                )}
+              <div className="relative">
+                <img
+                  src={
+                    user?.avatar ||
+                    `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.userName || "User"}`
+                  }
+                  alt={user?.userName || "User avatar"}
+                  className="h-9 w-9 rounded-full object-cover ring-2 ring-border"
+                />
+                <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full bg-lime-voltage ring-2 ring-card" />
               </div>
 
               {isExpanded && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="ml-3 flex-1 text-left"
-                >
-                  <p className="truncate text-sm font-semibold text-slate-900">
+                <div className="flex flex-1 flex-col overflow-hidden">
+                  <span className="truncate text-sm font-bold text-foreground">
                     {user?.userName || "User"}
-                  </p>
-                  <p className="text-xs text-slate-500">
-                    ID: {user?.userId || "N/A"}
-                  </p>
-                </motion.div>
+                  </span>
+                  <span className="truncate text-[11px] text-muted-foreground">
+                    ID: {user?.userId || ""}
+                  </span>
+                </div>
               )}
-            </motion.button>
+            </button>
           </DropdownMenuTrigger>
 
-          {/* Dropdown Menu Content */}
           <DropdownMenuContent
-            side="top"
-            align={isExpanded ? "end" : "center"}
-            className="w-56"
+            side={isMobileView ? "top" : "right"}
+            align="end"
+            className="w-56 rounded-2xl p-1.5 shadow-xl border-border bg-card"
           >
-            {/* Header Section */}
-            <div className="px-2 py-1.5">
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-green-400 to-green-600">
-                  {user?.avatar ? (
-                    <img
-                      src={user?.avatar}
-                      alt="Avatar"
-                      className="h-full w-full rounded-full object-cover object-center"
-                    />
-                  ) : (
-                    <span className="text-sm font-bold text-white">
-                      {user?.userName
-                        ? user.userName.charAt(0).toUpperCase()
-                        : "U"}
-                    </span>
-                  )}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-semibold text-slate-900">
-                    {user?.userName || "User"}
-                  </p>
-                  <p className="text-xs text-slate-500">
-                    ID: {user?.userId || "N/A"}
-                  </p>
-                </div>
-              </div>
+            <div className="px-3 py-2">
+              <p className="text-sm font-bold text-foreground truncate">
+                {user?.userName || "User"}
+              </p>
+              <p className="text-xs text-muted-foreground truncate">
+                {user?.email || ""}
+              </p>
             </div>
+            <DropdownMenuSeparator className="my-1" />
 
-            <DropdownMenuSeparator />
+            <button
+              onClick={() => navigate("/profile")}
+              className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-semibold text-foreground hover:bg-muted transition-colors"
+            >
+              <User className="h-4 w-4 text-muted-foreground" />
+              Profile & Account
+            </button>
 
-            {/* Action Buttons */}
-            <div className="space-y-1 px-2 py-1">
-              <Button
-                onClick={() => {
-                  navigate("/profile")
-                  if (isMobile) onMobileClose?.()
-                }}
-                variant="ghost"
-                size="sm"
-                className="w-full justify-start gap-2 text-xs text-slate-700 hover:bg-slate-100"
-              >
-                <User className="h-4 w-4" />
-                View Details Profile
-              </Button>
+            <DropdownMenuSeparator className="my-1" />
 
-              <Button
-                onClick={handleLogout}
-                disabled={logout.isPending}
-                variant="ghost"
-                size="sm"
-                className="w-full justify-start gap-2 text-xs text-slate-700 hover:bg-slate-100"
-              >
-                <LogOut className="h-4 w-4" />
-                {logout.isPending ? "Logging out..." : "Logout"}
-              </Button>
+            <button
+              onClick={handleLogout}
+              className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-semibold text-alarm-red hover:bg-alarm-red/10 transition-colors"
+            >
+              <LogOut className="h-4 w-4" />
+              Log Out
+            </button>
 
-              <Button
-                onClick={handleLogoutAll}
-                disabled={logoutAllDevices.isPending}
-                variant="ghost"
-                size="sm"
-                className="w-full justify-start gap-2 text-xs text-red-700 hover:bg-red-50"
-              >
-                <ShieldAlert className="h-4 w-4" />
-                {logoutAllDevices.isPending
-                  ? "Logging out..."
-                  : "Logout All Devices"}
-              </Button>
-            </div>
+            <button
+              onClick={handleLogoutAll}
+              className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-semibold text-alarm-red hover:bg-alarm-red/10 transition-colors"
+            >
+              <ShieldAlert className="h-4 w-4" />
+              Log Out All Devices
+            </button>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

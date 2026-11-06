@@ -37,18 +37,18 @@ export default function ResetPasswordPage() {
 
   if (!emailFromState) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-white to-slate-50">
-        <Card className="max-w-md border border-slate-200 bg-white p-6 text-center shadow-lg">
-          <AlertCircle className="mx-auto mb-4 h-12 w-12 text-red-500" />
-          <h2 className="mb-2 text-lg font-bold text-slate-900">
+      <div className="flex min-h-screen items-center justify-center bg-background p-4">
+        <Card className="max-w-md w-full rounded-3xl border border-border/80 bg-card p-6 text-center shadow-xl">
+          <AlertCircle className="mx-auto mb-4 h-12 w-12 text-alarm-red" />
+          <h2 className="mb-2 text-xl font-bold text-foreground">
             Invalid Access
           </h2>
-          <p className="mb-4 text-sm text-slate-500">
+          <p className="mb-6 text-xs sm:text-sm text-muted-foreground">
             Please request a password reset to access this page.
           </p>
           <Button
             onClick={() => navigate("/forgot-password")}
-            className="w-full bg-primary hover:bg-primary/90"
+            className="w-full rounded-full bg-lime-voltage hover:bg-lime-voltage/90 text-forest-ink font-bold shadow-xs py-5"
           >
             Go to Forgot Password
           </Button>
@@ -62,21 +62,21 @@ export default function ResetPasswordPage() {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.2,
-        delayChildren: 0.3,
+        staggerChildren: 0.15,
+        delayChildren: 0.2,
       },
     },
   }
 
   const itemVariants: Variants = {
-    hidden: { opacity: 0, y: 20 },
+    hidden: { opacity: 0, y: 15 },
     visible: {
       opacity: 1,
       y: 0,
       transition: {
         type: "spring",
-        stiffness: 100,
-        damping: 10,
+        stiffness: 120,
+        damping: 12,
       },
     },
   }
@@ -123,235 +123,190 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen overflow-hidden bg-gradient-to-br from-white to-slate-50">
-      {/* Main Container */}
-      <div className="flex min-h-screen flex-col items-center justify-center p-6">
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          className="w-full max-w-md"
-        >
-          {/* Header Section */}
-          <motion.div variants={itemVariants} className="mb-12 text-center">
-            {/* Branding Icon */}
-            <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              transition={{ type: "spring", stiffness: 100, delay: 0.2 }}
-              className="mb-6 inline-flex items-center justify-center rounded-full bg-gradient-to-br from-primary to-primary/80 p-3"
-            >
-              <ShieldCheck className="h-8 w-8 text-white" />
-            </motion.div>
-
-            {/* Title */}
-            <h2 className="mb-2 text-2xl font-bold text-slate-800">
-              Reset Password
-            </h2>
-            <p className="mb-8 text-sm text-slate-500">
-              Enter the OTP and create a new password.
-            </p>
-
-            {/* Card */}
-            <motion.div variants={itemVariants}>
-              <Card className="border border-slate-200 bg-white shadow-lg">
-                <div className="p-6">
-                  <form onSubmit={handleSubmit} className="space-y-5">
-                    {/* OTP Field */}
-                    <motion.div variants={itemVariants} className="space-y-2">
-                      <Label htmlFor="otp" className="text-slate-700">
-                        One-Time Password (OTP)
-                      </Label>
-                      <div className="relative">
-                        <Unlock className="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 text-slate-400" />
-                        <Input
-                          id="otp"
-                          type="text"
-                          placeholder="Enter OTP"
-                          className={`border-slate-300 bg-white py-6 pr-4 pl-10 text-slate-900 placeholder:text-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20 ${
-                            errors.otp ? "border-red-500" : ""
-                          }`}
-                          value={otp}
-                          onChange={(e) => {
-                            setOtp(e.target.value)
-                            if (errors.otp)
-                              setErrors({ ...errors, otp: undefined })
-                          }}
-                          disabled={resetPassword.isPending}
-                          required
-                        />
-                      </div>
-                      {errors.otp && (
-                        <p className="text-xs text-red-500">{errors.otp}</p>
-                      )}
-                    </motion.div>
-
-                    {/* New Password Field */}
-                    <motion.div variants={itemVariants} className="space-y-2">
-                      <Label htmlFor="new-password" className="text-slate-700">
-                        New Password
-                      </Label>
-                      <div className="relative">
-                        <Lock className="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 text-slate-400" />
-                        <Input
-                          id="new-password"
-                          type={showPassword ? "text" : "password"}
-                          placeholder="••••••••"
-                          className={`border-slate-300 bg-white py-6 pr-10 pl-10 text-slate-900 placeholder:text-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20 ${
-                            errors.newPassword ? "border-red-500" : ""
-                          }`}
-                          value={newPassword}
-                          onChange={(e) => {
-                            setNewPassword(e.target.value)
-                            if (errors.newPassword)
-                              setErrors({ ...errors, newPassword: undefined })
-                          }}
-                          disabled={resetPassword.isPending}
-                          required
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword(!showPassword)}
-                          className="absolute top-1/2 right-3 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                        >
-                          {showPassword ? (
-                            <EyeOff className="h-5 w-5" />
-                          ) : (
-                            <Eye className="h-5 w-5" />
-                          )}
-                        </button>
-                      </div>
-                      {errors.newPassword && (
-                        <p className="text-xs text-red-500">
-                          {errors.newPassword}
-                        </p>
-                      )}
-                      <div className="mt-2 space-y-1 text-xs text-slate-500">
-                        <p>Password must contain:</p>
-                        <ul className="ml-4 space-y-0.5">
-                          <li
-                            className={
-                              newPassword.length >= 8
-                                ? "text-green-600"
-                                : "text-slate-400"
-                            }
-                          >
-                            ✓ At least 8 characters
-                          </li>
-                          <li
-                            className={
-                              /\d/.test(newPassword)
-                                ? "text-green-600"
-                                : "text-slate-400"
-                            }
-                          >
-                            ✓ At least 1 number
-                          </li>
-                          <li
-                            className={
-                              /[!@#$%^&*]/.test(newPassword)
-                                ? "text-green-600"
-                                : "text-slate-400"
-                            }
-                          >
-                            ✓ At least 1 special character (!@#$%^&*)
-                          </li>
-                        </ul>
-                      </div>
-                    </motion.div>
-
-                    {/* Confirm Password Field */}
-                    <motion.div variants={itemVariants} className="space-y-2">
-                      <Label
-                        htmlFor="confirm-password"
-                        className="text-slate-700"
-                      >
-                        Confirm Password
-                      </Label>
-                      <div className="relative">
-                        <Lock className="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 text-slate-400" />
-                        <Input
-                          id="confirm-password"
-                          type={showConfirmPassword ? "text" : "password"}
-                          placeholder="••••••••"
-                          className={`border-slate-300 bg-white py-6 pr-10 pl-10 text-slate-900 placeholder:text-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20 ${
-                            errors.confirmPassword ? "border-red-500" : ""
-                          }`}
-                          value={confirmPassword}
-                          onChange={(e) => {
-                            setConfirmPassword(e.target.value)
-                            if (errors.confirmPassword)
-                              setErrors({
-                                ...errors,
-                                confirmPassword: undefined,
-                              })
-                          }}
-                          disabled={resetPassword.isPending}
-                          required
-                        />
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setShowConfirmPassword(!showConfirmPassword)
-                          }
-                          className="absolute top-1/2 right-3 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                        >
-                          {showConfirmPassword ? (
-                            <EyeOff className="h-5 w-5" />
-                          ) : (
-                            <Eye className="h-5 w-5" />
-                          )}
-                        </button>
-                      </div>
-                      {errors.confirmPassword && (
-                        <p className="text-xs text-red-500">
-                          {errors.confirmPassword}
-                        </p>
-                      )}
-                    </motion.div>
-
-                    {/* Submit Button */}
-                    <motion.div variants={itemVariants}>
-                      <Button
-                        type="submit"
-                        disabled={resetPassword.isPending}
-                        className="w-full bg-gradient-to-r from-primary to-primary/80 py-6 text-base font-semibold text-white hover:from-primary/90 hover:to-primary/70"
-                      >
-                        {resetPassword.isPending ? (
-                          <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            Resetting...
-                          </>
-                        ) : (
-                          <>
-                            <ShieldCheck className="mr-2 h-4 w-4" />
-                            Reset Password
-                          </>
-                        )}
-                      </Button>
-                    </motion.div>
-                  </form>
-
-                  {/* Back to Login Link */}
-                  <motion.div
-                    variants={itemVariants}
-                    className="mt-4 text-center"
-                  >
-                    <Button
-                      variant="ghost"
-                      onClick={() => navigate("/auth")}
-                      className="text-sm text-slate-600 hover:text-primary"
-                    >
-                      <ArrowLeft className="mr-2 h-4 w-4" />
-                      Back to Login
-                    </Button>
-                  </motion.div>
-                </div>
-              </Card>
-            </motion.div>
+    <div className="min-h-screen overflow-hidden bg-background flex flex-col items-center justify-center p-4 sm:p-6">
+      <motion.div
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        className="w-full max-w-md space-y-6"
+      >
+        {/* Header Section */}
+        <motion.div variants={itemVariants} className="text-center space-y-3">
+          <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ type: "spring", stiffness: 120, delay: 0.1 }}
+            className="inline-flex h-14 w-14 items-center justify-center rounded-full bg-lime-voltage text-forest-ink shadow-md"
+          >
+            <ShieldCheck className="h-7 w-7 stroke-[2.5]" />
           </motion.div>
+
+          <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-foreground">
+            Reset Password
+          </h2>
+          <p className="text-xs sm:text-sm text-muted-foreground">
+            Enter the OTP and create a new secure password.
+          </p>
         </motion.div>
-      </div>
+
+        {/* Card */}
+        <motion.div variants={itemVariants}>
+          <Card className="rounded-3xl border border-border/80 bg-card p-6 shadow-xl space-y-5">
+            <form onSubmit={handleSubmit} className="space-y-4">
+              {/* OTP Field */}
+              <div className="space-y-1.5">
+                <Label htmlFor="otp" className="text-xs font-semibold text-foreground">
+                  One-Time Password (OTP)
+                </Label>
+                <div className="relative">
+                  <Unlock className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    id="otp"
+                    type="text"
+                    placeholder="Enter OTP"
+                    className={`rounded-xl border-input bg-background py-5 pl-10 text-foreground placeholder:text-muted-foreground focus:border-forest-ink dark:focus:border-lime-voltage ${
+                      errors.otp ? "border-alarm-red" : ""
+                    }`}
+                    value={otp}
+                    onChange={(e) => {
+                      setOtp(e.target.value)
+                      if (errors.otp)
+                        setErrors({ ...errors, otp: undefined })
+                    }}
+                    disabled={resetPassword.isPending}
+                    required
+                  />
+                </div>
+                {errors.otp && (
+                  <p className="text-xs text-alarm-red">{errors.otp}</p>
+                )}
+              </div>
+
+              {/* New Password Field */}
+              <div className="space-y-1.5">
+                <Label htmlFor="new-password" className="text-xs font-semibold text-foreground">
+                  New Password
+                </Label>
+                <div className="relative">
+                  <Lock className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    id="new-password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="••••••••"
+                    className={`rounded-xl border-input bg-background py-5 pr-10 pl-10 text-foreground placeholder:text-muted-foreground focus:border-forest-ink dark:focus:border-lime-voltage ${
+                      errors.newPassword ? "border-alarm-red" : ""
+                    }`}
+                    value={newPassword}
+                    onChange={(e) => {
+                      setNewPassword(e.target.value)
+                      if (errors.newPassword)
+                        setErrors({ ...errors, newPassword: undefined })
+                    }}
+                    disabled={resetPassword.isPending}
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute top-1/2 right-3.5 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
+                {errors.newPassword && (
+                  <p className="text-xs text-alarm-red">
+                    {errors.newPassword}
+                  </p>
+                )}
+              </div>
+
+              {/* Confirm Password Field */}
+              <div className="space-y-1.5">
+                <Label
+                  htmlFor="confirm-password"
+                  className="text-xs font-semibold text-foreground"
+                >
+                  Confirm Password
+                </Label>
+                <div className="relative">
+                  <Lock className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    id="confirm-password"
+                    type={showConfirmPassword ? "text" : "password"}
+                    placeholder="••••••••"
+                    className={`rounded-xl border-input bg-background py-5 pr-10 pl-10 text-foreground placeholder:text-muted-foreground focus:border-forest-ink dark:focus:border-lime-voltage ${
+                      errors.confirmPassword ? "border-alarm-red" : ""
+                    }`}
+                    value={confirmPassword}
+                    onChange={(e) => {
+                      setConfirmPassword(e.target.value)
+                      if (errors.confirmPassword)
+                        setErrors({
+                          ...errors,
+                          confirmPassword: undefined,
+                        })
+                    }}
+                    disabled={resetPassword.isPending}
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setShowConfirmPassword(!showConfirmPassword)
+                    }
+                    className="absolute top-1/2 right-3.5 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                  >
+                    {showConfirmPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </button>
+                </div>
+                {errors.confirmPassword && (
+                  <p className="text-xs text-alarm-red">
+                    {errors.confirmPassword}
+                  </p>
+                )}
+              </div>
+
+              {/* Submit Button */}
+              <Button
+                type="submit"
+                disabled={resetPassword.isPending}
+                className="w-full rounded-full bg-lime-voltage hover:bg-lime-voltage/90 text-forest-ink font-bold shadow-xs py-5 gap-2"
+              >
+                {resetPassword.isPending ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    Resetting...
+                  </>
+                ) : (
+                  <>
+                    <ShieldCheck className="h-4 w-4 stroke-[2.5]" />
+                    Reset Password
+                  </>
+                )}
+              </Button>
+            </form>
+
+            <div className="text-center pt-2">
+              <Button
+                variant="ghost"
+                onClick={() => navigate("/auth")}
+                className="rounded-full text-xs font-semibold text-muted-foreground hover:text-foreground gap-1.5"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                Back to Login
+              </Button>
+            </div>
+          </Card>
+        </motion.div>
+      </motion.div>
     </div>
   )
 }

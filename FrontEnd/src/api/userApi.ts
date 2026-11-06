@@ -5,6 +5,8 @@ import type { DeleteAvatarDto } from "@/types/user/DeleteAvatarDto"
 import type { UpdatePaymentDto } from "@/types/user/UpdatePaymentDto"
 import type { UpdateUserDto } from "@/types/user/UpdateUserDto"
 import type { UserViewDto } from "@/types/user/UserViewDto"
+import type { DashboardSummary } from "@/types/user/DashboardSummary"
+import type { GlobalSearchResult } from "@/types/user/GlobalSearch"
 
 export const userApi = {
   getUserProfile: async () => {
@@ -14,6 +16,21 @@ export const userApi = {
   getOtherUserProfile: async (userId: string) => {
     const res = await axiosClient.get<ResponseDto<UserViewDto>>(
       `/user/${userId}`
+    )
+    return res.data
+  },
+  getDashboardSummary: async () => {
+    const res = await axiosClient.get<ResponseDto<DashboardSummary>>(
+      "/user/dashboard-summary"
+    )
+    return res.data
+  },
+  globalSearch: async (q: string) => {
+    const res = await axiosClient.get<ResponseDto<GlobalSearchResult>>(
+      "/user/search",
+      {
+        params: { q },
+      }
     )
     return res.data
   },

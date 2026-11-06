@@ -9,6 +9,14 @@ namespace WeShare.Application.Dtos.Transaction
 {
     public class UpdateTransactionDto
     {
+        private int? _taskId;
+        public int? TaskId
+        {
+            get => _taskId;
+            set { _taskId = value; TaskIdSpecified = true; }
+        }
+        [System.Text.Json.Serialization.JsonIgnore]
+        public bool TaskIdSpecified { get; private set; }
         public int Id { get; set; }
         public string Description { get; set; } = string.Empty;
         public decimal? Amount { get; set; }

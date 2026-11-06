@@ -4,6 +4,7 @@ import { motion, type Variants } from "framer-motion"
 import {
   Mail,
   Lock,
+  User,
   Loader2,
   ArrowRight,
   XCircle,
@@ -108,7 +109,6 @@ export default function RegisterForm({
         password: registerPassword,
       })
 
-      // Navigate to OTP verification with email in state
       navigate("/verify-otp", { state: { email: registerEmail } })
     } catch (error) {
       console.error("Registration failed:", error)
@@ -124,69 +124,72 @@ export default function RegisterForm({
       className="space-y-4"
     >
       {/* Full Name Field */}
-      <motion.div variants={itemVariants} className="space-y-2">
-        <Label htmlFor="register-name" className="text-slate-700">
+      <motion.div variants={itemVariants} className="space-y-1.5">
+        <Label htmlFor="register-name" className="text-xs font-semibold text-foreground">
           Full Name
         </Label>
-        <Input
-          id="register-name"
-          type="text"
-          placeholder="John Doe"
-          className="border-slate-300 bg-white py-6 text-slate-900 placeholder:text-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20"
-          value={registerName}
-          onChange={(e) => setRegisterName(e.target.value)}
-          required
-        />
+        <div className="relative">
+          <User className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            id="register-name"
+            type="text"
+            placeholder="John Doe"
+            className="rounded-xl border-input bg-background py-5 pl-10 text-foreground placeholder:text-muted-foreground focus:border-forest-ink dark:focus:border-lime-voltage"
+            value={registerName}
+            onChange={(e) => setRegisterName(e.target.value)}
+            required
+          />
+        </div>
       </motion.div>
 
       {/* Email Field */}
-      <motion.div variants={itemVariants} className="space-y-2">
-        <Label htmlFor="register-email" className="text-slate-700">
+      <motion.div variants={itemVariants} className="space-y-1.5">
+        <Label htmlFor="register-email" className="text-xs font-semibold text-foreground">
           Email Address
         </Label>
         <div className="relative">
-          <Mail className="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 text-slate-400" />
+          <Mail className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             id="register-email"
             type="email"
             placeholder="you@example.com"
-            className="border-slate-300 bg-white py-6 pr-10 pl-10 text-slate-900 placeholder:text-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20"
+            className="rounded-xl border-input bg-background py-5 pr-10 pl-10 text-foreground placeholder:text-muted-foreground focus:border-forest-ink dark:focus:border-lime-voltage"
             value={registerEmail}
             onChange={(e) => setRegisterEmail(e.target.value)}
             onBlur={handleEmailBlur}
             required
           />
 
-          <div className="absolute top-1/2 right-3 -translate-y-1/2">
+          <div className="absolute top-1/2 right-3.5 -translate-y-1/2">
             {isVerifying && (
-              <Loader2 className="h-5 w-5 animate-spin text-blue-500" />
+              <Loader2 className="h-4 w-4 animate-spin text-lime-voltage" />
             )}
 
             {!isVerifying && emailData?.dns && !emailData?.disposable && (
-              <CheckCircle2 className="h-5 w-5 text-green-500" />
+              <CheckCircle2 className="h-4 w-4 text-emerald-500" />
             )}
 
             {!isVerifying &&
               emailData &&
               (!emailData.dns || emailData.disposable) && (
-                <XCircle className="h-5 w-5 text-red-500" />
+                <XCircle className="h-4 w-4 text-alarm-red" />
               )}
           </div>
         </div>
       </motion.div>
 
       {/* Password Field */}
-      <motion.div variants={itemVariants} className="space-y-2">
-        <Label htmlFor="register-password" className="text-slate-700">
+      <motion.div variants={itemVariants} className="space-y-1.5">
+        <Label htmlFor="register-password" className="text-xs font-semibold text-foreground">
           Password
         </Label>
         <div className="relative">
-          <Lock className="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 text-slate-400" />
+          <Lock className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             id="register-password"
             type={showPassword ? "text" : "password"}
             placeholder="••••••••"
-            className="border-slate-300 bg-white py-6 pr-10 pl-10 text-slate-900 placeholder:text-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20"
+            className="rounded-xl border-input bg-background py-5 pr-10 pl-10 text-foreground placeholder:text-muted-foreground focus:border-forest-ink dark:focus:border-lime-voltage"
             value={registerPassword}
             onChange={(e) => setRegisterPassword(e.target.value)}
             required
@@ -194,23 +197,23 @@ export default function RegisterForm({
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute top-1/2 right-3 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+            className="absolute top-1/2 right-3.5 -translate-y-1/2 text-muted-foreground hover:text-foreground"
           >
             {showPassword ? (
-              <EyeOff className="h-5 w-5" />
+              <EyeOff className="h-4 w-4" />
             ) : (
-              <Eye className="h-5 w-5" />
+              <Eye className="h-4 w-4" />
             )}
           </button>
         </div>
-        <div className="mt-2 space-y-1 text-xs text-slate-500">
-          <p>Password must contain:</p>
-          <ul className="ml-4 space-y-0.5">
+        <div className="mt-1.5 space-y-1 text-[11px] text-muted-foreground">
+          <p>Password requirements:</p>
+          <ul className="ml-3 space-y-0.5">
             <li
               className={
                 registerPassword.length >= 8
-                  ? "text-green-600"
-                  : "text-slate-400"
+                  ? "text-emerald-500 font-semibold"
+                  : "text-muted-foreground"
               }
             >
               ✓ At least 8 characters
@@ -218,8 +221,8 @@ export default function RegisterForm({
             <li
               className={
                 /\d/.test(registerPassword)
-                  ? "text-green-600"
-                  : "text-slate-400"
+                  ? "text-emerald-500 font-semibold"
+                  : "text-muted-foreground"
               }
             >
               ✓ At least 1 number
@@ -227,8 +230,8 @@ export default function RegisterForm({
             <li
               className={
                 /[!@#$%^&*]/.test(registerPassword)
-                  ? "text-green-600"
-                  : "text-slate-400"
+                  ? "text-emerald-500 font-semibold"
+                  : "text-muted-foreground"
               }
             >
               ✓ At least 1 special character (!@#$%^&*)
@@ -238,17 +241,17 @@ export default function RegisterForm({
       </motion.div>
 
       {/* Confirm Password Field */}
-      <motion.div variants={itemVariants} className="space-y-2">
-        <Label htmlFor="register-confirm-password" className="text-slate-700">
+      <motion.div variants={itemVariants} className="space-y-1.5">
+        <Label htmlFor="register-confirm-password" className="text-xs font-semibold text-foreground">
           Confirm Password
         </Label>
         <div className="relative">
-          <Lock className="absolute top-1/2 left-3 h-5 w-5 -translate-y-1/2 text-slate-400" />
+          <Lock className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             id="register-confirm-password"
             type={showConfirmPassword ? "text" : "password"}
             placeholder="••••••••"
-            className="border-slate-300 bg-white py-6 pr-10 pl-10 text-slate-900 placeholder:text-slate-400 focus:border-primary focus:ring-2 focus:ring-primary/20"
+            className="rounded-xl border-input bg-background py-5 pr-10 pl-10 text-foreground placeholder:text-muted-foreground focus:border-forest-ink dark:focus:border-lime-voltage"
             value={registerConfirmPassword}
             onChange={(e) => setRegisterConfirmPassword(e.target.value)}
             required
@@ -256,12 +259,12 @@ export default function RegisterForm({
           <button
             type="button"
             onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-            className="absolute top-1/2 right-3 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+            className="absolute top-1/2 right-3.5 -translate-y-1/2 text-muted-foreground hover:text-foreground"
           >
             {showConfirmPassword ? (
-              <EyeOff className="h-5 w-5" />
+              <EyeOff className="h-4 w-4" />
             ) : (
-              <Eye className="h-5 w-5" />
+              <Eye className="h-4 w-4" />
             )}
           </button>
         </div>
@@ -271,7 +274,7 @@ export default function RegisterForm({
       <motion.div variants={itemVariants}>
         <Button
           type="submit"
-          className="w-full gap-2"
+          className="w-full rounded-full bg-lime-voltage hover:bg-lime-voltage/90 text-forest-ink font-bold shadow-xs py-5 gap-2"
           disabled={!isEmailVerified || register.isPending || isLoading}
         >
           {register.isPending || isLoading ? (
@@ -282,7 +285,7 @@ export default function RegisterForm({
           ) : (
             <>
               Create Account
-              <ArrowRight className="h-4 w-4" />
+              <ArrowRight className="h-4 w-4 stroke-[2.5]" />
             </>
           )}
         </Button>

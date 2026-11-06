@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { CalendarClock, Download, ImageIcon } from "lucide-react"
+import { CalendarClock, CheckSquare, Download, ImageIcon } from "lucide-react"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
@@ -49,6 +49,14 @@ export default function ExpenseCard({ expense }: ExpenseCardProps) {
         </div>
         {expense.description && (
           <p className="text-sm text-muted-foreground">{expense.description}</p>
+        )}
+        {expense.task && typeof expense.task === "object" && expense.task.title && (
+          <div className="flex items-center gap-1.5 pt-0.5 text-xs">
+            <span className="inline-flex items-center gap-1 rounded-md bg-emerald-50 px-2 py-0.5 font-medium text-emerald-700 border border-emerald-200">
+              <CheckSquare className="h-3 w-3" />
+              Công việc: {expense.task.title}
+            </span>
+          </div>
         )}
 
         {proofUrl ? (

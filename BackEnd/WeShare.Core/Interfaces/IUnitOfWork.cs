@@ -5,6 +5,7 @@ namespace WeShare.Core.Interfaces
 {
     public interface IUnitOfWork : IDisposable
     {
+        Task<T> ExecuteWorkflowAsync<T>(Func<Task<T>> action);
         Task CommitTransactionAsync();
         Task<int> CompleteAsync();
         IGenericRepository<T> Repository<T>() where T : class, IEntity;

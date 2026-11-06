@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -30,6 +30,8 @@ namespace WeShare.Core.Constants
         public static string UPDATE_PASSWORD_SUCCESSFULLY = "Update password successful!";
         public static string UPDATE_PAYMENT_INFO_SUCCESSFULLY = "Update payment information successful!";
         public static string UPDATE_AVATAR_SUCCESSFULLY = "Update avatar successful!";
+        public static string GET_DASHBOARD_SUMMARY_SUCCESSFULLY = "Get dashboard summary successful!";
+        public static string GLOBAL_SEARCH_SUCCESSFULLY = "Global search successful!";
 
         // Transaction
         public static string ADD_TRANSACTION_SUCCESSFULLY = "Add transaction successful!";
