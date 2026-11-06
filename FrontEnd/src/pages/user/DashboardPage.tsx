@@ -13,6 +13,8 @@ import {
   Sparkles,
   Loader2,
   FolderOpen,
+  AlertCircle,
+  RefreshCw,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -42,7 +44,7 @@ export default function DashboardPage() {
   const { user } = useSelector((state: RootState) => state.auth)
   const navigate = useNavigate()
 
-  const { data: summaryRes, isLoading } = useDashboardSummary()
+  const { data: summaryRes, isLoading, isError, refetch } = useDashboardSummary()
   const summary = summaryRes?.data
 
   const totalSpent = summary?.totalSpent ?? 0
@@ -105,7 +107,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto">
+    <div className="space-y-6 sm:space-y-8 max-w-6xl mx-auto pt-2 sm:pt-4">
       <motion.div
         variants={containerVariants}
         initial="hidden"
@@ -135,6 +137,27 @@ export default function DashboardPage() {
           </Button>
         </motion.div>
 
+        {/* Backend Connection Error Banner */}
+        {isError && (
+          <div className="rounded-2xl border border-alarm-red/40 bg-red-50/70 dark:bg-red-950/20 p-4 text-xs text-alarm-red flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
+            <div className="flex items-center gap-2.5 min-w-0">
+              <AlertCircle className="h-4 w-4 shrink-0 text-alarm-red" />
+              <span>
+                Could not connect to backend server ({import.meta.env.VITE_API_URL || "https://localhost:7133/api"}). Please ensure the backend is running.
+              </span>
+            </div>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => refetch()}
+              className="rounded-full text-xs font-bold border-alarm-red/40 hover:bg-red-100 dark:hover:bg-red-900/40 text-alarm-red h-8 px-4 gap-1.5 self-start sm:self-auto shrink-0"
+            >
+              <RefreshCw className="h-3.5 w-3.5" />
+              <span>Retry</span>
+            </Button>
+          </div>
+        )}
+
         {/* Loading Indicator */}
         {isLoading && (
           <div className="flex h-48 items-center justify-center rounded-3xl border border-border/80 bg-card">
@@ -145,16 +168,16 @@ export default function DashboardPage() {
           </div>
         )}
 
-        {/* Financial Snapshot Cards (Wise Design Language) */}
+        {/* Financial Snapshot Cards (Wise Design Language - Uniform & Balanced) */}
         {!isLoading && (
           <motion.div
             variants={containerVariants}
-            className="grid gap-4 md:grid-cols-3"
+            className="grid gap-4 md:grid-cols-3 items-stretch"
           >
             {/* Card 1: Total Spent (Forest Ink Hero) */}
-            <motion.div variants={itemVariants}>
-              <div className="rounded-3xl p-6 bg-forest-ink text-paper dark:bg-card dark:border dark:border-border relative overflow-hidden shadow-lg flex flex-col justify-between min-h-[170px]">
-                <div className="flex items-center justify-between z-10">
+            <motion.div variants={itemVariants} className="h-full">
+              <div className="rounded-3xl p-6 bg-forest-ink text-paper dark:bg-card dark:border dark:border-border relative overflow-hidden shadow-lg flex flex-col justify-between h-full min-h-[190px]">
+                <div className="flex items-center justify-between z-10 h-7">
                   <span className="text-xs font-bold uppercase tracking-wider text-linen-mist/80 dark:text-muted-foreground flex items-center gap-1.5">
                     <TrendingUp className="h-4 w-4 text-lime-voltage" />
                     Total Spent
@@ -164,16 +187,16 @@ export default function DashboardPage() {
                   </Badge>
                 </div>
 
-                <div className="my-2 z-10">
+                <div className="my-3 z-10 flex-1 flex flex-col justify-center">
                   <p className="text-3xl sm:text-4xl font-black tracking-tight text-white dark:text-foreground">
                     {formatCurrency(totalSpent)}
                   </p>
-                  <p className="text-xs text-linen-mist/70 dark:text-muted-foreground mt-1">
+                  <p className="text-xs text-linen-mist/70 dark:text-muted-foreground mt-1 min-h-[36px] flex items-center">
                     Total expenses paid across all your groups
                   </p>
                 </div>
 
-                <div className="z-10 flex items-center gap-1.5 text-xs font-semibold text-lime-voltage">
+                <div className="z-10 flex items-center gap-1.5 text-xs font-semibold text-lime-voltage pt-3 border-t border-linen-mist/10 min-h-[38px]">
                   <Sparkles className="h-3.5 w-3.5" />
                   <span>Real-time financial tracking</span>
                 </div>
@@ -184,9 +207,9 @@ export default function DashboardPage() {
             </motion.div>
 
             {/* Card 2: You Owe (Alarm Red Accent) */}
-            <motion.div variants={itemVariants}>
-              <div className="rounded-3xl p-6 border border-border/80 bg-card shadow-xs flex flex-col justify-between min-h-[170px] hover:border-alarm-red/40 transition-all">
-                <div className="flex items-center justify-between">
+            <motion.div variants={itemVariants} className="h-full">
+              <div className="rounded-3xl p-6 border border-border/80 bg-card shadow-xs flex flex-col justify-between h-full min-h-[190px] hover:border-alarm-red/40 transition-all">
+                <div className="flex items-center justify-between h-7">
                   <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
                     <ArrowUpRight className="h-4 w-4 text-alarm-red" />
                     You Owe
@@ -196,25 +219,26 @@ export default function DashboardPage() {
                   </Badge>
                 </div>
 
-                <div className="my-2">
+                <div className="my-3 flex-1 flex flex-col justify-center">
                   <p className="text-3xl sm:text-4xl font-black tracking-tight text-alarm-red">
                     {formatCurrency(totalOwe)}
                   </p>
-                  <p className="text-xs text-muted-foreground mt-1">
+                  <p className="text-xs text-muted-foreground mt-1 min-h-[36px] flex items-center">
                     Total pending debt to friends &amp; members
                   </p>
                 </div>
 
-                <div className="text-xs font-medium text-muted-foreground">
-                  {totalOwe === 0 ? "You have no outstanding debts" : "Select a group to settle up"}
+                <div className="text-xs font-medium text-muted-foreground pt-3 border-t border-border/60 min-h-[38px] flex items-center gap-1.5">
+                  <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 dark:text-lime-voltage" />
+                  <span>{totalOwe === 0 ? "You have no outstanding debts" : "Select a group to settle up"}</span>
                 </div>
               </div>
             </motion.div>
 
             {/* Card 3: Others Owe You (Lime/Emerald Accent) */}
-            <motion.div variants={itemVariants}>
-              <div className="rounded-3xl p-6 border border-border/80 bg-card shadow-xs flex flex-col justify-between min-h-[170px] hover:border-lime-voltage/40 transition-all">
-                <div className="flex items-center justify-between">
+            <motion.div variants={itemVariants} className="h-full">
+              <div className="rounded-3xl p-6 border border-border/80 bg-card shadow-xs flex flex-col justify-between h-full min-h-[190px] hover:border-lime-voltage/40 transition-all">
+                <div className="flex items-center justify-between h-7">
                   <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
                     <ArrowDownLeft className="h-4 w-4 text-emerald-600 dark:text-lime-voltage" />
                     Others Owe You
@@ -224,19 +248,22 @@ export default function DashboardPage() {
                   </Badge>
                 </div>
 
-                <div className="my-2">
+                <div className="my-3 flex-1 flex flex-col justify-center">
                   <p className="text-3xl sm:text-4xl font-black tracking-tight text-forest-ink dark:text-lime-voltage">
                     {formatCurrency(totalOwedToYou)}
                   </p>
-                  <p className="text-xs text-muted-foreground mt-1">
+                  <p className="text-xs text-muted-foreground mt-1 min-h-[36px] flex items-center">
                     Waiting for group members to reimburse
                   </p>
                 </div>
 
-                <div className="text-xs font-medium text-muted-foreground">
-                  {pendingTasksCount > 0
-                    ? `${pendingTasksCount} pending assigned task${pendingTasksCount === 1 ? "" : "s"}`
-                    : "All settled or up-to-date"}
+                <div className="text-xs font-medium text-muted-foreground pt-3 border-t border-border/60 min-h-[38px] flex items-center gap-1.5">
+                  <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 dark:text-lime-voltage" />
+                  <span>
+                    {pendingTasksCount > 0
+                      ? `${pendingTasksCount} pending assigned task${pendingTasksCount === 1 ? "" : "s"}`
+                      : "All settled or up-to-date"}
+                  </span>
                 </div>
               </div>
             </motion.div>

@@ -153,10 +153,10 @@ export default function ExpenseSplitterDashboard({
       {/* =========================================================================
           SECTION 1: FINANCIAL SNAPSHOT HERO (Wise Aesthetic)
           ========================================================================= */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-stretch">
         {/* Total Group Spend Card */}
-        <div className="rounded-3xl p-6 bg-forest-ink text-paper dark:bg-card dark:border dark:border-border relative overflow-hidden shadow-lg flex flex-col justify-between min-h-[170px]">
-          <div className="flex items-center justify-between z-10">
+        <div className="rounded-3xl p-6 bg-forest-ink text-paper dark:bg-card dark:border dark:border-border relative overflow-hidden shadow-lg flex flex-col justify-between h-full min-h-[190px]">
+          <div className="flex items-center justify-between z-10 h-7">
             <span className="text-xs font-bold uppercase tracking-wider text-linen-mist/80 dark:text-muted-foreground flex items-center gap-1.5">
               <TrendingUp className="h-4 w-4 text-lime-voltage" />
               Total Group Spend
@@ -166,16 +166,16 @@ export default function ExpenseSplitterDashboard({
             </Badge>
           </div>
 
-          <div className="my-2 z-10">
+          <div className="my-2 z-10 flex-1 flex flex-col justify-center">
             <p className="text-2xl sm:text-3xl font-black tracking-tight text-white dark:text-foreground">
               {formatCurrency(totalGroupSpending)}
             </p>
-            <p className="text-xs text-linen-mist/70 dark:text-muted-foreground mt-1">
+            <p className="text-xs text-linen-mist/70 dark:text-muted-foreground mt-1 min-h-[36px] flex items-center">
               Across {groupMembers.length || 0} participants in {groupName || "this hub"}
             </p>
           </div>
 
-          <div className="z-10 flex items-center gap-2 pt-2 text-xs font-semibold text-lime-voltage">
+          <div className="z-10 flex items-center gap-2 pt-3 border-t border-linen-mist/10 text-xs font-semibold text-lime-voltage min-h-[38px]">
             <Sparkles className="h-3.5 w-3.5" />
             <span>Auto-balanced algorithm</span>
           </div>
@@ -187,7 +187,7 @@ export default function ExpenseSplitterDashboard({
         {/* Your Personal Net Balance Card */}
         <div
           className={cn(
-            "rounded-3xl p-6 border shadow-sm flex flex-col justify-between min-h-[170px] transition-all",
+            "rounded-3xl p-6 border shadow-sm flex flex-col justify-between h-full min-h-[190px] transition-all",
             netBalance > 0
               ? "bg-linen-mist/50 border-lime-voltage/60 dark:bg-card dark:border-border"
               : netBalance < 0
@@ -195,7 +195,7 @@ export default function ExpenseSplitterDashboard({
                 : "bg-card border-border"
           )}
         >
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between h-7">
             <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
               {netBalance >= 0 ? (
                 <ArrowDownLeft className="h-4 w-4 text-emerald-600 dark:text-lime-voltage" />
@@ -219,7 +219,7 @@ export default function ExpenseSplitterDashboard({
             </Badge>
           </div>
 
-          <div className="my-2">
+          <div className="my-2 flex-1 flex flex-col justify-center">
             <p
               className={cn(
                 "text-2xl sm:text-3xl font-black tracking-tight",
@@ -232,7 +232,7 @@ export default function ExpenseSplitterDashboard({
             >
               {netBalance !== 0 ? formatCurrency(Math.abs(netBalance)) : "0 ₫"}
             </p>
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-xs text-muted-foreground mt-1 min-h-[36px] flex items-center">
               {netBalance > 0
                 ? "Other members owe you money"
                 : netBalance < 0
@@ -241,19 +241,21 @@ export default function ExpenseSplitterDashboard({
             </p>
           </div>
 
-          <div className="flex items-center justify-between text-xs pt-2 border-t border-border/60">
+          <div className="flex items-center justify-between text-xs pt-3 border-t border-border/60 min-h-[38px]">
             <span className="text-muted-foreground">Owed to you: <strong>{formatCurrency(totalOwedToMe)}</strong></span>
             <span className="text-muted-foreground">You owe: <strong>{formatCurrency(totalIOwe)}</strong></span>
           </div>
         </div>
 
         {/* Quick Action Center Card */}
-        <div className="rounded-3xl p-6 bg-card border border-border shadow-sm flex flex-col justify-between min-h-[170px]">
+        <div className="rounded-3xl p-6 bg-card border border-border shadow-sm flex flex-col justify-between h-full min-h-[190px]">
           <div>
-            <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-              Instant Splitter Actions
-            </span>
-            <h4 className="text-base font-bold text-foreground mt-1">
+            <div className="h-7 flex items-center">
+              <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                Instant Splitter Actions
+              </span>
+            </div>
+            <h4 className="text-base font-bold text-foreground mt-2">
               Split, Share &amp; Settle
             </h4>
             <p className="text-xs text-muted-foreground mt-0.5">
@@ -261,7 +263,7 @@ export default function ExpenseSplitterDashboard({
             </p>
           </div>
 
-          <div className="flex flex-col sm:flex-row gap-2 mt-4">
+          <div className="flex flex-col sm:flex-row gap-2 mt-4 pt-3 border-t border-border/40">
             <Button
               onClick={() => setIsAddExpenseOpen(true)}
               className="flex-1 rounded-full bg-lime-voltage text-forest-ink hover:bg-lime-400 font-extrabold text-xs h-10 shadow-sm gap-1.5 transition-transform active:scale-95"
