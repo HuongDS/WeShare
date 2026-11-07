@@ -33,11 +33,18 @@ namespace WeShare.Infrastructure.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<int?>("CreatedById")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Description")
-                        .HasColumnType("text");
+                        .HasMaxLength(5000)
+                        .HasColumnType("character varying(5000)");
+
+                    b.Property<DateTime?>("EndsAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<DateTime?>("EventDate")
                         .HasColumnType("timestamp with time zone");
@@ -48,18 +55,29 @@ namespace WeShare.Infrastructure.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean");
 
+                    b.Property<string>("Location")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)");
+
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
                     b.HasIndex("GroupId");
 
                     b.HasIndex("IsDeleted");
+
+                    b.HasIndex("GroupId", "EventDate");
 
                     b.ToTable("Events");
                 });
@@ -267,13 +285,23 @@ namespace WeShare.Infrastructure.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
 
+                    b.Property<int?>("CreatedById")
+                        .HasColumnType("integer");
+
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Description")
-                        .HasColumnType("text");
+                        .HasMaxLength(5000)
+                        .HasColumnType("character varying(5000)");
+
+                    b.Property<DateTime?>("DueAt")
+                        .HasColumnType("timestamp with time zone");
 
                     b.Property<int?>("EventId")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("GroupId")
                         .HasColumnType("integer");
 
                     b.Property<bool>("IsDeleted")
@@ -284,16 +312,23 @@ namespace WeShare.Infrastructure.Migrations
 
                     b.Property<string>("Title")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("timestamp with time zone");
+
+                    b.Property<Guid>("Version")
+                        .IsConcurrencyToken()
+                        .HasColumnType("uuid");
 
                     b.HasKey("Id");
 
                     b.HasIndex("EventId");
 
                     b.HasIndex("IsDeleted");
+
+                    b.HasIndex("GroupId", "Status", "DueAt");
 
                     b.ToTable("Tasks");
                 });
@@ -378,6 +413,8 @@ namespace WeShare.Infrastructure.Migrations
                     b.HasIndex("IsDeleted");
 
                     b.HasIndex("PayerId");
+
+                    b.HasIndex("TaskId");
 
                     b.ToTable("Transactions", t =>
                         {
@@ -548,7 +585,13 @@ namespace WeShare.Infrastructure.Migrations
                     b.HasOne("WeShare.Core.Entities.Event", "Event")
                         .WithMany("Tasks")
                         .HasForeignKey("EventId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("WeShare.Core.Entities.Group", null)
+                        .WithMany()
+                        .HasForeignKey("GroupId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
                     b.Navigation("Event");
                 });
@@ -586,9 +629,16 @@ namespace WeShare.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("WeShare.Core.Entities.Task", "Task")
+                        .WithMany()
+                        .HasForeignKey("TaskId")
+                        .OnDelete(DeleteBehavior.Restrict);
+
                     b.Navigation("Group");
 
                     b.Navigation("Payer");
+
+                    b.Navigation("Task");
                 });
 
             modelBuilder.Entity("WeShare.Core.Entities.TransactionSplit", b =>
