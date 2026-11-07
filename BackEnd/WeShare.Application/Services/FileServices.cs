@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,20 +16,30 @@ namespace WeShare.Application.Services
 {
     public class FileServices : IFileServices
     {
-        private readonly Cloudinary _cloudinary;
+        private readonly Cloudinary? _cloudinary;
 
         public FileServices(IConfiguration configuration)
         {
-            var acc = new Account(
-                configuration["CloudinarySettings:CloudName"],
-                configuration["CloudinarySettings:ApiKey"],
-                configuration["CloudinarySettings:ApiSecret"]
-            );
-            _cloudinary = new Cloudinary(acc);
+            var cloudName = configuration["CloudinarySettings:CloudName"];
+            var apiKey = configuration["CloudinarySettings:ApiKey"];
+            var apiSecret = configuration["CloudinarySettings:ApiSecret"];
+
+            if (!string.IsNullOrWhiteSpace(cloudName) &&
+                !string.IsNullOrWhiteSpace(apiKey) &&
+                !string.IsNullOrWhiteSpace(apiSecret))
+            {
+                var acc = new Account(cloudName, apiKey, apiSecret);
+                _cloudinary = new Cloudinary(acc);
+            }
         }
 
         public async Task<Dtos.Cloudinary.ImageUploadResult?> UploadImageAsync(IFormFile file, string folderName)
         {
+            if (_cloudinary == null)
+            {
+                throw new BadRequestException("Cloudinary is not configured. Please provide CloudinarySettings in appsettings.json.");
+            }
+
             if (file.Length > 0)
             {
                 using var stream = file.OpenReadStream();
@@ -47,8 +57,6 @@ namespace WeShare.Application.Services
                     throw new InternalServerError(uploadResult.Error.Message);
                 }
 
-
-
                 return new Dtos.Cloudinary.ImageUploadResult
                 {
                     PublicId = uploadResult.PublicId,
@@ -60,6 +68,11 @@ namespace WeShare.Application.Services
 
         public async Task<bool> DeleteImageAsync(string publicId)
         {
+            if (_cloudinary == null)
+            {
+                throw new BadRequestException("Cloudinary is not configured. Please provide CloudinarySettings in appsettings.json.");
+            }
+
             if (string.IsNullOrEmpty(publicId))
             {
                 throw new BadRequestException("PublicId cannot be null or empty");
