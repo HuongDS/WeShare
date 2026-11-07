@@ -13,6 +13,7 @@ import GeneralTab from "@/pages/group/components/tabs/GeneralTab"
 import ExpensesTab from "@/pages/group/components/tabs/ExpensesTab"
 import SettlementsTab from "@/pages/group/components/tabs/SettlementsTab"
 import MembersTab from "@/pages/group/components/tabs/MembersTab"
+import TravelPlanTab from "@/pages/group/components/tabs/TravelPlanTab"
 
 const getGroupTypeConfig = (rawType: string | number | undefined | null) => {
   const type = String(rawType ?? "").toLowerCase()
@@ -158,6 +159,12 @@ export default function GroupDetailsPage() {
               Members
             </TabsTrigger>
             <TabsTrigger
+              value="travel"
+              className="rounded-full px-4 sm:px-5 py-2 text-xs sm:text-sm font-semibold transition-all text-muted-foreground hover:text-foreground data-[state=active]:bg-lime-voltage data-[state=active]:text-forest-ink data-[state=active]:font-bold data-[state=active]:shadow-xs whitespace-nowrap shrink-0"
+            >
+              ✈️ Du Lịch / Plan
+            </TabsTrigger>
+            <TabsTrigger
               value="tasks"
               className="rounded-full px-4 sm:px-5 py-2 text-xs sm:text-sm font-semibold transition-all text-muted-foreground hover:text-foreground data-[state=active]:bg-lime-voltage data-[state=active]:text-forest-ink data-[state=active]:font-bold data-[state=active]:shadow-xs whitespace-nowrap shrink-0"
             >
@@ -190,6 +197,10 @@ export default function GroupDetailsPage() {
 
         <TabsContent value="members">
           <MembersTab group={groupData} />
+        </TabsContent>
+
+        <TabsContent value="travel">
+          <TravelPlanTab groupId={groupId} group={groupData} />
         </TabsContent>
 
         <TabsContent value="tasks">
