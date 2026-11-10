@@ -1,13 +1,13 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
-using StackExchange.Redis;
 using WeShare.Application.Interfaces;
 using WeShare.Application.Services;
 using WeShare.Application.Validators;
+using WeShare.Core.Entities;
 using WeShare.Core.Interfaces;
 using WeShare.Infrastructure.Services;
 
@@ -34,6 +34,7 @@ namespace WeShare.Application
             services.AddScoped<IFileServices, FileServices>();
             services.AddScoped<IGroupDebtServices, GroupDebtServices>();
             services.AddScoped<IGroupMemberServices, GroupMemberServices>();
+            services.AddScoped<ITravelPlanServices, TravelPlanServices>();
             return services;
         }
     }

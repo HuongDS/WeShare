@@ -15,4 +15,10 @@ export const groupDebtApi = {
     )
     return res.data
   },
+  remindDebt: async (debtId: number) => {
+    const res = await axiosClient.post<ResponseDto<object>>(
+      `/GroupDebt/${debtId}/remind`
+    )
+    return res.data
+  },
 }

@@ -139,8 +139,8 @@ export default function Sidebar({
       )}
     >
       {/* Header with Logo & Toggle */}
-      {!isMobile && !isMobileView && (
-        <div className="flex h-16 items-center justify-between border-b border-border px-4">
+      {(!isMobile || isMobileView) && (
+        <div className="flex h-20 items-center justify-between border-b border-border px-4 pt-1">
           {/* Logo */}
           {isExpanded ? (
             <motion.div
@@ -148,7 +148,10 @@ export default function Sidebar({
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               className="flex items-center gap-2.5 cursor-pointer"
-              onClick={() => navigate("/dashboard")}
+              onClick={() => {
+                navigate("/dashboard")
+                if (isMobile) onMobileClose?.()
+              }}
             >
               <div className="flex h-9 w-9 items-center justify-center rounded-full bg-lime-voltage text-forest-ink shadow-xs">
                 <Zap className="h-5 w-5 fill-current" />
@@ -165,14 +168,17 @@ export default function Sidebar({
           ) : (
             <div
               className="flex h-9 w-9 items-center justify-center rounded-full bg-lime-voltage text-forest-ink cursor-pointer mx-auto shadow-xs"
-              onClick={() => navigate("/dashboard")}
+              onClick={() => {
+                navigate("/dashboard")
+                if (isMobile) onMobileClose?.()
+              }}
             >
               <Zap className="h-5 w-5 fill-current" />
             </div>
           )}
 
           {/* Toggle Button */}
-          {isExpanded && (
+          {!isMobileView && isExpanded && (
             <button
               onClick={toggleSidebar}
               className="rounded-full p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
@@ -188,7 +194,7 @@ export default function Sidebar({
       {/* Navigation Items */}
       <nav
         className={cn(
-          "flex-1 space-y-1.5 py-4",
+          "flex-1 space-y-2 py-5",
           isExpanded ? "px-3" : "flex flex-col items-center px-2"
         )}
       >

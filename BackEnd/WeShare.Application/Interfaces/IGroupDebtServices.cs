@@ -11,5 +11,6 @@ namespace WeShare.Application.Interfaces
     {
         Task<IEnumerable<GroupDebtViewDto>> GetGroupDebtsThatIOweAsync(int userId, int groupId);
         Task<IEnumerable<GroupDebtViewDto>> GetMyDebtsAsync(int userId, int groupId);
+        Task RemindDebtAsync(int debtId, int currentUserId);
     }
 }

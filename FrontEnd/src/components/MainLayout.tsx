@@ -28,11 +28,13 @@ export default function MainLayout() {
 
       {/* Right: Main Content Area */}
       <div className="flex flex-1 flex-col overflow-hidden">
-        {/* Top: Sticky Floating Header */}
-        <Header onMobileMenuOpen={() => setSidebarOpen(true)} />
+        {/* Top: Sticky Floating Header with explicit top & side padding */}
+        <div className="pt-3 pb-1.5 px-3 sm:px-6 shrink-0 bg-background/50">
+          <Header onMobileMenuOpen={() => setSidebarOpen(true)} />
+        </div>
 
         {/* Bottom: Main Content - Scrollable with proper padding (extra pb for Mobile BottomNav) */}
-        <main className="flex-1 overflow-auto bg-muted/20 px-3 py-4 sm:px-6 lg:py-6 pb-24 lg:pb-8">
+        <main className="flex-1 overflow-auto bg-muted/20 px-4 py-5 sm:px-8 lg:py-7 pb-24 lg:pb-12">
           <Outlet />
         </main>
       </div>

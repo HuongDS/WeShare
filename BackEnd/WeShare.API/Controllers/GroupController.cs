@@ -122,5 +122,57 @@ namespace WeShare.API.Controllers
                 Data = null
             });
         }
+
+        [HttpGet("{groupId}/invite-code")]
+        public async Task<IActionResult> GetInviteCodeAsync([FromRoute] int groupId)
+        {
+            var userId = _currentUserService.GetUserId();
+            var res = await _groupServices.GetOrCreateInviteCodeAsync(groupId, userId);
+            return Ok(new ResponseDto<GroupInviteInfoDto>
+            {
+                Status = (int)HttpStatusCode.OK,
+                Message = "Lấy mã mời tham gia nhóm thành công!",
+                Data = res
+            });
+        }
+
+        [HttpPost("join-by-code")]
+        public async Task<IActionResult> JoinGroupByInviteCodeAsync([FromBody] JoinGroupByInviteCodeDto data)
+        {
+            var userId = _currentUserService.GetUserId();
+            var res = await _groupServices.JoinGroupByInviteCodeAsync(data.InviteCode, userId);
+            return Ok(new ResponseDto<GroupViewDto>
+            {
+                Status = (int)HttpStatusCode.OK,
+                Message = "Tham gia nhóm thành công!",
+                Data = res
+            });
+        }
+
+        [HttpPost("{groupId}/transfer-leader")]
+        public async Task<IActionResult> TransferLeaderAsync([FromRoute] int groupId, [FromBody] TransferLeaderDto data)
+        {
+            var userId = _currentUserService.GetUserId();
+            var res = await _groupServices.TransferLeaderAsync(groupId, userId, data.NewLeaderId);
+            return Ok(new ResponseDto<GroupViewDto>
+            {
+                Status = (int)HttpStatusCode.OK,
+                Message = "Chuyển quyền Trưởng nhóm thành công!",
+                Data = res
+            });
+        }
+
+        [HttpPost("{groupId}/leave")]
+        public async Task<IActionResult> LeaveGroupAsync([FromRoute] int groupId)
+        {
+            var userId = _currentUserService.GetUserId();
+            await _groupServices.LeaveGroupAsync(groupId, userId);
+            return Ok(new ResponseDto<object>
+            {
+                Status = (int)HttpStatusCode.OK,
+                Message = "Rời nhóm thành công!",
+                Data = null
+            });
+        }
     }
 }

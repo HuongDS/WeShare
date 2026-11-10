@@ -1,5 +1,6 @@
-import { useState, useMemo } from "react"
-import { Plus, Search, X } from "lucide-react"
+import { useState, useMemo, useEffect } from "react"
+import { useSearchParams } from "react-router-dom"
+import { Plus, Search, X, KeyRound } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useGetGroups } from "@/hooks/group/useGroup"
@@ -7,6 +8,7 @@ import type { GroupTypeEnum } from "@/constants/GroupTypeEnum"
 import type { GroupViewDto } from "@/types/group/GroupViewDto"
 import GroupFormModal from "./components/GroupFormModal"
 import GroupList from "./components/GroupList"
+import JoinGroupModal from "./components/JoinGroupModal"
 
 const mapFilterToString = (filter: string) => {
   if (filter === "NONE" || filter === "GENERAL") {
@@ -42,11 +44,22 @@ export default function GroupPage() {
   const groupItems = groups.data?.data?.items || []
   const totalPages = groups.data?.data?.totalPages || 0
 
+  const [searchParams, setSearchParams] = useSearchParams()
   const [isFormOpen, setIsFormOpen] = useState(false)
+  const [isJoinModalOpen, setIsJoinModalOpen] = useState(false)
+  const [joinCode, setJoinCode] = useState("")
   const [formMode, setFormMode] = useState<"create" | "edit">("create")
   const [selectedGroup, setSelectedGroup] = useState<GroupViewDto | null>(null)
   const [selectedType, setSelectedType] = useState<"ALL" | GroupTypeEnum>("ALL")
   const [searchQuery, setSearchQuery] = useState("")
+
+  useEffect(() => {
+    const codeParam = searchParams.get("code")
+    if (codeParam) {
+      setJoinCode(codeParam)
+      setIsJoinModalOpen(true)
+    }
+  }, [searchParams])
 
   const openCreateForm = () => {
     setFormMode("create")
@@ -112,13 +125,26 @@ export default function GroupPage() {
             Create, organize, and manage your shared groups, tasks, and expenses.
           </p>
         </div>
-        <Button
-          onClick={openCreateForm}
-          className="rounded-full bg-lime-voltage hover:bg-lime-voltage/90 text-forest-ink font-bold shadow-xs px-5 py-2.5 gap-2"
-        >
-          <Plus className="h-4 w-4 stroke-[2.5]" />
-          Create Group
-        </Button>
+        <div className="flex items-center gap-2.5">
+          <Button
+            variant="outline"
+            onClick={() => {
+              setJoinCode("")
+              setIsJoinModalOpen(true)
+            }}
+            className="rounded-full border-border/80 hover:bg-muted font-bold shadow-xs px-4 py-2.5 gap-2 text-xs sm:text-sm"
+          >
+            <KeyRound className="h-4 w-4" />
+            Tham gia bằng mã
+          </Button>
+          <Button
+            onClick={openCreateForm}
+            className="rounded-full bg-lime-voltage hover:bg-lime-voltage/90 text-forest-ink font-bold shadow-xs px-5 py-2.5 gap-2 text-xs sm:text-sm"
+          >
+            <Plus className="h-4 w-4 stroke-[2.5]" />
+            Create Group
+          </Button>
+        </div>
       </div>
 
       {/* Filter and Search Bar */}
@@ -245,6 +271,18 @@ export default function GroupPage() {
         onOpenChange={handleFormOpenChange}
         mode={formMode}
         initialData={selectedGroup}
+      />
+
+      <JoinGroupModal
+        isOpen={isJoinModalOpen}
+        onClose={() => {
+          setIsJoinModalOpen(false)
+          if (searchParams.get("code")) {
+            searchParams.delete("code")
+            setSearchParams(searchParams)
+          }
+        }}
+        initialCode={joinCode}
       />
     </div>
   )

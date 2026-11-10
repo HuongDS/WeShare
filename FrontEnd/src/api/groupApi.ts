@@ -4,6 +4,7 @@ import type { ResponseDto } from "@/types/ResponseDto"
 import type { AddOrRemoveMemberToGroupDto } from "@/types/group/AddOrRemoveMemberToGroupDto"
 import type { CreateGroupDto } from "@/types/group/CreateGroupDto"
 import type { GroupViewDto } from "@/types/group/GroupViewDto"
+import type { GroupInviteInfoDto } from "@/types/group/GroupInviteInfoDto"
 import type { UpdateGroupDto } from "@/types/group/UpdateGroupDto"
 import type { UserViewDto } from "@/types/user/UserViewDto"
 
@@ -62,6 +63,32 @@ export const groupApi = {
   getMemberGroups: async (groupId: number) => {
     const res = await axiosClient.get<ResponseDto<UserViewDto[]>>(
       `/group/members/${groupId}`
+    )
+    return res.data
+  },
+  getInviteCode: async (groupId: number) => {
+    const res = await axiosClient.get<ResponseDto<GroupInviteInfoDto>>(
+      `/group/${groupId}/invite-code`
+    )
+    return res.data
+  },
+  joinByInviteCode: async (inviteCode: string) => {
+    const res = await axiosClient.post<ResponseDto<GroupViewDto>>(
+      "/group/join-by-code",
+      { inviteCode }
+    )
+    return res.data
+  },
+  transferLeader: async (groupId: number, newLeaderId: number) => {
+    const res = await axiosClient.post<ResponseDto<GroupViewDto>>(
+      `/group/${groupId}/transfer-leader`,
+      { newLeaderId }
+    )
+    return res.data
+  },
+  leaveGroup: async (groupId: number) => {
+    const res = await axiosClient.post<ResponseDto<object>>(
+      `/group/${groupId}/leave`
     )
     return res.data
   },

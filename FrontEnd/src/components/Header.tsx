@@ -64,7 +64,7 @@ export default function Header({ onMobileMenuOpen }: HeaderProps) {
 
   return (
     <>
-      <header className="sticky top-3 z-40 mx-3 sm:mx-6 h-14 rounded-full border border-border/80 bg-background/80 px-4 sm:px-6 shadow-sm backdrop-blur-md transition-all duration-300">
+      <header className="z-40 h-14 w-full rounded-full border border-border/80 bg-background/80 px-4 sm:px-6 shadow-sm backdrop-blur-md transition-all duration-300">
         <div className="flex h-full items-center justify-between gap-3 sm:gap-4">
           {/* Left Section: Mobile Hamburger + Page Title */}
           <div className="flex min-w-0 items-center gap-2 sm:gap-3">

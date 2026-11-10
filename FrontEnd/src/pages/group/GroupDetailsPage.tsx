@@ -13,6 +13,7 @@ import GeneralTab from "@/pages/group/components/tabs/GeneralTab"
 import ExpensesTab from "@/pages/group/components/tabs/ExpensesTab"
 import SettlementsTab from "@/pages/group/components/tabs/SettlementsTab"
 import MembersTab from "@/pages/group/components/tabs/MembersTab"
+import TravelPlanTab from "@/pages/group/components/tabs/TravelPlanTab"
 
 const getGroupTypeConfig = (rawType: string | number | undefined | null) => {
   const type = String(rawType ?? "").toLowerCase()
@@ -131,44 +132,52 @@ export default function GroupDetailsPage() {
         onValueChange={setActiveTab}
         className="space-y-5"
       >
-        <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 rounded-full p-1 bg-muted/60 dark:bg-muted/30 border border-border/80 gap-1 h-auto">
-          <TabsTrigger
-            value="general"
-            className="rounded-full data-[state=active]:bg-lime-voltage data-[state=active]:text-forest-ink data-[state=active]:font-bold data-[state=active]:shadow-xs transition-all text-xs sm:text-sm py-2"
-          >
-            General
-          </TabsTrigger>
-          <TabsTrigger
-            value="expenses"
-            className="rounded-full data-[state=active]:bg-lime-voltage data-[state=active]:text-forest-ink data-[state=active]:font-bold data-[state=active]:shadow-xs transition-all text-xs sm:text-sm py-2"
-          >
-            Expenses
-          </TabsTrigger>
-          <TabsTrigger
-            value="settlements"
-            className="rounded-full data-[state=active]:bg-lime-voltage data-[state=active]:text-forest-ink data-[state=active]:font-bold data-[state=active]:shadow-xs transition-all text-xs sm:text-sm py-2"
-          >
-            Settlements
-          </TabsTrigger>
-          <TabsTrigger
-            value="members"
-            className="rounded-full data-[state=active]:bg-lime-voltage data-[state=active]:text-forest-ink data-[state=active]:font-bold data-[state=active]:shadow-xs transition-all text-xs sm:text-sm py-2"
-          >
-            Members
-          </TabsTrigger>
-          <TabsTrigger
-            value="tasks"
-            className="rounded-full data-[state=active]:bg-lime-voltage data-[state=active]:text-forest-ink data-[state=active]:font-bold data-[state=active]:shadow-xs transition-all text-xs sm:text-sm py-2"
-          >
-            Tasks
-          </TabsTrigger>
-          <TabsTrigger
-            value="events"
-            className="rounded-full data-[state=active]:bg-lime-voltage data-[state=active]:text-forest-ink data-[state=active]:font-bold data-[state=active]:shadow-xs transition-all text-xs sm:text-sm py-2"
-          >
-            Events
-          </TabsTrigger>
-        </TabsList>
+        <div className="overflow-x-auto no-scrollbar pb-1">
+          <TabsList className="inline-flex h-auto w-auto items-center gap-1.5 rounded-full border border-border/80 bg-muted/60 p-1.5 dark:bg-muted/30">
+            <TabsTrigger
+              value="general"
+              className="rounded-full px-4 sm:px-5 py-2 text-xs sm:text-sm font-semibold transition-all text-muted-foreground hover:text-foreground data-[state=active]:bg-lime-voltage data-[state=active]:text-forest-ink data-[state=active]:font-bold data-[state=active]:shadow-xs whitespace-nowrap shrink-0"
+            >
+              General
+            </TabsTrigger>
+            <TabsTrigger
+              value="expenses"
+              className="rounded-full px-4 sm:px-5 py-2 text-xs sm:text-sm font-semibold transition-all text-muted-foreground hover:text-foreground data-[state=active]:bg-lime-voltage data-[state=active]:text-forest-ink data-[state=active]:font-bold data-[state=active]:shadow-xs whitespace-nowrap shrink-0"
+            >
+              Expenses
+            </TabsTrigger>
+            <TabsTrigger
+              value="settlements"
+              className="rounded-full px-4 sm:px-5 py-2 text-xs sm:text-sm font-semibold transition-all text-muted-foreground hover:text-foreground data-[state=active]:bg-lime-voltage data-[state=active]:text-forest-ink data-[state=active]:font-bold data-[state=active]:shadow-xs whitespace-nowrap shrink-0"
+            >
+              Settlements
+            </TabsTrigger>
+            <TabsTrigger
+              value="members"
+              className="rounded-full px-4 sm:px-5 py-2 text-xs sm:text-sm font-semibold transition-all text-muted-foreground hover:text-foreground data-[state=active]:bg-lime-voltage data-[state=active]:text-forest-ink data-[state=active]:font-bold data-[state=active]:shadow-xs whitespace-nowrap shrink-0"
+            >
+              Members
+            </TabsTrigger>
+            <TabsTrigger
+              value="travel"
+              className="rounded-full px-4 sm:px-5 py-2 text-xs sm:text-sm font-semibold transition-all text-muted-foreground hover:text-foreground data-[state=active]:bg-lime-voltage data-[state=active]:text-forest-ink data-[state=active]:font-bold data-[state=active]:shadow-xs whitespace-nowrap shrink-0"
+            >
+              ✈️ Du Lịch / Plan
+            </TabsTrigger>
+            <TabsTrigger
+              value="tasks"
+              className="rounded-full px-4 sm:px-5 py-2 text-xs sm:text-sm font-semibold transition-all text-muted-foreground hover:text-foreground data-[state=active]:bg-lime-voltage data-[state=active]:text-forest-ink data-[state=active]:font-bold data-[state=active]:shadow-xs whitespace-nowrap shrink-0"
+            >
+              Tasks
+            </TabsTrigger>
+            <TabsTrigger
+              value="events"
+              className="rounded-full px-4 sm:px-5 py-2 text-xs sm:text-sm font-semibold transition-all text-muted-foreground hover:text-foreground data-[state=active]:bg-lime-voltage data-[state=active]:text-forest-ink data-[state=active]:font-bold data-[state=active]:shadow-xs whitespace-nowrap shrink-0"
+            >
+              Events
+            </TabsTrigger>
+          </TabsList>
+        </div>
 
         <TabsContent value="general">
           <GeneralTab
@@ -188,6 +197,10 @@ export default function GroupDetailsPage() {
 
         <TabsContent value="members">
           <MembersTab group={groupData} />
+        </TabsContent>
+
+        <TabsContent value="travel">
+          <TravelPlanTab groupId={groupId} group={groupData} />
         </TabsContent>
 
         <TabsContent value="tasks">

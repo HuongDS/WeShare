@@ -69,17 +69,17 @@ export default function LoginPage() {
           <Card className="rounded-3xl border border-border/80 bg-card p-6 shadow-xl space-y-6">
             <Tabs value={activeTab} onValueChange={setActiveTab}>
               {/* Tab List */}
-              <TabsList className="grid w-full grid-cols-2 rounded-full p-1 bg-muted/60 dark:bg-muted/30 border border-border/70">
+              <TabsList className="grid w-full grid-cols-2 rounded-full p-1.5 h-12 bg-muted/60 dark:bg-muted/30 border border-border/70 items-center">
                 <TabsTrigger
                   value="login"
-                  className="rounded-full data-[state=active]:bg-lime-voltage data-[state=active]:text-forest-ink data-[state=active]:font-bold data-[state=active]:shadow-xs py-2 text-xs sm:text-sm transition-all"
+                  className="rounded-full h-full data-[state=active]:bg-lime-voltage data-[state=active]:text-forest-ink data-[state=active]:font-bold data-[state=active]:shadow-xs px-4 text-xs sm:text-sm font-semibold transition-all flex items-center justify-center cursor-pointer"
                 >
                   Log In
                 </TabsTrigger>
 
                 <TabsTrigger
                   value="register"
-                  className="rounded-full data-[state=active]:bg-lime-voltage data-[state=active]:text-forest-ink data-[state=active]:font-bold data-[state=active]:shadow-xs py-2 text-xs sm:text-sm transition-all"
+                  className="rounded-full h-full data-[state=active]:bg-lime-voltage data-[state=active]:text-forest-ink data-[state=active]:font-bold data-[state=active]:shadow-xs px-4 text-xs sm:text-sm font-semibold transition-all flex items-center justify-center cursor-pointer"
                 >
                   Register
                 </TabsTrigger>

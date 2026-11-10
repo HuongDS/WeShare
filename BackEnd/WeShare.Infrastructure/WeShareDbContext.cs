@@ -22,6 +22,9 @@ namespace WeShare.Infrastructure
         public DbSet<RefreshToken> RefreshTokens { get; set; } = null!;
         public DbSet<TaskMember> TaskMembers { get; set; } = null!;
         public DbSet<Notification> Notifications { get; set; } = null!;
+        public DbSet<TravelPlan> TravelPlans { get; set; } = null!;
+        public DbSet<TravelHotel> TravelHotels { get; set; } = null!;
+        public DbSet<TravelPlace> TravelPlaces { get; set; } = null!;
 
         public override int SaveChanges(bool acceptAllChangesOnSuccess)
         {
@@ -222,6 +225,8 @@ namespace WeShare.Infrastructure
             {
                 g.Property(x => x.Name).IsRequired().HasMaxLength(100);
                 g.Property(x => x.Description).HasMaxLength(500);
+                g.Property(x => x.InviteCode).HasMaxLength(50);
+                g.HasIndex(x => x.InviteCode).IsUnique();
                 g.HasQueryFilter(x => !x.IsDeleted);
                 g.HasIndex(x => x.IsDeleted);
             });
@@ -254,6 +259,52 @@ namespace WeShare.Infrastructure
                     .OnDelete(DeleteBehavior.Cascade);
 
                 n.HasIndex(no => new { no.ReceiveId, no.IsRead });
+            });
+
+            modelBuilder.Entity<TravelPlan>(tp =>
+            {
+                tp.HasKey(x => x.Id);
+                tp.Property(x => x.Destination).IsRequired().HasMaxLength(200);
+                tp.Property(x => x.Notes).HasMaxLength(2000);
+                tp.HasOne(x => x.Group)
+                  .WithMany()
+                  .HasForeignKey(x => x.GroupId)
+                  .OnDelete(DeleteBehavior.Cascade);
+                tp.HasQueryFilter(x => !x.IsDeleted);
+                tp.HasIndex(x => x.GroupId);
+            });
+
+            modelBuilder.Entity<TravelHotel>(th =>
+            {
+                th.HasKey(x => x.Id);
+                th.Property(x => x.Name).IsRequired().HasMaxLength(200);
+                th.Property(x => x.Address).HasMaxLength(500);
+                th.Property(x => x.BookingUrl).HasMaxLength(1000);
+                th.Property(x => x.PhoneNumber).HasMaxLength(50);
+                th.Property(x => x.Notes).HasMaxLength(2000);
+                th.HasOne(x => x.TravelPlan)
+                  .WithMany(tp => tp.Hotels)
+                  .HasForeignKey(x => x.TravelPlanId)
+                  .OnDelete(DeleteBehavior.Cascade);
+                th.HasQueryFilter(x => !x.IsDeleted);
+                th.HasIndex(x => x.TravelPlanId);
+            });
+
+            modelBuilder.Entity<TravelPlace>(tp =>
+            {
+                tp.HasKey(x => x.Id);
+                tp.Property(x => x.Name).IsRequired().HasMaxLength(200);
+                tp.Property(x => x.Address).HasMaxLength(500);
+                tp.Property(x => x.Category).IsRequired().HasMaxLength(100);
+                tp.Property(x => x.VisitTime).HasMaxLength(100);
+                tp.Property(x => x.Notes).HasMaxLength(2000);
+                tp.HasOne(x => x.TravelPlan)
+                  .WithMany(plan => plan.Places)
+                  .HasForeignKey(x => x.TravelPlanId)
+                  .OnDelete(DeleteBehavior.Cascade);
+                tp.HasQueryFilter(x => !x.IsDeleted);
+                tp.HasIndex(x => x.TravelPlanId);
+                tp.HasIndex(x => new { x.TravelPlanId, x.Category });
             });
         }
     }
