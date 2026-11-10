@@ -7,4 +7,5 @@ export interface GroupViewDto {
   type: GroupTypeEnum
   members: GroupMemberViewDto[]
   description: string
+  inviteCode?: string
 }

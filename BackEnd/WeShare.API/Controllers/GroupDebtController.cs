@@ -47,5 +47,18 @@ namespace WeShare.API.Controllers
                 Data = res
             });
         }
+
+        [HttpPost("{debtId}/remind")]
+        public async Task<IActionResult> RemindDebtAsync([FromRoute] int debtId)
+        {
+            var userId = _currentUserService.GetUserId();
+            await _groupDebtServices.RemindDebtAsync(debtId, userId);
+            return Ok(new ResponseDto<object>
+            {
+                Status = (int)System.Net.HttpStatusCode.OK,
+                Message = "Đã gửi lời nhắc nợ thành công!",
+                Data = null
+            });
+        }
     }
 }

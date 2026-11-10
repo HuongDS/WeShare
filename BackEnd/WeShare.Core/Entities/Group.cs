@@ -10,6 +10,7 @@ namespace WeShare.Core.Entities
         public string Name { get; set; } = string.Empty;
         public GroupTypeEnum Type { get; set; }
         public string? Description { get; set; }
+        public string? InviteCode { get; set; }
         public ICollection<GroupMember> GroupMembers { get; set; } = new List<GroupMember>();
         public ICollection<Transaction> Transactions { get; set; } = new List<Transaction>();
         public ICollection<GroupDebt> GroupDebts { get; set; } = new List<GroupDebt>();

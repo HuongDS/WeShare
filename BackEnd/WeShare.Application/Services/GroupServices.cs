@@ -109,15 +109,41 @@ namespace WeShare.Application.Services
                 throw new BadRequestException(ErrorMessage.YOU_HAVE_NO_RIGHT_TO_DO_THIS_ACTION);
             }
 
-            var deleteMembers = data.MemberIds.Select(m => new GroupMember
+            var groupDebtRepo = _unitOfWork.Repository<GroupDebt>();
+            var toDelete = new List<GroupMember>();
+
+            foreach (var memberId in data.MemberIds)
             {
-                GroupId = data.GroupId,
-                UserId = m,
-                Role = Core.Enums.GroupRoleEnum.Member,
-                Balance = 0
-            });
-            _groupMemberRepository.Delete(deleteMembers);
-            await _unitOfWork.CompleteAsync();
+                if (memberId == data.UserId)
+                {
+                    throw new BadRequestException("Trưởng nhóm không thể tự xóa chính mình khỏi nhóm.");
+                }
+
+                var member = await _groupMemberRepository.GetGroupMemberAsync(memberId, data.GroupId);
+                if (member == null) continue;
+
+                if (Math.Abs(member.Balance) > 0.001m)
+                {
+                    var name = member.User?.FullName ?? $"ID {member.UserId}";
+                    throw new BadRequestException($"Thành viên {name} vẫn còn số dư công nợ ({member.Balance:N0} đ), không thể xóa khỏi nhóm.");
+                }
+
+                var activeDebts = await groupDebtRepo.FindAsync(
+                    d => d.GroupId == data.GroupId && (d.FromUserId == memberId || d.ToUserId == memberId) && d.Amount > 0);
+                if (activeDebts.Any())
+                {
+                    var name = member.User?.FullName ?? $"ID {member.UserId}";
+                    throw new BadRequestException($"Thành viên {name} vẫn còn khoản nợ chưa quyết toán trong nhóm, không thể xóa khỏi nhóm.");
+                }
+
+                toDelete.Add(member);
+            }
+
+            if (toDelete.Any())
+            {
+                _groupMemberRepository.Delete(toDelete);
+                await _unitOfWork.CompleteAsync();
+            }
 
             return await GetByIdAsync(data.GroupId);
         }
@@ -163,6 +189,149 @@ namespace WeShare.Application.Services
             var memberInGroups = await _groupMemberRepository.GetAsync(groupId);
             var res = _mapper.Map<IEnumerable<UserViewDto>>(memberInGroups.Select(m => m.User));
             return res;
+        }
+
+        public async Task<GroupInviteInfoDto> GetOrCreateInviteCodeAsync(int groupId, int userId)
+        {
+            var groupRepo = _unitOfWork.Repository<Group>();
+            var storedGroup = await groupRepo.GetByIdAsync(groupId);
+            if (storedGroup is null)
+            {
+                throw new BadRequestException(ErrorMessage.GROUP_NOT_FOUND);
+            }
+
+            var member = await _groupMemberRepository.CheckUserInGroupAsync(groupId, userId);
+            if (member is null)
+            {
+                throw new BadRequestException(ErrorMessage.YOU_HAVE_NO_RIGHT_TO_DO_THIS_ACTION);
+            }
+
+            if (string.IsNullOrWhiteSpace(storedGroup.InviteCode))
+            {
+                storedGroup.InviteCode = "WS-" + Guid.NewGuid().ToString("N")[..8].ToUpperInvariant();
+                groupRepo.Update(storedGroup);
+                await _unitOfWork.CompleteAsync();
+            }
+
+            return new GroupInviteInfoDto
+            {
+                GroupId = storedGroup.Id,
+                GroupName = storedGroup.Name,
+                InviteCode = storedGroup.InviteCode,
+                InviteUrl = $"/group/join?code={storedGroup.InviteCode}"
+            };
+        }
+
+        public async Task<GroupViewDto> JoinGroupByInviteCodeAsync(string inviteCode, int userId)
+        {
+            if (string.IsNullOrWhiteSpace(inviteCode))
+            {
+                throw new BadRequestException("Mã mời không được để trống.");
+            }
+
+            var normalizedCode = inviteCode.Trim().ToUpperInvariant();
+            var groupRepo = _unitOfWork.Repository<Group>();
+            var groups = await groupRepo.FindAsync(g => g.InviteCode != null && g.InviteCode.ToUpper() == normalizedCode);
+            var group = groups.FirstOrDefault();
+
+            if (group is null)
+            {
+                throw new BadRequestException("Mã mời không hợp lệ hoặc nhóm không tồn tại.");
+            }
+
+            var existingMember = await _groupMemberRepository.CheckUserInGroupAsync(group.Id, userId);
+            if (existingMember != null)
+            {
+                throw new BadRequestException("Bạn đã là thành viên của nhóm này rồi.");
+            }
+
+            await _groupMemberRepository.AddAsync(group.Id, new[] { userId });
+            await _unitOfWork.CompleteAsync();
+
+            return await GetByIdAsync(group.Id);
+        }
+
+        public async Task<GroupViewDto> TransferLeaderAsync(int groupId, int currentLeaderId, int newLeaderId)
+        {
+            if (currentLeaderId == newLeaderId)
+            {
+                throw new BadRequestException("Bạn đã là Trưởng nhóm rồi.");
+            }
+
+            var groupRepo = _unitOfWork.Repository<Group>();
+            var storedGroup = await groupRepo.GetByIdAsync(groupId);
+            if (storedGroup is null)
+            {
+                throw new BadRequestException(ErrorMessage.GROUP_NOT_FOUND);
+            }
+
+            var currentLeader = await _groupMemberRepository.GetGroupMemberAsync(currentLeaderId, groupId);
+            if (currentLeader is null || currentLeader.Role != Core.Enums.GroupRoleEnum.Leader)
+            {
+                throw new BadRequestException(ErrorMessage.YOU_HAVE_NO_RIGHT_TO_DO_THIS_ACTION);
+            }
+
+            var targetMember = await _groupMemberRepository.GetGroupMemberAsync(newLeaderId, groupId);
+            if (targetMember is null)
+            {
+                throw new BadRequestException("Thành viên được chỉ định không thuộc nhóm này.");
+            }
+
+            currentLeader.Role = Core.Enums.GroupRoleEnum.Member;
+            targetMember.Role = Core.Enums.GroupRoleEnum.Leader;
+
+            _groupMemberRepository.Update(currentLeader);
+            _groupMemberRepository.Update(targetMember);
+            await _unitOfWork.CompleteAsync();
+
+            return await GetByIdAsync(groupId);
+        }
+
+        public async System.Threading.Tasks.Task LeaveGroupAsync(int groupId, int userId)
+        {
+            var groupRepo = _unitOfWork.Repository<Group>();
+            var storedGroup = await groupRepo.GetByIdAsync(groupId);
+            if (storedGroup is null)
+            {
+                throw new BadRequestException(ErrorMessage.GROUP_NOT_FOUND);
+            }
+
+            var member = await _groupMemberRepository.GetGroupMemberAsync(userId, groupId);
+            if (member is null)
+            {
+                throw new BadRequestException("Bạn không phải thành viên của nhóm này.");
+            }
+
+            if (Math.Abs(member.Balance) > 0.001m)
+            {
+                throw new BadRequestException($"Bạn còn số dư công nợ ({member.Balance:N0} đ) trong nhóm. Vui lòng thanh toán hết nợ trước khi rời nhóm.");
+            }
+
+            var groupDebtRepo = _unitOfWork.Repository<GroupDebt>();
+            var activeDebts = await groupDebtRepo.FindAsync(
+                d => d.GroupId == groupId && (d.FromUserId == userId || d.ToUserId == userId) && d.Amount > 0);
+            if (activeDebts.Any())
+            {
+                throw new BadRequestException("Bạn vẫn còn khoản nợ chưa quyết toán trong nhóm. Vui lòng quyết toán xong trước khi rời nhóm.");
+            }
+
+            var allMembers = (await _groupMemberRepository.GetAsync(groupId)).ToList();
+
+            if (member.Role == Core.Enums.GroupRoleEnum.Leader)
+            {
+                if (allMembers.Count > 1)
+                {
+                    throw new BadRequestException("Bạn đang là Trưởng nhóm. Vui lòng chuyển quyền Trưởng nhóm cho thành viên khác trước khi rời nhóm.");
+                }
+                // If only member left, delete group
+                _groupMemberRepository.Delete(member);
+                await groupRepo.Delete(groupId);
+                await _unitOfWork.CompleteAsync();
+                return;
+            }
+
+            _groupMemberRepository.Delete(member);
+            await _unitOfWork.CompleteAsync();
         }
     }
 }

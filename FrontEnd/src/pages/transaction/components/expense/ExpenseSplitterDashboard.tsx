@@ -19,6 +19,9 @@ import {
   Sparkles,
   QrCode,
   Send,
+  Loader2,
+  Filter,
+  RotateCcw,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -31,6 +34,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import {
   Dialog,
   DialogContent,
@@ -46,6 +56,7 @@ import AddExpenseModal from "@/pages/transaction/components/expense/AddExpenseMo
 import QuickSettleUpModal from "@/pages/transaction/components/settlement/QuickSettleUpModal"
 import type { TransactionViewDto } from "@/types/transaction/TransactionViewDto"
 import type { UserViewDto } from "@/types/user/UserViewDto"
+import { groupDebtApi } from "@/api/groupDebtApi"
 import { toast } from "sonner"
 
 interface ExpenseSplitterDashboardProps {
@@ -73,6 +84,11 @@ export default function ExpenseSplitterDashboard({
   const [searchQuery, setSearchQuery] = useState("")
   const [strategyFilter, setStrategyFilter] = useState<string>("ALL")
   const [balanceFilter, setBalanceFilter] = useState<"ALL" | "OWE" | "RECEIVE">("ALL")
+  const [payerFilter, setPayerFilter] = useState<string>("ALL")
+  const [datePreset, setDatePreset] = useState<"ALL" | "TODAY" | "7DAYS" | "THIS_MONTH" | "CUSTOM">("ALL")
+  const [startDate, setStartDate] = useState<string>("")
+  const [endDate, setEndDate] = useState<string>("")
+  const [remindingDebtIds, setRemindingDebtIds] = useState<Set<number>>(new Set())
 
   // API Hooks
   const { getTransactionsByGroupId } = useGetTransactions(PAGE_SIZE, page, groupId)
@@ -89,6 +105,22 @@ export default function ExpenseSplitterDashboard({
   const debtsIOwe = myGroupDebts.data?.data || []
   const debtsOwedToMe = groupDebtThatIAmOwed.data?.data || []
   const groupMembers = members.data?.data || []
+
+  // Unique Payers list from transactions and group members
+  const payersList = useMemo(() => {
+    const map = new Map<string, string>()
+    transactions.forEach((t) => {
+      if (t.payer && t.payer.id) {
+        map.set(String(t.payer.id), t.payer.fullName || `User #${t.payer.id}`)
+      }
+    })
+    groupMembers.forEach((m) => {
+      if (m.id && !map.has(String(m.id))) {
+        map.set(String(m.id), m.fullName || `User #${m.id}`)
+      }
+    })
+    return Array.from(map.entries()).map(([id, name]) => ({ id, name }))
+  }, [transactions, groupMembers])
 
   // Net Balance calculation
   const totalIOwe = useMemo(
@@ -118,9 +150,76 @@ export default function ExpenseSplitterDashboard({
         strategyFilter === "ALL" ||
         t.splitStrategy?.toUpperCase() === strategyFilter.toUpperCase()
 
-      return matchQuery && matchStrategy
+      const matchPayer =
+        payerFilter === "ALL" || (t.payer && String(t.payer.id) === payerFilter)
+
+      let matchDate = true
+      if (datePreset !== "ALL" && t.createdAt) {
+        const itemDate = new Date(t.createdAt)
+        if (!isNaN(itemDate.getTime())) {
+          const now = new Date()
+          const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+
+          if (datePreset === "TODAY") {
+            matchDate = itemDate >= startOfToday
+          } else if (datePreset === "7DAYS") {
+            const sevenDaysAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
+            matchDate = itemDate >= sevenDaysAgo
+          } else if (datePreset === "THIS_MONTH") {
+            const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+            matchDate = itemDate >= startOfMonth
+          } else if (datePreset === "CUSTOM") {
+            if (startDate) {
+              const start = new Date(startDate)
+              start.setHours(0, 0, 0, 0)
+              matchDate = matchDate && itemDate >= start
+            }
+            if (endDate) {
+              const end = new Date(endDate)
+              end.setHours(23, 59, 59, 999)
+              matchDate = matchDate && itemDate <= end
+            }
+          }
+        }
+      }
+
+      return matchQuery && matchStrategy && matchPayer && matchDate
     })
-  }, [transactions, searchQuery, strategyFilter])
+  }, [transactions, searchQuery, strategyFilter, payerFilter, datePreset, startDate, endDate])
+
+  const handleRemindDebt = async (debtId: number, memberName: string) => {
+    setRemindingDebtIds((prev) => new Set(prev).add(debtId))
+    try {
+      await groupDebtApi.remindDebt(debtId)
+      toast.success(`Đã gửi lời nhắc nợ thành công tới ${memberName}!`)
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } } }
+      toast.error(error.response?.data?.message || "Không thể gửi lời nhắc nợ.")
+    } finally {
+      setRemindingDebtIds((prev) => {
+        const next = new Set(prev)
+        next.delete(debtId)
+        return next
+      })
+    }
+  }
+
+  const handleResetFilters = () => {
+    setSearchQuery("")
+    setStrategyFilter("ALL")
+    setPayerFilter("ALL")
+    setDatePreset("ALL")
+    setStartDate("")
+    setEndDate("")
+  }
+
+  const hasActiveFilters =
+    Boolean(searchQuery) ||
+    strategyFilter !== "ALL" ||
+    payerFilter !== "ALL" ||
+    datePreset !== "ALL" ||
+    Boolean(startDate) ||
+    Boolean(endDate)
 
   // Settle Up handler
   const handleOpenSettle = (recipient: UserViewDto, amount: number) => {
@@ -633,11 +732,26 @@ export default function ExpenseSplitterDashboard({
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => toast.success(`Payment reminder sent to ${debt.fromUser?.fullName || "member"}!`)}
-                            className="rounded-full border-border/80 hover:bg-muted text-foreground text-xs font-semibold h-8 px-4 gap-1.5 transition-transform active:scale-95 shrink-0"
+                            disabled={remindingDebtIds.has(debt.id)}
+                            onClick={() =>
+                              handleRemindDebt(
+                                debt.id,
+                                debt.fromUser?.fullName || "thành viên"
+                              )
+                            }
+                            className="rounded-full border-border/80 hover:bg-muted text-foreground text-xs font-semibold h-8 px-4 gap-1.5 transition-transform active:scale-95 shrink-0 hover:border-lime-voltage/50"
                           >
-                            <Send className="h-3 w-3" />
-                            <span>Remind</span>
+                            {remindingDebtIds.has(debt.id) ? (
+                              <>
+                                <Loader2 className="h-3 w-3 animate-spin text-lime-voltage" />
+                                <span>Đang gửi...</span>
+                              </>
+                            ) : (
+                              <>
+                                <Send className="h-3 w-3 text-forest-ink dark:text-lime-voltage" />
+                                <span>Nhắc nợ</span>
+                              </>
+                            )}
                           </Button>
                         </div>
                       </div>
@@ -710,6 +824,96 @@ export default function ExpenseSplitterDashboard({
               </TabsList>
             </Tabs>
           </div>
+        </div>
+
+        {/* Secondary Filter Bar: Payer, Date Presets & Date Pickers */}
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-border/40">
+          <div className="flex flex-wrap items-center gap-2.5">
+            {/* Payer Filter Select */}
+            <div className="flex items-center gap-1.5">
+              <span className="text-xs font-semibold text-muted-foreground whitespace-nowrap flex items-center">
+                <Filter className="h-3 w-3 mr-1" />
+                Người chi:
+              </span>
+              <Select value={payerFilter} onValueChange={setPayerFilter}>
+                <SelectTrigger className="rounded-full text-xs font-semibold h-8 w-40 sm:w-48 bg-background border-border/80">
+                  <SelectValue placeholder="Tất cả người chi" />
+                </SelectTrigger>
+                <SelectContent className="rounded-2xl shadow-xl">
+                  <SelectItem value="ALL">Tất cả người chi</SelectItem>
+                  {payersList.map((p) => (
+                    <SelectItem key={`payer-${p.id}`} value={p.id}>
+                      {p.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Date Range Presets */}
+            <div className="flex items-center gap-1">
+              <Calendar className="h-3.5 w-3.5 text-muted-foreground mr-1" />
+              <div className="inline-flex items-center gap-1 p-0.5 rounded-full bg-muted/70 border border-border/60">
+                {(
+                  [
+                    { key: "ALL", label: "Tất cả ngày" },
+                    { key: "TODAY", label: "Hôm nay" },
+                    { key: "7DAYS", label: "7 ngày" },
+                    { key: "THIS_MONTH", label: "Tháng này" },
+                    { key: "CUSTOM", label: "Tùy chọn" },
+                  ] as const
+                ).map((preset) => (
+                  <button
+                    key={preset.key}
+                    type="button"
+                    onClick={() => setDatePreset(preset.key)}
+                    className={cn(
+                      "rounded-full px-2.5 py-1 text-[11px] font-semibold transition-all cursor-pointer",
+                      datePreset === preset.key
+                        ? "bg-forest-ink text-paper dark:bg-lime-voltage dark:text-forest-ink shadow-xs"
+                        : "text-muted-foreground hover:text-foreground"
+                    )}
+                  >
+                    {preset.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Custom Date Pickers */}
+            {datePreset === "CUSTOM" && (
+              <div className="flex items-center gap-1.5 animate-in fade-in duration-200">
+                <Input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="rounded-full h-8 text-xs px-2.5 bg-background w-32 border-border/80"
+                  placeholder="Từ ngày"
+                />
+                <span className="text-xs text-muted-foreground">-</span>
+                <Input
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className="rounded-full h-8 text-xs px-2.5 bg-background w-32 border-border/80"
+                  placeholder="Đến ngày"
+                />
+              </div>
+            )}
+          </div>
+
+          {/* Reset Filters */}
+          {hasActiveFilters && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleResetFilters}
+              className="rounded-full text-xs text-muted-foreground hover:text-foreground h-8 px-3 gap-1"
+            >
+              <RotateCcw className="h-3 w-3" />
+              <span>Đặt lại</span>
+            </Button>
+          )}
         </div>
 
         {/* Expenses Table/Cards */}

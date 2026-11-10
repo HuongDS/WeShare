@@ -1,5 +1,5 @@
 import { useMemo, useState } from "react"
-import { Bell, CreditCard, Eye, Search } from "lucide-react"
+import { Bell, CreditCard, Eye, Search, Loader2 } from "lucide-react"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -30,6 +30,8 @@ import {
   useGetMyGroupDebts,
 } from "@/hooks/groupDebt/useGroupDebt"
 import { useAppSelector } from "@/store/hooks"
+import { groupDebtApi } from "@/api/groupDebtApi"
+import { toast } from "sonner"
 
 interface SettlementsTableProps {
   groupId: number
@@ -81,9 +83,27 @@ export default function SettlementsTable({
   onViewDetails,
 }: SettlementsTableProps) {
   const [searchQuery, setSearchQuery] = useState("")
+  const [remindingDebtIds, setRemindingDebtIds] = useState<Set<number>>(new Set())
   const { myGroupDebts } = useGetMyGroupDebts(groupId)
   const { groupDebtThatIAmOwed } = useGetGroupDebtThatIAmOwed(groupId)
   const currentUserId = useAppSelector((state) => state.auth.user?.userId)
+
+  const handleRemindDebt = async (debtId: number, memberName: string) => {
+    setRemindingDebtIds((prev) => new Set(prev).add(debtId))
+    try {
+      await groupDebtApi.remindDebt(debtId)
+      toast.success(`Đã gửi lời nhắc nợ tới ${memberName}!`)
+    } catch (err: unknown) {
+      const error = err as { response?: { data?: { message?: string } } }
+      toast.error(error.response?.data?.message || "Không thể gửi lời nhắc nợ.")
+    } finally {
+      setRemindingDebtIds((prev) => {
+        const next = new Set(prev)
+        next.delete(debtId)
+        return next
+      })
+    }
+  }
 
 
   const isLoading = myGroupDebts.isLoading || groupDebtThatIAmOwed.isLoading
@@ -232,12 +252,23 @@ export default function SettlementsTable({
                                 <Button
                                   size="icon"
                                   variant="outline"
-                                  className="h-8 w-8 rounded-full"
+                                  disabled={remindingDebtIds.has(item.debt.id)}
+                                  onClick={() =>
+                                    handleRemindDebt(
+                                      item.debt.id,
+                                      item.debt.fromUser?.fullName || "thành viên"
+                                    )
+                                  }
+                                  className="h-8 w-8 rounded-full border-border hover:bg-muted hover:border-lime-voltage/50"
                                 >
-                                  <Bell className="h-4 w-4" />
+                                  {remindingDebtIds.has(item.debt.id) ? (
+                                    <Loader2 className="h-4 w-4 animate-spin text-lime-voltage" />
+                                  ) : (
+                                    <Bell className="h-4 w-4 text-forest-ink dark:text-lime-voltage" />
+                                  )}
                                 </Button>
                               </TooltipTrigger>
-                              <TooltipContent>Remind</TooltipContent>
+                              <TooltipContent>Nhắc nợ</TooltipContent>
                             </Tooltip>
                           )}
                           <Tooltip>

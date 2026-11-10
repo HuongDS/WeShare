@@ -225,6 +225,8 @@ namespace WeShare.Infrastructure
             {
                 g.Property(x => x.Name).IsRequired().HasMaxLength(100);
                 g.Property(x => x.Description).HasMaxLength(500);
+                g.Property(x => x.InviteCode).HasMaxLength(50);
+                g.HasIndex(x => x.InviteCode).IsUnique();
                 g.HasQueryFilter(x => !x.IsDeleted);
                 g.HasIndex(x => x.IsDeleted);
             });

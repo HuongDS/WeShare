@@ -19,5 +19,9 @@ namespace WeShare.Application.Interfaces
         Task DeleteGroupAsync(int groupId, int userId);
         Task<PageResultDto<GroupViewDto>> GetAllByUserIdAsync(int userId, int pageSize, int pageIndex);
         Task<IEnumerable<UserViewDto>> GetGroupMembersAsync(int groupId);
+        Task<GroupInviteInfoDto> GetOrCreateInviteCodeAsync(int groupId, int userId);
+        Task<GroupViewDto> JoinGroupByInviteCodeAsync(string inviteCode, int userId);
+        Task<GroupViewDto> TransferLeaderAsync(int groupId, int currentLeaderId, int newLeaderId);
+        Task LeaveGroupAsync(int groupId, int userId);
     }
 }

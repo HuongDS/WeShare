@@ -97,6 +97,7 @@ export function App() {
                 element={<Navigate to="/groups" replace />}
               />
               <Route path="/groups" element={<GroupPageLazy />} />
+              <Route path="/groups/join" element={<GroupPageLazy />} />
               <Route path="/groups/:id" element={<GroupDetailsPageLazy />} />
               <Route
                 path="/groups/:id/details"
