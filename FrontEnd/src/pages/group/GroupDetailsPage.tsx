@@ -162,7 +162,7 @@ export default function GroupDetailsPage() {
               value="travel"
               className="rounded-full px-4 sm:px-5 py-2 text-xs sm:text-sm font-semibold transition-all text-muted-foreground hover:text-foreground data-[state=active]:bg-lime-voltage data-[state=active]:text-forest-ink data-[state=active]:font-bold data-[state=active]:shadow-xs whitespace-nowrap shrink-0"
             >
-              ✈️ Lịch trình du lịch
+              Lịch trình du lịch
             </TabsTrigger>
             <TabsTrigger
               value="tasks"

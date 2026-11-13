@@ -5,7 +5,6 @@ import {
   MapPin,
   Calendar,
   Plus,
-  DollarSign,
   Users,
   ExternalLink,
   Phone,
@@ -55,21 +54,21 @@ interface TravelPlanTabProps {
 }
 
 const CATEGORY_LABELS = [
-  { key: "Ăn uống", label: "Ăn uống 🍜", color: "bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-950/40 dark:text-amber-300" },
-  { key: "Vui chơi", label: "Vui chơi 🎢", color: "bg-purple-100 text-purple-800 border-purple-300 dark:bg-purple-950/40 dark:text-purple-300" },
-  { key: "Tham quan", label: "Tham quan 📸", color: "bg-blue-100 text-blue-800 border-blue-300 dark:bg-blue-950/40 dark:text-blue-300" },
-  { key: "Cà phê", label: "Cà phê ☕", color: "bg-orange-100 text-orange-800 border-orange-300 dark:bg-orange-950/40 dark:text-orange-300" },
-  { key: "Mua sắm", label: "Mua sắm 🛍️", color: "bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-950/40 dark:text-emerald-300" },
-  { key: "Khác", label: "Khác 📍", color: "bg-slate-100 text-slate-800 border-slate-300 dark:bg-slate-800 dark:text-slate-300" },
+  { key: "Ăn uống", label: "Ăn uống", color: "bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-950/40 dark:text-amber-300" },
+  { key: "Vui chơi", label: "Vui chơi", color: "bg-purple-100 text-purple-800 border-purple-300 dark:bg-purple-950/40 dark:text-purple-300" },
+  { key: "Tham quan", label: "Tham quan", color: "bg-blue-100 text-blue-800 border-blue-300 dark:bg-blue-950/40 dark:text-blue-300" },
+  { key: "Cà phê", label: "Cà phê", color: "bg-orange-100 text-orange-800 border-orange-300 dark:bg-orange-950/40 dark:text-orange-300" },
+  { key: "Mua sắm", label: "Mua sắm", color: "bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-950/40 dark:text-emerald-300" },
+  { key: "Khác", label: "Khác", color: "bg-slate-100 text-slate-800 border-slate-300 dark:bg-slate-800 dark:text-slate-300" },
 ]
 
 const BUDGET_CATEGORIES = [
-  { key: "Di chuyển", label: "Di chuyển / Vé xe / Máy bay ✈️", color: "bg-sky-100 text-sky-800 border-sky-300 dark:bg-sky-950/40 dark:text-sky-300" },
-  { key: "Ăn uống chung", label: "Quỹ ăn uống chung 🍲", color: "bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-950/40 dark:text-amber-300" },
-  { key: "Vé & Tour", label: "Vé tham quan / Tour 🎟️", color: "bg-purple-100 text-purple-800 border-purple-300 dark:bg-purple-950/40 dark:text-purple-300" },
-  { key: "Thuê xe & Xăng", label: "Thuê xe & Nhiên liệu 🛵", color: "bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-950/40 dark:text-emerald-300" },
-  { key: "Dự phòng", label: "Chi phí dự phòng 🛡️", color: "bg-rose-100 text-rose-800 border-rose-300 dark:bg-rose-950/40 dark:text-rose-300" },
-  { key: "Khác", label: "Khoản khác 📦", color: "bg-slate-100 text-slate-800 border-slate-300 dark:bg-slate-800 dark:text-slate-300" },
+  { key: "Di chuyển", label: "Di chuyển / Vé xe / Máy bay", color: "bg-sky-100 text-sky-800 border-sky-300 dark:bg-sky-950/40 dark:text-sky-300" },
+  { key: "Ăn uống chung", label: "Quỹ ăn uống chung", color: "bg-amber-100 text-amber-800 border-amber-300 dark:bg-amber-950/40 dark:text-amber-300" },
+  { key: "Vé & Tour", label: "Vé tham quan / Tour", color: "bg-purple-100 text-purple-800 border-purple-300 dark:bg-purple-950/40 dark:text-purple-300" },
+  { key: "Thuê xe & Xăng", label: "Thuê xe & Nhiên liệu", color: "bg-emerald-100 text-emerald-800 border-emerald-300 dark:bg-emerald-950/40 dark:text-emerald-300" },
+  { key: "Dự phòng", label: "Chi phí dự phòng", color: "bg-rose-100 text-rose-800 border-rose-300 dark:bg-rose-950/40 dark:text-rose-300" },
+  { key: "Khác", label: "Khoản khác", color: "bg-slate-100 text-slate-800 border-slate-300 dark:bg-slate-800 dark:text-slate-300" },
 ]
 
 export default function TravelPlanTab({ groupId, group }: TravelPlanTabProps) {
@@ -585,16 +584,14 @@ export default function TravelPlanTab({ groupId, group }: TravelPlanTabProps) {
       <div className="relative overflow-hidden rounded-3xl bg-forest-ink text-paper p-6 sm:p-8 shadow-md">
         <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2">
-            <div className="inline-flex items-center gap-2 rounded-full bg-lime-voltage/20 text-lime-voltage px-3 py-1 text-xs font-bold uppercase tracking-wider">
-              <Compass className="h-3.5 w-3.5" />
-              <span>Kế hoạch Du lịch & Khám phá</span>
+            <div className="inline-flex items-center rounded-full bg-lime-voltage/20 text-lime-voltage px-3 py-1 text-xs font-bold uppercase tracking-wider">
+              <span>Kế hoạch Du lịch &amp; Khám phá</span>
             </div>
             <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-white">
               {plan?.destination || group?.name || "Chưa đặt tên điểm đến"}
             </h2>
             <div className="flex flex-wrap items-center gap-4 text-xs sm:text-sm text-paper/80 font-medium">
-              <div className="flex items-center gap-1.5">
-                <Calendar className="h-4 w-4 text-lime-voltage" />
+              <div>
                 <span>
                   {plan?.startDate && plan?.endDate
                     ? `${new Date(plan.startDate).toLocaleDateString("vi-VN")} - ${new Date(plan.endDate).toLocaleDateString("vi-VN")}`
@@ -602,8 +599,7 @@ export default function TravelPlanTab({ groupId, group }: TravelPlanTabProps) {
                 </span>
               </div>
               {plan?.estimatedBudget && (
-                <div className="flex items-center gap-1.5">
-                  <DollarSign className="h-4 w-4 text-lime-voltage" />
+                <div>
                   <span>Dự toán: {formatCurrency(plan.estimatedBudget)}</span>
                 </div>
               )}
@@ -621,14 +617,12 @@ export default function TravelPlanTab({ groupId, group }: TravelPlanTabProps) {
               className="rounded-full bg-white/10 hover:bg-white/20 text-white border-white/20 text-xs sm:text-sm font-semibold"
               onClick={() => setIsPlanModalOpen(true)}
             >
-              <Edit2 className="h-3.5 w-3.5 mr-1.5" />
               Sửa Kế Hoạch
             </Button>
             <Button
               className="rounded-full bg-lime-voltage hover:bg-lime-voltage/90 text-forest-ink font-bold text-xs sm:text-sm shadow-xs"
               onClick={() => setIsAddMemberModalOpen(true)}
             >
-              <Users className="h-4 w-4 mr-1.5" />
               + Mời Thành Viên ({members.length})
             </Button>
           </div>
@@ -659,17 +653,17 @@ export default function TravelPlanTab({ groupId, group }: TravelPlanTabProps) {
           {/* Quick Counter Badges */}
           <div className="flex flex-wrap items-center gap-2 sm:gap-3 text-xs font-semibold">
             <span className="rounded-full bg-white/10 px-3 py-1 text-white">
-              🏨 {plan?.hotels?.length || 0} Khách sạn
+              {plan?.hotels?.length || 0} Khách sạn
             </span>
             <span className="rounded-full bg-white/10 px-3 py-1 text-white">
-              📍 {plan?.places?.length || 0} Điểm đến
+              {plan?.places?.length || 0} Điểm đến
             </span>
             <button
               type="button"
               onClick={() => setActiveSubTab("budget")}
               className="rounded-full bg-lime-voltage/20 hover:bg-lime-voltage/30 border border-lime-voltage/40 px-3 py-1 text-lime-voltage transition-colors cursor-pointer"
             >
-              💰 Dự toán: {formatCurrency(budgetSummary.grandTotal)} (~{formatCurrency(budgetSummary.perMemberCost)}/người)
+              Dự toán: {formatCurrency(budgetSummary.grandTotal)} (~{formatCurrency(budgetSummary.perMemberCost)}/người)
             </button>
           </div>
         </div>
@@ -686,7 +680,7 @@ export default function TravelPlanTab({ groupId, group }: TravelPlanTabProps) {
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
-            📍 Điểm Muốn Đến ({plan?.places?.length || 0})
+            Điểm Muốn Đến ({plan?.places?.length || 0})
           </button>
           <button
             onClick={() => setActiveSubTab("hotels")}
@@ -696,7 +690,7 @@ export default function TravelPlanTab({ groupId, group }: TravelPlanTabProps) {
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
-            🏨 Khách Sạn ({plan?.hotels?.length || 0})
+            Khách Sạn ({plan?.hotels?.length || 0})
           </button>
           <button
             onClick={() => setActiveSubTab("itinerary")}
@@ -706,7 +700,7 @@ export default function TravelPlanTab({ groupId, group }: TravelPlanTabProps) {
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
-            📅 Lịch Trình Chi Tiết
+            Lịch Trình Chi Tiết
           </button>
           <button
             onClick={() => setActiveSubTab("budget")}
@@ -716,7 +710,7 @@ export default function TravelPlanTab({ groupId, group }: TravelPlanTabProps) {
                 : "text-muted-foreground hover:text-foreground"
             }`}
           >
-            💰 Dự Toán Chi Phí
+            Dự Toán Chi Phí
           </button>
         </div>
 
@@ -727,8 +721,7 @@ export default function TravelPlanTab({ groupId, group }: TravelPlanTabProps) {
               className="rounded-full bg-forest-ink hover:bg-forest-ink/90 text-white font-bold text-xs sm:text-sm"
               onClick={handleOpenAddPlace}
             >
-              <Plus className="h-4 w-4 mr-1.5" />
-              Thêm Điểm Muốn Đến
+              + Thêm Điểm Muốn Đến
             </Button>
           )}
           {activeSubTab === "hotels" && (
@@ -736,8 +729,7 @@ export default function TravelPlanTab({ groupId, group }: TravelPlanTabProps) {
               className="rounded-full bg-forest-ink hover:bg-forest-ink/90 text-white font-bold text-xs sm:text-sm"
               onClick={handleOpenAddHotel}
             >
-              <Plus className="h-4 w-4 mr-1.5" />
-              Lưu Khách Sạn Mới
+              + Lưu Khách Sạn Mới
             </Button>
           )}
           {activeSubTab === "budget" && (
@@ -745,8 +737,7 @@ export default function TravelPlanTab({ groupId, group }: TravelPlanTabProps) {
               className="rounded-full bg-forest-ink hover:bg-forest-ink/90 text-white font-bold text-xs sm:text-sm"
               onClick={handleOpenAddBudgetItem}
             >
-              <Plus className="h-4 w-4 mr-1.5" />
-              Thêm Khoản Dự Toán
+              + Thêm Khoản Dự Toán
             </Button>
           )}
         </div>
@@ -1061,7 +1052,7 @@ export default function TravelPlanTab({ groupId, group }: TravelPlanTabProps) {
                   <div className="flex items-center justify-between border-b border-border/60 pb-3">
                     <div className="flex items-center gap-2">
                       <span className="flex h-8 w-8 items-center justify-center rounded-full bg-lime-voltage text-forest-ink font-black text-xs">
-                        {typeof dayKey === "number" ? dayKey : "★"}
+                        {typeof dayKey === "number" ? dayKey : "D"}
                       </span>
                       <h4 className="font-black text-lg text-foreground">
                         {typeof dayKey === "number" ? `Ngày ${dayKey}` : String(dayKey)}
@@ -1117,7 +1108,7 @@ export default function TravelPlanTab({ groupId, group }: TravelPlanTabProps) {
                           <div className="text-right">
                             {place.visitTime && (
                               <div className="text-xs font-semibold text-forest-ink">
-                                🕒 {place.visitTime}
+                                {place.visitTime}
                               </div>
                             )}
                             {place.estimatedCost && (
@@ -1284,7 +1275,7 @@ export default function TravelPlanTab({ groupId, group }: TravelPlanTabProps) {
             <div className="lg:col-span-5 rounded-3xl border border-border/80 bg-card p-5 shadow-xs space-y-4">
               <div className="border-b border-border/60 pb-3">
                 <h4 className="font-black text-base text-foreground flex items-center gap-2">
-                  📊 Cơ Cấu Chi Phí Dự Toán
+                  Cơ Cấu Chi Phí Dự Toán
                 </h4>
                 <p className="text-xs text-muted-foreground mt-0.5">
                   Tổng hợp tự động từ khách sạn, điểm đến và các khoản dự toán chung
@@ -1295,7 +1286,7 @@ export default function TravelPlanTab({ groupId, group }: TravelPlanTabProps) {
                 {/* 1. Hotels */}
                 <div className="rounded-2xl bg-muted/40 p-3.5 space-y-1.5">
                   <div className="flex items-center justify-between text-xs sm:text-sm font-bold text-foreground">
-                    <span>🏨 Lưu trú & Khách sạn ({plan?.hotels?.length || 0})</span>
+                    <span>Lưu trú &amp; Khách sạn ({plan?.hotels?.length || 0})</span>
                     <span>{formatCurrency(budgetSummary.hotelsCost)}</span>
                   </div>
                   {(plan?.hotels?.length || 0) > 0 && (
@@ -1315,7 +1306,7 @@ export default function TravelPlanTab({ groupId, group }: TravelPlanTabProps) {
                 {/* 2. Places & Activities */}
                 <div className="rounded-2xl bg-muted/40 p-3.5 space-y-1.5">
                   <div className="flex items-center justify-between text-xs sm:text-sm font-bold text-foreground">
-                    <span>📍 Ăn uống & Vui chơi ({plan?.places?.length || 0} điểm)</span>
+                    <span>Ăn uống &amp; Vui chơi ({plan?.places?.length || 0} điểm)</span>
                     <span>{formatCurrency(budgetSummary.placesCost)}</span>
                   </div>
                   {budgetSummary.placesByCategory.length > 0 && (
@@ -1334,13 +1325,13 @@ export default function TravelPlanTab({ groupId, group }: TravelPlanTabProps) {
 
                 {/* 3. Custom Budget Items */}
                 <div className="rounded-2xl bg-muted/40 p-3.5 flex items-center justify-between text-xs sm:text-sm font-bold text-foreground">
-                  <span>✈️ Di chuyển, Vé & Khoản chung ({plan?.budgetItems?.length || 0})</span>
+                  <span>Di chuyển, Vé &amp; Khoản chung ({plan?.budgetItems?.length || 0})</span>
                   <span>{formatCurrency(budgetSummary.customItemsCost)}</span>
                 </div>
 
                 {/* 4. Contingency */}
                 <div className="rounded-2xl bg-amber-50/70 dark:bg-amber-950/20 border border-amber-200/70 p-3.5 flex items-center justify-between text-xs sm:text-sm font-bold text-amber-800 dark:text-amber-300">
-                  <span>🛡️ Dự phòng phát sinh ({contingencyPercent}%)</span>
+                  <span>Dự phòng phát sinh ({contingencyPercent}%)</span>
                   <span>+{formatCurrency(budgetSummary.contingencyAmount)}</span>
                 </div>
 
@@ -1368,7 +1359,7 @@ export default function TravelPlanTab({ groupId, group }: TravelPlanTabProps) {
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border/60 pb-3">
                   <div>
                     <h4 className="font-black text-base text-foreground flex items-center gap-2">
-                      🧾 Danh Sách Khoản Dự Toán Thêm (Vé xe, Máy bay, Quỹ chung...)
+                      Danh Sách Khoản Dự Toán Thêm (Vé xe, Máy bay, Quỹ chung...)
                     </h4>
                     <p className="text-xs text-muted-foreground mt-0.5">
                       Thêm các chi phí cố định như vé máy bay, tàu xe, thuê xe máy, bảo hiểm du lịch...
@@ -1379,8 +1370,7 @@ export default function TravelPlanTab({ groupId, group }: TravelPlanTabProps) {
                     onClick={handleOpenAddBudgetItem}
                     className="rounded-full bg-lime-voltage text-forest-ink hover:bg-lime-voltage/90 font-bold text-xs shrink-0"
                   >
-                    <Plus className="h-3.5 w-3.5 mr-1" />
-                    Thêm khoản mục
+                    + Thêm khoản mục
                   </Button>
                 </div>
 
@@ -1399,8 +1389,7 @@ export default function TravelPlanTab({ groupId, group }: TravelPlanTabProps) {
                       onClick={handleOpenAddBudgetItem}
                       className="rounded-full font-bold text-xs"
                     >
-                      <Plus className="h-3.5 w-3.5 mr-1" />
-                      Thêm khoản dự toán đầu tiên
+                      + Thêm khoản dự toán đầu tiên
                     </Button>
                   </div>
                 ) : (
@@ -1465,7 +1454,7 @@ export default function TravelPlanTab({ groupId, group }: TravelPlanTabProps) {
 
               <div className="mt-4 pt-3 border-t border-border/60 flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
                 <span>
-                  💡 Mẹo: Giá khách sạn và chi phí tại từng địa điểm được tự động cộng vào bảng dự toán.
+                  Lưu ý: Giá khách sạn và chi phí tại từng địa điểm được tự động cộng vào bảng dự toán.
                 </span>
                 <span className="font-bold text-foreground">
                   Tổng mục thêm: {formatCurrency(budgetSummary.customItemsCost)}
