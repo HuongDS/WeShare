@@ -14,25 +14,25 @@ export default function BottomNav({ onQuickAdd }: BottomNavProps) {
   const navItems = [
     {
       id: "dashboard",
-      label: "Home",
+      label: "Trang chủ",
       icon: Home,
       path: "/dashboard",
     },
     {
       id: "groups",
-      label: "Groups",
+      label: "Nhóm",
       icon: Users,
       path: "/groups",
     },
     {
       id: "quick-add",
-      label: "New",
+      label: "Tạo mới",
       isAction: true,
       icon: Plus,
     },
     {
       id: "profile",
-      label: "Profile",
+      label: "Hồ sơ",
       icon: User,
       path: "/profile",
     },
@@ -63,7 +63,7 @@ export default function BottomNav({ onQuickAdd }: BottomNavProps) {
                 type="button"
                 whileTap={{ scale: 0.92 }}
                 onClick={handleAction}
-                aria-label="Add new expense or group"
+                aria-label="Tạo khoản chi hoặc nhóm mới"
                 className="-mt-5 flex h-12 w-12 items-center justify-center rounded-full bg-lime-voltage text-forest-ink shadow-lg shadow-lime-voltage/30 transition-transform focus:outline-none"
               >
                 <item.icon className="h-6 w-6 stroke-[2.5]" />

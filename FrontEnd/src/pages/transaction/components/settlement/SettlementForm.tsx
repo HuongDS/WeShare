@@ -27,8 +27,8 @@ const formatNumberVN = (value: number): string => {
 
 // Validation schema
 const settlementSchema = z.object({
-  receiverId: z.string().min(1, "Please select who you're paying"),
-  amount: z.number().positive("Amount must be greater than 0"),
+  receiverId: z.string().min(1, "Vui lòng chọn người nhận thanh toán"),
+  amount: z.number().positive("Số tiền phải lớn hơn 0"),
   paymentType: z.enum(["CASH", "BANK_TRANSFER", "QR_CODE"] as const),
   description: z.string().optional(),
   proofUrl: z.string().optional(),
@@ -159,11 +159,11 @@ export default function SettlementForm({
     if (!file) return
 
     if (!file.type.startsWith("image/")) {
-      toast.error("Please upload an image file")
+      toast.error("Vui lòng chọn tệp hình ảnh")
       return
     }
     if (file.size > 5 * 1024 * 1024) {
-      toast.error("File size must be less than 5MB")
+      toast.error("Kích thước tệp phải nhỏ hơn 5MB")
       return
     }
 
@@ -200,12 +200,12 @@ export default function SettlementForm({
 
   const onSubmit = async (data: SettlementFormData) => {
     if (!currentUser?.userId) {
-      toast.error("Missing user information")
+      toast.error("Thiếu thông tin người dùng")
       return
     }
 
     if (selectedDebtItems.length === 0) {
-      toast.error("Please select debt items to settle")
+      toast.error("Vui lòng chọn các khoản nợ cần quyết toán")
       return
     }
 
@@ -226,7 +226,7 @@ export default function SettlementForm({
 
     addSettlement.mutate(payload, {
       onSuccess: () => {
-        toast.success("Settlement recorded successfully!", {
+        toast.success("Đã ghi nhận quyết toán thành công!", {
           icon: <Check className="h-5 w-5 text-green-600" />,
         })
         reset()
@@ -260,7 +260,7 @@ export default function SettlementForm({
                 </Avatar>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold text-foreground truncate">
-                    To {cluster.recipientName}
+                    Trả cho {cluster.recipientName}
                   </p>
                 </div>
                 <p className="text-sm font-semibold text-blue-600 shrink-0">
@@ -276,7 +276,7 @@ export default function SettlementForm({
                     className="flex items-center justify-between text-xs py-1 px-2 border-b border-gray-100 last:border-0"
                   >
                     <span className="text-gray-700">
-                      {item.description || "Expense"}
+                      {item.description || "Khoản chi"}
                     </span>
                     <span className="font-medium text-gray-900 shrink-0">
                       {formatNumberVN(item.amount)} VND
@@ -291,7 +291,7 @@ export default function SettlementForm({
         {/* Total Amount Card */}
         <div className="rounded-lg border-2 border-blue-300 bg-blue-50 p-4">
           <p className="mb-2 text-xs font-semibold text-muted-foreground uppercase">
-            Total to Pay
+            Tổng tiền cần thanh toán
           </p>
           <div className="flex items-baseline gap-2">
             <span className="text-3xl font-bold text-blue-900">
@@ -309,10 +309,10 @@ export default function SettlementForm({
             <HelpCircle className="h-4 w-4 text-amber-600 mt-0.5 shrink-0" />
             <div className="min-w-0 flex-1">
               <p className="text-xs font-semibold text-amber-900">
-                Multiple Items Selected
+                Đã chọn nhiều khoản nợ
               </p>
               <p className="text-xs text-amber-800 mt-1">
-                Amount is locked to the sum of all selected items and cannot be edited.
+                Số tiền được khóa theo tổng của tất cả các khoản đã chọn và không thể sửa đổi.
               </p>
             </div>
           </div>
@@ -332,7 +332,7 @@ export default function SettlementForm({
           {/* Amount Field */}
           <div className="space-y-3">
             <Label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-              Amount *
+              Số tiền *
             </Label>
             <div className="flex items-center gap-2">
               <div className="relative flex-1">
@@ -367,7 +367,7 @@ export default function SettlementForm({
           {/* Payment Method */}
           <div className="space-y-3">
             <Label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-              Payment Method *
+              Phương thức thanh toán *
             </Label>
             <div className="relative" ref={dropdownRef}>
               {/* Trigger Button */}
@@ -378,9 +378,9 @@ export default function SettlementForm({
               >
                 <span className="font-medium text-foreground">
                   {paymentType === "CASH"
-                    ? "Cash"
+                    ? "Tiền mặt"
                     : paymentType === "BANK_TRANSFER"
-                      ? "Bank Transfer"
+                      ? "Chuyển khoản ngân hàng"
                       : "Ảnh minh chứng (Google Drive)"}
                 </span>
                 <ChevronDown
@@ -406,7 +406,7 @@ export default function SettlementForm({
                         "bg-blue-50 font-medium text-blue-700"
                     )}
                   >
-                    Bank Transfer
+                    Chuyển khoản ngân hàng
                     {paymentType === "BANK_TRANSFER" && (
                       <Check className="ml-auto h-4 w-4 text-blue-600" />
                     )}
@@ -423,7 +423,7 @@ export default function SettlementForm({
                         "bg-blue-50 font-medium text-blue-700"
                     )}
                   >
-                    Cash
+                    Tiền mặt
                     {paymentType === "CASH" && (
                       <Check className="ml-auto h-4 w-4 text-blue-600" />
                     )}
@@ -453,10 +453,10 @@ export default function SettlementForm({
           {/* Description */}
           <div className="space-y-3">
             <Label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-              Notes (Optional)
+              Ghi chú (Tùy chọn)
             </Label>
             <textarea
-              placeholder="Add any notes about this payment..."
+              placeholder="Thêm ghi chú về khoản thanh toán này..."
               className="min-h-20 w-full resize-none rounded-lg border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:outline-none"
               {...register("description")}
             />
@@ -572,10 +572,10 @@ export default function SettlementForm({
             {addSettlement.isPending ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
-                Recording...
+                Đang ghi nhận...
               </>
             ) : (
-              <>Record Settlement</>
+              <>Xác nhận quyết toán</>
             )}
           </Button>
         </form>

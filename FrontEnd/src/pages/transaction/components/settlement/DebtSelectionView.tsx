@@ -160,8 +160,8 @@ export default function DebtSelectionView({
     <div className="space-y-6">
       <Card className="h-full">
         <CardHeader className="pb-3">
-          <CardTitle className="text-lg">Select Debt Items to Settle</CardTitle>
-          <CardDescription>Choose specific items to pay</CardDescription>
+          <CardTitle className="text-lg">Chọn khoản nợ cần quyết toán</CardTitle>
+          <CardDescription>Chọn các khoản chi cụ thể mà bạn muốn thanh toán</CardDescription>
 
           {/* Unified Toolbar */}
           <div className="mt-6 flex flex-col items-center gap-3 md:flex-row">
@@ -170,7 +170,7 @@ export default function DebtSelectionView({
               <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 type="text"
-                placeholder="Search items or people..."
+                placeholder="Tìm kiếm khoản chi hoặc người nhận..."
                 className="pl-9"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -184,20 +184,20 @@ export default function DebtSelectionView({
                 onClick={() => setFilterDropdownOpen(!filterDropdownOpen)}
                 className="inline-flex items-center gap-2 rounded-md border border-input bg-background px-3 py-2 text-sm font-medium hover:bg-accent"
               >
-                Filter:{" "}
+                Lọc:{" "}
                 {filterMode === "all"
-                  ? "All"
+                  ? "Tất cả"
                   : filterMode === "group"
-                    ? "By Group"
-                    : "By Person"}
+                    ? "Theo nhóm"
+                    : "Theo người nhận"}
                 <ChevronDown className="h-4 w-4" />
               </button>
               {filterDropdownOpen && (
                 <div className="absolute right-0 z-10 mt-2 w-40 rounded-md border bg-white shadow-lg">
                   {[
-                    { value: "all" as const, label: "All Items" },
-                    { value: "group" as const, label: "By Group" },
-                    { value: "person" as const, label: "By Person" },
+                    { value: "all" as const, label: "Tất cả khoản nợ" },
+                    { value: "group" as const, label: "Theo nhóm" },
+                    { value: "person" as const, label: "Theo người nhận" },
                   ].map((option) => (
                     <button
                       key={option.value}
@@ -225,14 +225,14 @@ export default function DebtSelectionView({
                 onClick={() => setModeDropdownOpen(!modeDropdownOpen)}
                 className="inline-flex items-center gap-2 rounded-md border border-input bg-background px-3 py-2 text-sm font-medium hover:bg-accent"
               >
-                Mode: {viewMode === "item" ? "Item View" : "Cluster View"}
+                Chế độ: {viewMode === "item" ? "Xem từng khoản" : "Gộp theo người"}
                 <ChevronDown className="h-4 w-4" />
               </button>
               {modeDropdownOpen && (
-                <div className="absolute right-0 z-10 mt-2 w-40 rounded-md border bg-white shadow-lg">
+                <div className="absolute right-0 z-10 mt-2 w-48 rounded-md border bg-white shadow-lg">
                   {[
-                    { value: "item" as const, label: "Item View" },
-                    { value: "cluster" as const, label: "Cluster View" },
+                    { value: "item" as const, label: "Xem từng khoản" },
+                    { value: "cluster" as const, label: "Gộp theo người nhận" },
                   ].map((option) => (
                     <button
                       key={option.value}
@@ -297,10 +297,10 @@ export default function DebtSelectionView({
                           className="cursor-pointer"
                         />
                       </TableHead>
-                      <TableHead>Item</TableHead>
-                      <TableHead>Recipient</TableHead>
-                      <TableHead>Group</TableHead>
-                      <TableHead className="text-right">Amount</TableHead>
+                      <TableHead>Khoản chi</TableHead>
+                      <TableHead>Người nhận</TableHead>
+                      <TableHead>Nhóm</TableHead>
+                      <TableHead className="text-right">Số tiền</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -323,7 +323,7 @@ export default function DebtSelectionView({
                             />
                           </TableCell>
                           <TableCell className="font-medium">
-                            {item.description || "Expense"}
+                            {item.description || "Khoản chi"}
                           </TableCell>
                           <TableCell>
                             <div className="flex items-center gap-2">
@@ -354,7 +354,7 @@ export default function DebtSelectionView({
                           colSpan={5}
                           className="py-6 text-center text-muted-foreground"
                         >
-                          No items match your search
+                          Không có khoản nợ nào khớp với tìm kiếm
                         </TableCell>
                       </TableRow>
                     )}
@@ -398,9 +398,9 @@ export default function DebtSelectionView({
                           className="cursor-pointer"
                         />
                       </TableHead>
-                      <TableHead>Recipient</TableHead>
-                      <TableHead>Items Count</TableHead>
-                      <TableHead className="text-right">Total Amount</TableHead>
+                      <TableHead>Người nhận</TableHead>
+                      <TableHead>Số khoản chi</TableHead>
+                      <TableHead className="text-right">Tổng số tiền</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -440,8 +440,7 @@ export default function DebtSelectionView({
                             </div>
                           </TableCell>
                           <TableCell className="text-sm text-muted-foreground">
-                            {cluster.items.length} item
-                            {cluster.items.length > 1 ? "s" : ""}
+                            {cluster.items.length} khoản chi
                           </TableCell>
                           <TableCell className="text-right font-semibold">
                             {formatNumberVN(cluster.totalDebt)} VND
@@ -454,7 +453,7 @@ export default function DebtSelectionView({
                           colSpan={4}
                           className="py-6 text-center text-muted-foreground"
                         >
-                          No clusters match your search
+                          Không có người nhận nào khớp với tìm kiếm
                         </TableCell>
                       </TableRow>
                     )}
@@ -469,11 +468,10 @@ export default function DebtSelectionView({
             <div className="sticky bottom-0 flex flex-col items-center justify-between gap-4 rounded-lg border-2 border-blue-200 bg-blue-50 p-4 sm:flex-row">
               <div>
                 <p className="text-sm font-semibold text-muted-foreground">
-                  Selected: {selectedItemIds.length} item
-                  {selectedItemIds.length > 1 ? "s" : ""}
+                  Đã chọn: {selectedItemIds.length} khoản chi
                 </p>
                 <p className="text-lg font-bold text-blue-900">
-                  Total: {formatNumberVN(selectedTotal)} VND
+                  Tổng cộng: {formatNumberVN(selectedTotal)} VND
                 </p>
               </div>
               <Button
@@ -481,7 +479,7 @@ export default function DebtSelectionView({
                 size="lg"
                 className="w-full sm:w-auto"
               >
-                Continue to Settle
+                Tiếp tục quyết toán
               </Button>
             </div>
           )}

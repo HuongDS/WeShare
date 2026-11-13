@@ -45,11 +45,11 @@ export default function LoginForm({
     e.preventDefault()
     try {
       if (!validateEmail(loginEmail)) {
-        toast.error("Please enter a valid email address.")
+        toast.error("Vui lòng nhập địa chỉ email hợp lệ.")
         return
       }
       if (!validatePassword(loginPassword)) {
-        toast.error("Password must be 200 characters or less.")
+        toast.error("Mật khẩu không được vượt quá 200 ký tự.")
         return
       }
       await login.mutateAsync({ email: loginEmail, password: loginPassword })
@@ -70,7 +70,7 @@ export default function LoginForm({
       {/* Email Field */}
       <motion.div variants={itemVariants} className="space-y-1.5">
         <Label htmlFor="login-email" className="text-xs font-semibold text-foreground">
-          Email Address
+          Địa chỉ Email
         </Label>
         <div className="relative">
           <Mail className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -89,7 +89,7 @@ export default function LoginForm({
       {/* Password Field */}
       <motion.div variants={itemVariants} className="space-y-1.5">
         <Label htmlFor="login-password" className="text-xs font-semibold text-foreground">
-          Password
+          Mật khẩu
         </Label>
         <div className="relative">
           <Lock className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -112,7 +112,7 @@ export default function LoginForm({
           onClick={() => navigate("/forgot-password")}
           className="text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors"
         >
-          Forgot password?
+          Quên mật khẩu?
         </button>
       </motion.div>
 
@@ -126,11 +126,11 @@ export default function LoginForm({
           {login.isPending ? (
             <>
               <Loader2 className="h-4 w-4 animate-spin" />
-              Signing in...
+              Đang đăng nhập...
             </>
           ) : (
             <>
-              Sign In
+              Đăng nhập
               <ArrowRight className="h-4 w-4 stroke-[2.5]" />
             </>
           )}

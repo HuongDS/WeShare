@@ -83,23 +83,23 @@ export default function RegisterForm({
     e.preventDefault()
     try {
       if (!validateName(registerName)) {
-        toast.error("Please enter a valid name (1-100 characters).")
+        toast.error("Vui lòng nhập họ tên hợp lệ (1-100 ký tự).")
         return
       }
       if (!validateEmail(registerEmail)) {
-        toast.error("Please enter a valid email address.")
+        toast.error("Vui lòng nhập địa chỉ email hợp lệ.")
         return
       }
       if (!isEmailVerified) {
-        toast.error("Please verify your email first.")
+        toast.error("Vui lòng kiểm tra và xác thực email trước.")
         return
       }
       if (!validatePassword(registerPassword)) {
-        toast.error("Password must be 200 characters or less.")
+        toast.error("Mật khẩu phải từ 8 ký tự, có số và ký tự đặc biệt.")
         return
       }
       if (registerPassword !== registerConfirmPassword) {
-        toast.error("Passwords do not match.")
+        toast.error("Mật khẩu xác nhận không khớp.")
         return
       }
 
@@ -126,14 +126,14 @@ export default function RegisterForm({
       {/* Full Name Field */}
       <motion.div variants={itemVariants} className="space-y-1.5">
         <Label htmlFor="register-name" className="text-xs font-semibold text-foreground">
-          Full Name
+          Họ và tên
         </Label>
         <div className="relative">
           <User className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             id="register-name"
             type="text"
-            placeholder="John Doe"
+            placeholder="Nguyễn Văn A"
             className="rounded-xl border-input bg-background py-5 pl-10 text-foreground placeholder:text-muted-foreground focus:border-forest-ink dark:focus:border-lime-voltage"
             value={registerName}
             onChange={(e) => setRegisterName(e.target.value)}
@@ -145,7 +145,7 @@ export default function RegisterForm({
       {/* Email Field */}
       <motion.div variants={itemVariants} className="space-y-1.5">
         <Label htmlFor="register-email" className="text-xs font-semibold text-foreground">
-          Email Address
+          Địa chỉ Email
         </Label>
         <div className="relative">
           <Mail className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -181,7 +181,7 @@ export default function RegisterForm({
       {/* Password Field */}
       <motion.div variants={itemVariants} className="space-y-1.5">
         <Label htmlFor="register-password" className="text-xs font-semibold text-foreground">
-          Password
+          Mật khẩu
         </Label>
         <div className="relative">
           <Lock className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -207,7 +207,7 @@ export default function RegisterForm({
           </button>
         </div>
         <div className="mt-1.5 space-y-1 text-[11px] text-muted-foreground">
-          <p>Password requirements:</p>
+          <p>Yêu cầu mật khẩu:</p>
           <ul className="ml-3 space-y-0.5">
             <li
               className={
@@ -216,7 +216,7 @@ export default function RegisterForm({
                   : "text-muted-foreground"
               }
             >
-              ✓ At least 8 characters
+              ✓ Tối thiểu 8 ký tự
             </li>
             <li
               className={
@@ -225,7 +225,7 @@ export default function RegisterForm({
                   : "text-muted-foreground"
               }
             >
-              ✓ At least 1 number
+              ✓ Ít nhất 1 chữ số
             </li>
             <li
               className={
@@ -234,7 +234,7 @@ export default function RegisterForm({
                   : "text-muted-foreground"
               }
             >
-              ✓ At least 1 special character (!@#$%^&*)
+              ✓ Ít nhất 1 ký tự đặc biệt (!@#$%^&*)
             </li>
           </ul>
         </div>
@@ -243,7 +243,7 @@ export default function RegisterForm({
       {/* Confirm Password Field */}
       <motion.div variants={itemVariants} className="space-y-1.5">
         <Label htmlFor="register-confirm-password" className="text-xs font-semibold text-foreground">
-          Confirm Password
+          Xác nhận mật khẩu
         </Label>
         <div className="relative">
           <Lock className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -280,11 +280,11 @@ export default function RegisterForm({
           {register.isPending || isLoading ? (
             <>
               <Loader2 className="h-4 w-4 animate-spin" />
-              Creating account...
+              Đang tạo tài khoản...
             </>
           ) : (
             <>
-              Create Account
+              Đăng ký tài khoản
               <ArrowRight className="h-4 w-4 stroke-[2.5]" />
             </>
           )}

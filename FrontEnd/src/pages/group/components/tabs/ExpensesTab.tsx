@@ -12,7 +12,7 @@ export default function ExpensesTab({ groupId, groupName, taskId }: ExpensesTabP
   if (Number.isNaN(numericGroupId) || numericGroupId <= 0) {
     return (
       <div className="py-8 text-center text-sm text-muted-foreground">
-        Invalid group ID provided.
+        Mã nhóm không hợp lệ.
       </div>
     )
   }

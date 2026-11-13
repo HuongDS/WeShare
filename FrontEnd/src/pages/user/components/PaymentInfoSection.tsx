@@ -18,11 +18,11 @@ import type { BankDto } from "@/types/banks/BankDto"
 import { cn } from "@/lib/utils"
 
 const paymentProfileSchema = z.object({
-  bankId: z.string().min(1, "Please select a bank"),
+  bankId: z.string().min(1, "Vui lòng chọn ngân hàng"),
   bankAccountNumber: z
     .string()
-    .min(1, "Bank account number is required")
-    .max(50, "Bank account number must be at most 50 characters"),
+    .min(1, "Vui lòng nhập số tài khoản ngân hàng")
+    .max(50, "Số tài khoản ngân hàng tối đa 50 ký tự"),
 })
 
 type PaymentProfileFormData = z.infer<typeof paymentProfileSchema>
@@ -99,7 +99,7 @@ export function PaymentInfoSection({
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-bold tracking-tight text-foreground">
-                Payment Information
+                Thông tin tài khoản thanh toán
               </h2>
               <Button
                 variant="ghost"
@@ -108,14 +108,14 @@ export function PaymentInfoSection({
                 className="gap-2 rounded-full hover:bg-muted text-foreground"
               >
                 <Edit2 className="h-4 w-4" />
-                Edit Bank Info
+                Sửa thông tin ngân hàng
               </Button>
             </div>
 
             <div className="space-y-4 rounded-2xl bg-muted/40 border border-border/60 p-5">
               <div>
                 <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                  Default Bank
+                  Ngân hàng mặc định
                 </p>
                 <div className="mt-2.5 flex items-center gap-3">
                   {userData?.bankName ? (
@@ -140,7 +140,7 @@ export function PaymentInfoSection({
                     </>
                   ) : (
                     <p className="text-base font-semibold text-muted-foreground">
-                      No bank connected yet
+                      Chưa liên kết ngân hàng
                     </p>
                   )}
                 </div>
@@ -148,10 +148,10 @@ export function PaymentInfoSection({
 
               <div>
                 <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                  Account Number
+                  Số tài khoản
                 </p>
                 <p className="mt-1 font-mono text-base font-bold text-foreground tracking-wider">
-                  {userData?.defaultBankAccount || "Not provided"}
+                  {userData?.defaultBankAccount || "Chưa cung cấp"}
                 </p>
               </div>
             </div>
@@ -160,7 +160,7 @@ export function PaymentInfoSection({
           // Edit Mode
           <div className="space-y-4">
             <h2 className="text-lg font-bold tracking-tight text-foreground">
-              Edit Payment Information
+              Chỉnh sửa thông tin thanh toán
             </h2>
 
             <form onSubmit={handleSubmit(handleFormSubmit)}>
@@ -168,7 +168,7 @@ export function PaymentInfoSection({
                 {/* Bank Selection with Combobox */}
                 <div>
                   <Label className="text-sm font-semibold text-foreground">
-                    Bank
+                    Ngân hàng
                   </Label>
                   <Popover open={bankOpen} onOpenChange={setBankOpen}>
                     <PopoverTrigger asChild>
@@ -192,7 +192,7 @@ export function PaymentInfoSection({
                             <span className="truncate">{selectedBank.name}</span>
                           </div>
                         ) : (
-                          "Select a bank..."
+                          "Chọn ngân hàng..."
                         )}
                         <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                       </Button>
@@ -206,7 +206,7 @@ export function PaymentInfoSection({
                         <div className="sticky top-0 z-10 flex items-center gap-2 rounded-xl border border-input bg-muted/40 px-3 py-2">
                           <Search className="h-4 w-4 shrink-0 text-muted-foreground" />
                           <input
-                            placeholder="Search banks..."
+                            placeholder="Tìm kiếm ngân hàng..."
                             value={bankSearchValue}
                             onChange={(e) => setBankSearchValue(e.target.value)}
                             className="flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
@@ -217,7 +217,7 @@ export function PaymentInfoSection({
                         <div className="max-h-72 overflow-y-auto">
                           {filteredBanks.length === 0 ? (
                             <p className="py-8 text-center text-sm text-muted-foreground">
-                              No banks found
+                              Không tìm thấy ngân hàng nào
                             </p>
                           ) : (
                             <div className="grid grid-cols-2 gap-2 p-1">
@@ -279,12 +279,12 @@ export function PaymentInfoSection({
                 {/* Account Number */}
                 <div>
                   <Label htmlFor="bankAccountNumber" className="text-sm font-semibold text-foreground">
-                    Account Number
+                    Số tài khoản
                   </Label>
                   <Input
                     id="bankAccountNumber"
                     type="text"
-                    placeholder="Enter your bank account number"
+                    placeholder="Nhập số tài khoản ngân hàng của bạn"
                     className="mt-1.5 rounded-xl border-input bg-background py-5 font-mono text-foreground placeholder:text-muted-foreground focus:border-forest-ink dark:focus:border-lime-voltage"
                     {...register("bankAccountNumber")}
                   />
@@ -305,12 +305,12 @@ export function PaymentInfoSection({
                   {isPending ? (
                     <>
                       <Loader2 className="h-4 w-4 animate-spin" />
-                      Saving...
+                      Đang lưu...
                     </>
                   ) : (
                     <>
                       <Check className="h-4 w-4 stroke-[2.5]" />
-                      Save Changes
+                      Lưu thay đổi
                     </>
                   )}
                 </Button>
@@ -321,7 +321,7 @@ export function PaymentInfoSection({
                   className="rounded-full gap-2 hover:bg-muted"
                 >
                   <X className="h-4 w-4" />
-                  Cancel
+                  Hủy
                 </Button>
               </div>
             </form>

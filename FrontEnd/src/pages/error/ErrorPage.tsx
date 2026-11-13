@@ -20,23 +20,23 @@ export default function ErrorPage({ code }: ErrorPageProps) {
     403: {
       icon: <ShieldAlert className="h-24 w-24 text-primary" />,
       bgColor: "bg-primary/10",
-      title: "Access Denied",
+      title: "Không có quyền truy cập",
       description:
-        "You do not have permission to access this resource. Please contact the administrator if you believe this is a mistake.",
+        "Bạn không có quyền truy cập vào tài nguyên này. Vui lòng liên hệ quản trị viên nếu bạn cho rằng đây là sự nhầm lẫn.",
     },
     404: {
       icon: <FileQuestion className="h-24 w-24 text-primary" />,
       bgColor: "bg-primary/10",
-      title: "Page Not Found",
+      title: "Không tìm thấy trang",
       description:
-        "The page you are looking for does not exist, has been removed, or has been renamed.",
+        "Trang bạn đang tìm kiếm không tồn tại, đã bị xóa hoặc đã được đổi tên.",
     },
     500: {
       icon: <ServerCrash className="h-24 w-24 text-primary" />,
       bgColor: "bg-primary/10",
-      title: "Server Error",
+      title: "Lỗi hệ thống",
       description:
-        "A system error has occurred. Our technical team is working to resolve this issue.",
+        "Đã xảy ra sự cố từ phía máy chủ. Đội ngũ kỹ thuật đang tiến hành khắc phục vấn đề này.",
     },
   }
 
@@ -103,14 +103,14 @@ export default function ErrorPage({ code }: ErrorPageProps) {
             className="gap-2"
           >
             <ArrowLeft className="h-4 w-4" />
-            Go Back
+            Quay lại
           </Button>
           <Button
             onClick={() => navigate("/dashboard")}
             className="gap-2 bg-linear-to-r from-primary to-primary/80 text-white hover:from-primary/90 hover:to-primary/70"
           >
             <Home className="h-4 w-4" />
-            Dashboard
+            Bảng điều khiển
           </Button>
         </motion.div>
 
@@ -122,12 +122,12 @@ export default function ErrorPage({ code }: ErrorPageProps) {
           className="mt-12 border-t border-slate-200 pt-6"
         >
           <p className="text-xs text-slate-400">
-            Need help?{" "}
+            Cần trợ giúp?{" "}
             <a
               href="mailto:support@weshare.com"
               className="text-primary hover:underline"
             >
-              Contact support
+              Liên hệ hỗ trợ
             </a>
           </p>
         </motion.div>

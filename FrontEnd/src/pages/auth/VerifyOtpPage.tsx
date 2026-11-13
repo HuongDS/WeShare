@@ -60,18 +60,18 @@ export default function VerifyOtpPage() {
     e.preventDefault()
 
     if (otp.trim().length === 0) {
-      toast.error("Please enter the OTP code.")
+      toast.error("Vui lòng nhập mã OTP.")
       return
     }
 
     if (otp.trim().length > 6) {
-      toast.error("OTP must be at most 6 characters.")
+      toast.error("Mã OTP tối đa 6 ký tự.")
       return
     }
 
     try {
       if (!email) {
-        toast.error("Email information is missing. Please try again.")
+        toast.error("Thiếu thông tin email. Vui lòng thử lại.")
         navigate("/auth", { replace: true })
         return
       }
@@ -81,7 +81,7 @@ export default function VerifyOtpPage() {
         otp: otp.trim(),
       })
 
-      toast.success("Email verified successfully!")
+      toast.success("Xác thực email thành công!")
       setTimeout(() => {
         navigate("/auth")
       }, 1500)
@@ -110,10 +110,10 @@ export default function VerifyOtpPage() {
           </motion.div>
 
           <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-foreground">
-            Verify Your Email
+            Xác thực Email
           </h2>
           <div className="space-y-1 text-xs sm:text-sm text-muted-foreground">
-            <p>We&apos;ve sent a 6-digit verification code to:</p>
+            <p>Chúng tôi đã gửi mã xác thực 6 số đến:</p>
             <p className="font-bold text-foreground">{email}</p>
           </div>
         </motion.div>
@@ -131,7 +131,7 @@ export default function VerifyOtpPage() {
               {/* OTP Input Field */}
               <div className="space-y-1.5 text-center">
                 <Label htmlFor="verify-otp" className="text-xs font-semibold text-foreground">
-                  Verification Code
+                  Mã xác thực (OTP)
                 </Label>
                 <Input
                   id="verify-otp"
@@ -157,11 +157,11 @@ export default function VerifyOtpPage() {
                 {verifyOtp.isPending ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    Verifying...
+                    Đang xác thực...
                   </>
                 ) : (
                   <>
-                    Verify &amp; Continue
+                    Xác thực &amp; Tiếp tục
                     <ArrowRight className="h-4 w-4 stroke-[2.5]" />
                   </>
                 )}
@@ -174,7 +174,7 @@ export default function VerifyOtpPage() {
                   onClick={() => navigate("/auth")}
                   className="text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  Back to Login
+                  Quay lại Đăng nhập
                 </button>
               </div>
             </motion.form>
@@ -183,7 +183,7 @@ export default function VerifyOtpPage() {
 
         {/* Footer Note */}
         <p className="text-center text-xs text-muted-foreground">
-          This verification code will expire in 15 minutes.
+          Mã xác thực này sẽ hết hạn trong 15 phút.
         </p>
       </motion.div>
     </div>

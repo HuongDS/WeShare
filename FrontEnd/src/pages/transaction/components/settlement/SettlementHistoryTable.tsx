@@ -61,7 +61,7 @@ export default function SettlementHistoryTable({
   const historyColumns: ColumnDef<SettlementHistoryRow>[] = [
     {
       accessorKey: "recipient",
-      header: "Recipient",
+      header: "Người nhận",
       cell: ({ row }) => (
         <div className="flex items-center gap-2">
           <Avatar className="h-8 w-8">
@@ -80,7 +80,7 @@ export default function SettlementHistoryTable({
     },
     {
       accessorKey: "amount",
-      header: "Amount",
+      header: "Số tiền",
       cell: ({ row }) => (
         <span className="font-semibold">
           {formatNumberVN(row.original.amount)} VND
@@ -89,7 +89,7 @@ export default function SettlementHistoryTable({
     },
     {
       accessorKey: "date",
-      header: "Date",
+      header: "Ngày",
       cell: ({ row }) => (
         <span className="text-sm text-muted-foreground">
           {row.original.date}
@@ -98,7 +98,7 @@ export default function SettlementHistoryTable({
     },
     {
       accessorKey: "description",
-      header: "Description",
+      header: "Mô tả",
       cell: ({ row }) => (
         <span className="text-sm">{row.original.description || "-"}</span>
       ),

@@ -266,7 +266,7 @@ export function DataTable<TData, TValue>({
                 className="absolute top-2.5 left-2 text-muted-foreground"
               />
               <Input
-                placeholder="Search value..."
+                placeholder="Tìm kiếm..."
                 value={searchText}
                 onChange={(e) => handleSearchInput(e.target.value)}
                 className="w-full pl-8"
@@ -367,7 +367,7 @@ export function DataTable<TData, TValue>({
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  No results.
+                  Không có kết quả.
                 </TableCell>
               </TableRow>
             )}
@@ -383,11 +383,11 @@ export function DataTable<TData, TValue>({
             <span className="font-medium text-foreground">
               {table.getSelectedRowModel().rows.length}
             </span>{" "}
-            of{" "}
+            /{" "}
             <span className="font-medium text-foreground">
               {table.getFilteredRowModel().rows.length}
             </span>{" "}
-            rows selected
+            hàng được chọn
           </div>
         )}
 
@@ -398,11 +398,11 @@ export function DataTable<TData, TValue>({
             className="text-sm whitespace-nowrap text-muted-foreground"
             aria-live="polite"
           >
-            Page{" "}
+            Trang{" "}
             <span className="font-medium text-foreground">
               {table.getState().pagination.pageIndex + 1}
             </span>{" "}
-            of{" "}
+            /{" "}
             <span className="font-medium text-foreground">
               {table.getPageCount()}
             </span>

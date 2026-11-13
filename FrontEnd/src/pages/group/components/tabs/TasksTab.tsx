@@ -46,10 +46,10 @@ export default function TasksTab({ groupId }: { groupId: number }) {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-xl font-bold tracking-tight text-foreground">
-            Task Coordination Hub
+            Quản lý Công việc Nhóm
           </h2>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Organize team responsibilities, deadlines, and link expenses to activities
+            Phân công nhiệm vụ, theo dõi tiến độ và liên kết chi tiêu với hoạt động nhóm
           </p>
         </div>
 
@@ -67,7 +67,7 @@ export default function TasksTab({ groupId }: { groupId: number }) {
               )}
             >
               <LayoutGrid className="h-3.5 w-3.5" />
-              Kanban
+              Bảng Kanban
             </button>
             <button
               type="button"
@@ -80,7 +80,7 @@ export default function TasksTab({ groupId }: { groupId: number }) {
               )}
             >
               <List className="h-3.5 w-3.5" />
-              List
+              Danh sách
             </button>
           </div>
 
@@ -89,7 +89,7 @@ export default function TasksTab({ groupId }: { groupId: number }) {
             className="rounded-full bg-lime-voltage text-forest-ink hover:bg-lime-400 font-extrabold text-xs h-9 px-4 gap-1.5 shadow-sm"
           >
             <Plus className="h-4 w-4 stroke-[3]" />
-            New Task
+            Tạo công việc
           </Button>
         </div>
       </div>
@@ -100,8 +100,8 @@ export default function TasksTab({ groupId }: { groupId: number }) {
         <div className="relative">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
           <Input
-            aria-label="Search task"
-            placeholder="Search tasks..."
+            aria-label="Tìm kiếm công việc"
+            placeholder="Tìm kiếm công việc..."
             maxLength={200}
             value={search}
             onChange={(e) => filter({ taskSearch: e.target.value })}
@@ -111,12 +111,12 @@ export default function TasksTab({ groupId }: { groupId: number }) {
 
         {/* Status filter */}
         <select
-          aria-label="Filter status"
+          aria-label="Lọc trạng thái"
           className="h-9 rounded-full border border-input bg-background px-3 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-forest-ink"
           value={status}
           onChange={(e) => filter({ taskStatus: e.target.value })}
         >
-          <option value="">All Statuses</option>
+          <option value="">Tất cả trạng thái</option>
           {Object.entries(taskStatusLabels).map(([val, label]) => (
             <option key={val} value={val}>
               {label}
@@ -126,12 +126,12 @@ export default function TasksTab({ groupId }: { groupId: number }) {
 
         {/* Assignee filter */}
         <select
-          aria-label="Filter assignee"
+          aria-label="Lọc người nhận việc"
           className="h-9 rounded-full border border-input bg-background px-3 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-forest-ink"
           value={assigneeId}
           onChange={(e) => filter({ taskAssignee: e.target.value })}
         >
-          <option value="">All Assignees</option>
+          <option value="">Tất cả người thực hiện</option>
           {members.data?.data?.map((m) => (
             <option key={m.id} value={m.id}>
               {m.fullName}
@@ -164,15 +164,15 @@ export default function TasksTab({ groupId }: { groupId: number }) {
       {/* Main Content: Kanban or List */}
       {!query.isLoading && !query.error && tasks.length === 0 ? (
         <div className="rounded-3xl border border-dashed border-border bg-muted/10 p-12 text-center space-y-3">
-          <p className="text-base font-bold text-foreground">No tasks matching your filter.</p>
+          <p className="text-base font-bold text-foreground">Không có công việc nào phù hợp với bộ lọc.</p>
           <p className="text-xs text-muted-foreground">
-            Create tasks to distribute responsibilities among group members.
+            Tạo công việc để phân chia nhiệm vụ cho các thành viên trong nhóm.
           </p>
           <Button
             onClick={() => setCreating(true)}
             className="rounded-full bg-forest-ink text-paper dark:bg-lime-voltage dark:text-forest-ink text-xs font-bold"
           >
-            Create Task
+            Tạo công việc
           </Button>
         </div>
       ) : viewMode === "kanban" ? (
@@ -205,9 +205,9 @@ export default function TasksTab({ groupId }: { groupId: number }) {
                     </span>
                   )}
                   {task.expenseCount > 0 && (
-                    <span>• {task.expenseCount} linked expenses</span>
+                    <span>• {task.expenseCount} khoản chi liên kết</span>
                   )}
-                  {task.event && <span>• Event: {task.event.title}</span>}
+                  {task.event && <span>• Sự kiện: {task.event.title}</span>}
                 </div>
               </div>
 

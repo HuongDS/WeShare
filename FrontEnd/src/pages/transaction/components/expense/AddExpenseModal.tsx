@@ -43,11 +43,11 @@ interface AddExpenseModalProps {
 }
 
 const expenseSchema = z.object({
-  amount: z.number().positive("Amount must be greater than 0"),
-  description: z.string().trim().min(1, "Description is required"),
+  amount: z.number().positive("Số tiền phải lớn hơn 0"),
+  description: z.string().trim().min(1, "Vui lòng nhập mô tả khoản chi"),
   receiptUrl: z.string().optional(),
   splitStrategy: z.enum(["EQUALLY", "EXACTLY", "PERCENTAGE"] as const),
-  debtIds: z.array(z.number()).min(1, "Select at least one member"),
+  debtIds: z.array(z.number()).min(1, "Vui lòng chọn ít nhất 1 thành viên"),
   splitAmounts: z.record(z.string(), z.number()).optional(),
 })
 
@@ -170,7 +170,7 @@ export default function AddExpenseModal({
     }
 
     if (!file.type.startsWith("image/")) {
-      toast.error("Please select an image file")
+      toast.error("Vui lòng chọn tệp hình ảnh")
       event.target.value = ""
       return
     }
@@ -231,14 +231,14 @@ export default function AddExpenseModal({
 
   const summaryText = useMemo(() => {
     if (splitStrategy === "EXACTLY") {
-      return `Allocated: ${formatCurrency(exactlyAllocated)} / ${formatCurrency(amount)}`
+      return `Đã phân bổ: ${formatCurrency(exactlyAllocated)} / ${formatCurrency(amount)}`
     }
 
     if (splitStrategy === "PERCENTAGE") {
-      return `Allocated: ${percentageAllocated.toFixed(2)}% / 100%`
+      return `Đã phân bổ: ${percentageAllocated.toFixed(2)}% / 100%`
     }
 
-    return `Each selected member: ${formatCurrency(perPersonAmount)}`
+    return `Mỗi người chịu: ${formatCurrency(perPersonAmount)}`
   }, [
     amount,
     exactlyAllocated,
@@ -289,7 +289,7 @@ export default function AddExpenseModal({
       } catch {
         uploadedReceiptUrl = undefined
         setValue("receiptUrl", "", { shouldDirty: true })
-        toast.error("Receipt upload failed. Saving expense without receipt.")
+        toast.error("Tải ảnh hóa đơn thất bại. Tiếp tục lưu khoản chi mà không có ảnh.")
       } finally {
         setIsUploading(false)
       }
@@ -340,9 +340,9 @@ export default function AddExpenseModal({
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent className="flex max-h-[90vh] flex-col overflow-hidden p-0 sm:max-w-2xl">
         <DialogHeader className="p-6 pb-4">
-          <DialogTitle>Add Expense</DialogTitle>
+          <DialogTitle>Thêm khoản chi mới</DialogTitle>
           <DialogDescription>
-            Enter amount, choose split mode, and allocate member shares.
+            Nhập số tiền, chọn cách chia và phân bổ phần chi cho các thành viên.
           </DialogDescription>
         </DialogHeader>
 
@@ -369,11 +369,11 @@ export default function AddExpenseModal({
                   />
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  Amount must be greater than 0
+                  Số tiền phải lớn hơn 0
                 </p>
                 <Input
                   id="description"
-                  placeholder="What was this for? (e.g., Dinner, Taxi)"
+                  placeholder="Khoản chi cho việc gì? (ví dụ: Ăn tối, Đi lại, Mua sắm...)"
                   className="mx-auto mt-4 w-full max-w-xs border-none bg-transparent text-center text-lg text-muted-foreground shadow-none focus-visible:ring-0"
                   {...register("description")}
                 />
@@ -392,7 +392,7 @@ export default function AddExpenseModal({
 
             <section className="space-y-4">
               <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                <Label>Split Mode</Label>
+                <Label>Cách chia tiền</Label>
                 <Tabs
                   value={splitStrategy}
                   onValueChange={(value) =>
@@ -404,9 +404,9 @@ export default function AddExpenseModal({
                   }
                 >
                   <TabsList className="grid w-full grid-cols-3 md:w-auto">
-                    <TabsTrigger value="EQUALLY">EQUALLY</TabsTrigger>
-                    <TabsTrigger value="EXACTLY">EXACTLY</TabsTrigger>
-                    <TabsTrigger value="PERCENTAGE">PERCENTAGE</TabsTrigger>
+                    <TabsTrigger value="EQUALLY">Chia đều</TabsTrigger>
+                    <TabsTrigger value="EXACTLY">Số tiền cụ thể</TabsTrigger>
+                    <TabsTrigger value="PERCENTAGE">Theo tỷ lệ %</TabsTrigger>
                   </TabsList>
                 </Tabs>
               </div>
@@ -419,16 +419,15 @@ export default function AddExpenseModal({
                 {members.isFetching ? (
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    Loading members...
+                    Đang tải danh sách thành viên...
                   </div>
                 ) : !parsedGroupId ? (
                   <p className="rounded-lg border border-dashed p-4 text-sm text-muted-foreground">
-                    Missing group context. Reopen this modal from a group
-                    details page.
+                    Thiếu thông tin nhóm. Vui lòng mở lại từ trang chi tiết nhóm.
                   </p>
                 ) : memberList.length === 0 ? (
                   <p className="rounded-lg border border-dashed p-4 text-sm text-muted-foreground">
-                    This group has no members yet.
+                    Nhóm này hiện chưa có thành viên nào.
                   </p>
                 ) : (
                   memberList.map((member) => {
@@ -470,7 +469,7 @@ export default function AddExpenseModal({
                                 {member.fullName}
                               </p>
                               <p className="truncate text-xs text-muted-foreground">
-                                {member.email || "No email"}
+                                {member.email || "Không có email"}
                               </p>
                             </div>
                           </div>
@@ -599,7 +598,7 @@ export default function AddExpenseModal({
                   <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-md border">
                     <img
                       src={previewUrl}
-                      alt="Receipt preview"
+                      alt="Xem trước ảnh hóa đơn"
                       className="h-full w-full object-cover"
                     />
                     {isUploading && (
@@ -611,15 +610,15 @@ export default function AddExpenseModal({
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-medium text-foreground">
                       {isUploading
-                        ? "Uploading receipt..."
-                        : "Receipt ready to upload"}
+                        ? "Đang tải ảnh lên..."
+                        : "Ảnh hóa đơn đã sẵn sàng"}
                     </p>
                     <p className="text-xs text-muted-foreground">
                       {isUploading
-                        ? "Please wait while your image is being processed"
+                        ? "Vui lòng chờ trong khi hệ thống xử lý ảnh"
                         : selectedFile
-                          ? `Selected: ${selectedFile.name}`
-                          : "You can still save expense without receipt."}
+                          ? `Đã chọn: ${selectedFile.name}`
+                          : "Bạn vẫn có thể lưu khoản chi mà không cần ảnh hóa đơn."}
                     </p>
                     {isUploading && (
                       <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
@@ -633,7 +632,7 @@ export default function AddExpenseModal({
                     size="icon-sm"
                     onClick={handleRemoveReceipt}
                     disabled={isUploading}
-                    aria-label="Remove receipt"
+                    aria-label="Xóa ảnh hóa đơn"
                   >
                     <X className="h-4 w-4" />
                   </Button>
@@ -643,7 +642,7 @@ export default function AddExpenseModal({
               {!previewUrl && (
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   <ImageIcon className="h-4 w-4" />
-                  JPG, PNG, WEBP supported.
+                  Hỗ trợ định dạng JPG, PNG, WEBP.
                 </div>
               )}
             </section>
@@ -666,10 +665,10 @@ export default function AddExpenseModal({
               variant="outline"
               onClick={() => handleOpenChange(false)}
             >
-              Cancel
+              Hủy
             </Button>
             <Button type="submit" disabled={footerDisabled}>
-              {addTransaction.isPending ? "Saving..." : "Save Expense"}
+              {addTransaction.isPending ? "Đang lưu..." : "Lưu khoản chi"}
             </Button>
           </DialogFooter>
         </form>

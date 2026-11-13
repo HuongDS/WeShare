@@ -119,10 +119,10 @@ export default function GroupPage() {
       <div className="flex flex-col items-start justify-between gap-4 md:flex-row md:items-center">
         <div className="space-y-1">
           <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-foreground">
-            Groups &amp; Events Hub
+            Quản lý Nhóm &amp; Sự kiện
           </h1>
           <p className="text-sm text-muted-foreground">
-            Create, organize, and manage your shared groups, tasks, and expenses.
+            Tạo, tổ chức và quản lý các nhóm chi tiêu, công việc và sự kiện chung.
           </p>
         </div>
         <div className="flex items-center gap-2.5">
@@ -142,7 +142,7 @@ export default function GroupPage() {
             className="rounded-full bg-lime-voltage hover:bg-lime-voltage/90 text-forest-ink font-bold shadow-xs px-5 py-2.5 gap-2 text-xs sm:text-sm"
           >
             <Plus className="h-4 w-4 stroke-[2.5]" />
-            Create Group
+            Tạo nhóm mới
           </Button>
         </div>
       </div>
@@ -161,25 +161,25 @@ export default function GroupPage() {
               value="ALL"
               className="rounded-full data-[state=active]:bg-lime-voltage data-[state=active]:text-forest-ink data-[state=active]:font-bold data-[state=active]:shadow-xs px-4 sm:px-5 py-1.5 transition-all text-xs sm:text-sm"
             >
-              All Hubs
+              Tất cả nhóm
             </TabsTrigger>
             <TabsTrigger
               value="NONE"
               className="rounded-full data-[state=active]:bg-lime-voltage data-[state=active]:text-forest-ink data-[state=active]:font-bold data-[state=active]:shadow-xs px-4 sm:px-5 py-1.5 transition-all text-xs sm:text-sm"
             >
-              General
+              Thông thường
             </TabsTrigger>
             <TabsTrigger
               value="CLUB"
               className="rounded-full data-[state=active]:bg-lime-voltage data-[state=active]:text-forest-ink data-[state=active]:font-bold data-[state=active]:shadow-xs px-4 sm:px-5 py-1.5 transition-all text-xs sm:text-sm"
             >
-              Club
+              Câu lạc bộ
             </TabsTrigger>
             <TabsTrigger
               value="TRAVEL"
               className="rounded-full data-[state=active]:bg-lime-voltage data-[state=active]:text-forest-ink data-[state=active]:font-bold data-[state=active]:shadow-xs px-4 sm:px-5 py-1.5 transition-all text-xs sm:text-sm"
             >
-              Travel
+              Du lịch
             </TabsTrigger>
           </TabsList>
         </Tabs>
@@ -191,7 +191,7 @@ export default function GroupPage() {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search groups by name..."
+            placeholder="Tìm kiếm nhóm theo tên..."
             className="w-full rounded-full border border-border/80 bg-card py-2 pl-9 pr-8 text-xs sm:text-sm text-foreground placeholder:text-muted-foreground focus:border-forest-ink dark:focus:border-lime-voltage focus:outline-none transition-all"
           />
           {searchQuery && (
@@ -210,19 +210,19 @@ export default function GroupPage() {
       {filteredGroups.length === 0 && !groups.isLoading && (
         <div className="flex flex-col items-center justify-center py-16 text-center rounded-3xl border border-border/80 bg-card p-6">
           <p className="text-base font-bold text-foreground">
-            No groups match your search criteria
+            Không tìm thấy nhóm phù hợp với điều kiện tìm kiếm
           </p>
           <p className="text-xs text-muted-foreground mt-1 max-w-sm">
             {searchQuery
-              ? `No groups found with "${searchQuery}" in ${selectedType === "ALL" ? "all categories" : selectedType.toLowerCase() + " category"}.`
-              : "No groups found in this category."}
+              ? `Không tìm thấy nhóm nào khớp với "${searchQuery}".`
+              : "Chưa có nhóm nào trong danh mục này."}
           </p>
           <Button
             variant="outline"
             onClick={handleResetFilters}
             className="mt-4 rounded-full text-xs font-semibold"
           >
-            Reset Filters
+            Đặt lại bộ lọc
           </Button>
         </div>
       )}
@@ -241,7 +241,7 @@ export default function GroupPage() {
       {totalPages > 1 && (
         <div className="flex items-center justify-between rounded-3xl border border-border/80 bg-card px-5 py-3 shadow-xs">
           <p className="text-xs sm:text-sm font-medium text-muted-foreground">
-            Page {pageIndex + 1} of {totalPages}
+            Trang {pageIndex + 1} / {totalPages}
           </p>
           <div className="flex gap-2">
             <Button
@@ -251,7 +251,7 @@ export default function GroupPage() {
               onClick={() => setPageIndex(Math.max(0, pageIndex - 1))}
               className="rounded-full px-4 text-xs font-semibold"
             >
-              Previous
+              Trước
             </Button>
             <Button
               variant="outline"
@@ -260,7 +260,7 @@ export default function GroupPage() {
               onClick={() => setPageIndex(pageIndex + 1)}
               className="rounded-full px-4 text-xs font-semibold"
             >
-              Next
+              Sau
             </Button>
           </div>
         </div>

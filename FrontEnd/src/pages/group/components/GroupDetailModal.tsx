@@ -42,25 +42,31 @@ export default function GroupDetailModal({
           <div className="flex flex-wrap items-center gap-3">
             <DialogTitle className="text-xl">{group.name}</DialogTitle>
             <Badge className={typeBadgeClass[group.type]}>
-              {group.type === "None" ? "General" : group.type}
+              {group.type === "None"
+                ? "Thông thường"
+                : group.type === "Club"
+                  ? "Câu lạc bộ"
+                  : group.type === "Travel"
+                    ? "Du lịch"
+                    : group.type}
             </Badge>
           </div>
           <DialogDescription className="flex items-center gap-2">
             <Users className="h-4 w-4" />
-            {memberCount} member{memberCount === 1 ? "" : "s"}
+            {memberCount} thành viên
           </DialogDescription>
         </DialogHeader>
 
         <div className="space-y-3">
           <div className="rounded-3xl border border-border bg-muted/20 p-4">
-            <p className="text-xs text-muted-foreground">Description</p>
+            <p className="text-xs text-muted-foreground">Mô tả</p>
             <p className="mt-1 text-sm text-foreground">
-              {description?.trim() ? description : "No description provided"}
+              {description?.trim() ? description : "Chưa có mô tả"}
             </p>
           </div>
 
           <div className="space-y-3">
-            <p className="text-sm font-semibold text-foreground">Members</p>
+            <p className="text-sm font-semibold text-foreground">Thành viên</p>
             <div className="grid gap-3 sm:grid-cols-2">
               {group.members?.map((member) => (
                 <MemberListItem

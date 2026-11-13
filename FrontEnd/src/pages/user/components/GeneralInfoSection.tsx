@@ -15,8 +15,8 @@ import type { UserViewDto } from "@/types/user/UserViewDto"
 const generalProfileSchema = z.object({
   userName: z
     .string()
-    .min(2, "Username must be at least 2 characters")
-    .max(100, "Username must be at most 100 characters"),
+    .min(2, "Họ và tên phải có ít nhất 2 ký tự")
+    .max(100, "Họ và tên tối đa 100 ký tự"),
 })
 
 type GeneralProfileFormData = z.infer<typeof generalProfileSchema>
@@ -97,7 +97,7 @@ export function GeneralInfoSection({
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-lg font-bold tracking-tight text-foreground">
-                General Information
+                Thông tin chung
               </h2>
               <Button
                 variant="ghost"
@@ -106,7 +106,7 @@ export function GeneralInfoSection({
                 className="gap-2 rounded-full hover:bg-muted text-foreground"
               >
                 <Edit2 className="h-4 w-4" />
-                Edit Profile
+                Chỉnh sửa hồ sơ
               </Button>
             </div>
 
@@ -117,7 +117,7 @@ export function GeneralInfoSection({
                   <Avatar className="h-28 w-28 border-4 border-card shadow-sm">
                     <AvatarImage
                       src={userData?.avatar || ""}
-                      alt={userData?.fullName || "User"}
+                      alt={userData?.fullName || "Người dùng"}
                     />
                     <AvatarFallback className="bg-forest-ink text-lime-voltage text-2xl font-bold">
                       {(userData?.fullName || "U")[0]?.toUpperCase()}
@@ -144,12 +144,12 @@ export function GeneralInfoSection({
                     {updateAvatar.isPending ? (
                       <>
                         <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                        Uploading...
+                        Đang tải...
                       </>
                     ) : (
                       <>
                         <Upload className="h-3.5 w-3.5" />
-                        Change
+                        Thay đổi
                       </>
                     )}
                   </Button>
@@ -165,12 +165,12 @@ export function GeneralInfoSection({
                       {deleteAvatar.isPending ? (
                         <>
                           <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                          Deleting...
+                          Đang xóa...
                         </>
                       ) : (
                         <>
                           <Trash2 className="h-3.5 w-3.5" />
-                          Delete
+                          Xóa ảnh
                         </>
                       )}
                     </Button>
@@ -190,18 +190,18 @@ export function GeneralInfoSection({
               <div className="md:col-span-7 flex flex-col justify-center space-y-4">
                 <div>
                   <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                    Full Name
+                    Họ và tên
                   </p>
                   <p className="mt-1 text-lg font-bold text-foreground">
-                    {userData?.fullName || "N/A"}
+                    {userData?.fullName || "Chưa có"}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                    Email Address
+                    Địa chỉ Email
                   </p>
                   <p className="mt-1 text-sm font-medium text-muted-foreground">
-                    {userData?.email || "N/A"}
+                    {userData?.email || "Chưa có"}
                   </p>
                 </div>
               </div>
@@ -211,19 +211,19 @@ export function GeneralInfoSection({
           // Edit Mode
           <div className="space-y-4">
             <h2 className="text-lg font-bold tracking-tight text-foreground">
-              Edit General Information
+              Chỉnh sửa thông tin chung
             </h2>
 
             <form onSubmit={handleSubmit(handleFormSubmit)}>
               <div className="space-y-4">
                 <div>
                   <Label htmlFor="userName" className="text-sm font-semibold text-foreground">
-                    Username / Full Name
+                    Họ và tên
                   </Label>
                   <Input
                     id="userName"
                     type="text"
-                    placeholder="Enter your username"
+                    placeholder="Nhập họ và tên của bạn"
                     className="mt-1.5 rounded-xl border-input bg-background py-5 text-foreground placeholder:text-muted-foreground focus:border-forest-ink dark:focus:border-lime-voltage"
                     {...register("userName")}
                   />
@@ -236,7 +236,7 @@ export function GeneralInfoSection({
 
                 <div>
                   <Label htmlFor="email" className="text-sm font-semibold text-foreground">
-                    Email Address
+                    Địa chỉ Email
                   </Label>
                   <Input
                     id="email"
@@ -246,7 +246,7 @@ export function GeneralInfoSection({
                     className="mt-1.5 rounded-xl border-input bg-muted/60 py-5 text-muted-foreground cursor-not-allowed"
                   />
                   <p className="mt-1 text-xs text-muted-foreground">
-                    Email cannot be changed
+                    Email không thể thay đổi
                   </p>
                 </div>
               </div>
@@ -260,12 +260,12 @@ export function GeneralInfoSection({
                   {isPending ? (
                     <>
                       <Loader2 className="h-4 w-4 animate-spin" />
-                      Saving...
+                      Đang lưu...
                     </>
                   ) : (
                     <>
                       <Check className="h-4 w-4 stroke-[2.5]" />
-                      Save Changes
+                      Lưu thay đổi
                     </>
                   )}
                 </Button>
@@ -276,7 +276,7 @@ export function GeneralInfoSection({
                   className="rounded-full gap-2 hover:bg-muted"
                 >
                   <X className="h-4 w-4" />
-                  Cancel
+                  Hủy
                 </Button>
               </div>
             </form>

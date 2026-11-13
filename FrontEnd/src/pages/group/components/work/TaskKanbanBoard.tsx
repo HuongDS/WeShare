@@ -26,21 +26,21 @@ interface TaskKanbanBoardProps {
 const KANBAN_COLUMNS: { id: TaskStatus; label: string; icon: any; colorClass: string; borderClass: string }[] = [
   {
     id: "todo",
-    label: "To Do",
+    label: "Cần làm",
     icon: Clock,
     colorClass: "bg-muted text-muted-foreground",
     borderClass: "border-border",
   },
   {
     id: "inProgress",
-    label: "In Progress",
+    label: "Đang làm",
     icon: PlayCircle,
     colorClass: "bg-blue-100 text-signal-blue dark:bg-blue-950/50 dark:text-blue-300",
     borderClass: "border-blue-400/40",
   },
   {
     id: "done",
-    label: "Completed",
+    label: "Hoàn thành",
     icon: CheckCircle2,
     colorClass: "bg-linen-mist text-forest-ink dark:bg-emerald-950/50 dark:text-lime-voltage",
     borderClass: "border-emerald-500/40",
@@ -61,9 +61,9 @@ export default function TaskKanbanBoard({
     try {
       await taskApi.status(groupId, task.id, task.version, newStatus)
       await invalidate()
-      toast.success(`Task moved to ${taskStatusLabels[newStatus]}`)
+      toast.success(`Đã chuyển công việc sang ${taskStatusLabels[newStatus]}`)
     } catch {
-      toast.error("Failed to update status")
+      toast.error("Không thể cập nhật trạng thái")
     } finally {
       setUpdatingTaskId(null)
     }
@@ -76,10 +76,10 @@ export default function TaskKanbanBoard({
     const diffHours = (dueDate.getTime() - now.getTime()) / (1000 * 60 * 60)
 
     if (diffHours < 0) {
-      return { label: "Overdue", style: "bg-alarm-red text-paper" }
+      return { label: "Quá hạn", style: "bg-alarm-red text-paper" }
     }
     if (diffHours < 24) {
-      return { label: "Due Soon", style: "bg-amber-100 text-amber-900 border border-amber-300" }
+      return { label: "Sắp đến hạn", style: "bg-amber-100 text-amber-900 border border-amber-300" }
     }
     return { label: displayDate(dueAt), style: "bg-muted text-muted-foreground" }
   }
@@ -112,7 +112,7 @@ export default function TaskKanbanBoard({
             <div className="flex-1 space-y-3 overflow-y-auto pr-1">
               {columnTasks.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-48 border border-dashed border-border/60 rounded-2xl text-xs text-muted-foreground">
-                  No tasks in this stage
+                  Chưa có công việc trong giai đoạn này
                 </div>
               ) : (
                 columnTasks.map((task) => {
@@ -136,7 +136,7 @@ export default function TaskKanbanBoard({
                           </Badge>
                         ) : (
                           <span className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">
-                            General Task
+                            Nhiệm vụ chung
                           </span>
                         )}
 
@@ -152,7 +152,7 @@ export default function TaskKanbanBoard({
                               <ChevronRight className="h-3.5 w-3.5" />
                             </Button>
                           </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="w-36 rounded-2xl p-1.5 shadow-lg">
+                          <DropdownMenuContent align="end" className="w-40 rounded-2xl p-1.5 shadow-lg">
                             <DropdownMenuItem
                               onClick={(e) => {
                                 e.stopPropagation()
@@ -161,7 +161,7 @@ export default function TaskKanbanBoard({
                               className="rounded-xl text-xs gap-2 py-1.5 cursor-pointer"
                             >
                               <Clock className="h-3.5 w-3.5" />
-                              Move to To Do
+                              Chuyển sang Cần làm
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={(e) => {
@@ -171,7 +171,7 @@ export default function TaskKanbanBoard({
                               className="rounded-xl text-xs gap-2 py-1.5 cursor-pointer"
                             >
                               <PlayCircle className="h-3.5 w-3.5" />
-                              Move to In Progress
+                              Chuyển sang Đang làm
                             </DropdownMenuItem>
                             <DropdownMenuItem
                               onClick={(e) => {
@@ -181,7 +181,7 @@ export default function TaskKanbanBoard({
                               className="rounded-xl text-xs gap-2 py-1.5 cursor-pointer text-emerald-600 font-semibold"
                             >
                               <CheckCircle2 className="h-3.5 w-3.5" />
-                              Mark Completed
+                              Đánh dấu Hoàn thành
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -204,7 +204,7 @@ export default function TaskKanbanBoard({
                         {task.expenseCount > 0 && (
                           <span className="text-[10px] font-bold rounded-full px-2 py-0.5 bg-muted text-muted-foreground flex items-center gap-1">
                             <Receipt className="h-2.5 w-2.5" />
-                            {task.expenseCount} expenses
+                            {task.expenseCount} khoản chi
                           </span>
                         )}
                       </div>
@@ -214,7 +214,7 @@ export default function TaskKanbanBoard({
                         <div className="flex items-center -space-x-2">
                           {task.assignees.length === 0 ? (
                             <span className="text-[11px] text-muted-foreground italic">
-                              Unassigned
+                              Chưa phân công
                             </span>
                           ) : (
                             task.assignees.map((user) => (
@@ -229,7 +229,7 @@ export default function TaskKanbanBoard({
                         </div>
 
                         <span className="text-[11px] font-semibold text-muted-foreground">
-                          {task.assignees.length > 0 && `${task.assignees.length} assigned`}
+                          {task.assignees.length > 0 && `${task.assignees.length} người nhận`}
                         </span>
                       </div>
                     </div>

@@ -16,7 +16,7 @@ interface TransactionTableProps {
 
 function formatDate(date: Date | string): string {
   const d = new Date(date)
-  return d.toLocaleDateString("en-US", {
+  return d.toLocaleDateString("vi-VN", {
     month: "short",
     day: "2-digit",
     year: "numeric",
@@ -31,7 +31,7 @@ export default function TransactionTable({
 
   const handleDelete = useCallback(
     (id: number): void => {
-      if (confirm("Are you sure you want to delete this transaction?")) {
+      if (confirm("Bạn có chắc chắn muốn xóa giao dịch này?")) {
         deleteTransaction.mutate(id)
       }
     },
@@ -48,14 +48,14 @@ export default function TransactionTable({
     () => [
       columnHelper.accessor("createdAt", {
         id: "date",
-        header: "Date",
+        header: "Ngày",
         cell: (info: CellContext<TransactionViewDto, Date>) =>
           formatDate(info.getValue()),
         size: 120,
       }) as unknown as ColumnDef<TransactionViewDto>,
       columnHelper.accessor("description", {
         id: "description",
-        header: "Description",
+        header: "Mô tả",
         cell: (
           info: CellContext<TransactionViewDto, string | null | undefined>
         ) => info.getValue() || "—",
@@ -63,7 +63,7 @@ export default function TransactionTable({
       }) as unknown as ColumnDef<TransactionViewDto>,
       columnHelper.display({
         id: "payer",
-        header: "Payer",
+        header: "Người trả",
         cell: (info: CellContext<TransactionViewDto, unknown>) => {
           const payer = info.row.original.payer
           return (
@@ -87,7 +87,7 @@ export default function TransactionTable({
       }) as unknown as ColumnDef<TransactionViewDto>,
       columnHelper.accessor("amount", {
         id: "amount",
-        header: () => <div className="text-right">Amount</div>,
+        header: () => <div className="text-right">Số tiền</div>,
         cell: (info: CellContext<TransactionViewDto, number>) => (
           <div className="text-right">
             <span className="text-sm font-semibold text-primary">
@@ -99,14 +99,14 @@ export default function TransactionTable({
       }) as unknown as ColumnDef<TransactionViewDto>,
       columnHelper.display({
         id: "actions",
-        header: () => <div className="text-center">Actions</div>,
+        header: () => <div className="text-center">Thao tác</div>,
         cell: (info: CellContext<TransactionViewDto, unknown>) => (
           <div className="flex items-center justify-center gap-2">
             <Button
               size="sm"
               variant="ghost"
               className="h-8 w-8 p-0"
-              title="View Details"
+              title="Xem chi tiết"
               disabled={false}
             >
               <Eye className="h-4 w-4 text-muted-foreground hover:text-foreground" />
@@ -117,7 +117,7 @@ export default function TransactionTable({
               className="h-8 w-8 p-0"
               onClick={() => handleDelete(info.row.original.id)}
               disabled={deleteTransaction.isPending}
-              title="Delete"
+              title="Xóa"
             >
               <Trash2 className="h-4 w-4 text-muted-foreground hover:text-destructive" />
             </Button>

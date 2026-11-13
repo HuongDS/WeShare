@@ -22,14 +22,14 @@ const getGroupTypeConfig = (rawType: string | number | undefined | null) => {
     case "1":
     case "club":
       return {
-        label: "Club",
+        label: "Câu lạc bộ",
         badgeClass:
           "bg-linen-mist text-forest-ink dark:bg-emerald-950/40 dark:text-lime-voltage",
       }
     case "2":
     case "travel":
       return {
-        label: "Travel",
+        label: "Du lịch",
         badgeClass:
           "bg-blue-100 text-signal-blue dark:bg-blue-950/40 dark:text-blue-300",
       }
@@ -37,7 +37,7 @@ const getGroupTypeConfig = (rawType: string | number | undefined | null) => {
     case "general":
     default:
       return {
-        label: "General",
+        label: "Thông thường",
         badgeClass: "bg-muted text-muted-foreground",
       }
   }
@@ -64,13 +64,13 @@ export default function GroupDetailsPage() {
   if (Number.isNaN(groupId)) {
     return (
       <div className="space-y-4 p-4 md:p-8">
-        <p className="text-sm text-alarm-red font-semibold">Invalid group id.</p>
+        <p className="text-sm text-alarm-red font-semibold">Mã nhóm không hợp lệ.</p>
         <Button
           variant="outline"
           className="rounded-full"
           onClick={() => navigate("/groups")}
         >
-          Back to Groups
+          Quay lại danh sách nhóm
         </Button>
       </div>
     )
@@ -83,9 +83,9 @@ export default function GroupDetailsPage() {
   if (!groupData) {
     return (
       <div className="space-y-4 p-4 md:p-8">
-        <p className="text-sm text-muted-foreground">Group not found.</p>
+        <p className="text-sm text-muted-foreground">Không tìm thấy thông tin nhóm.</p>
         <Button variant="outline" className="rounded-full" asChild>
-          <Link to="/groups">Back to Groups</Link>
+          <Link to="/groups">Quay lại danh sách nhóm</Link>
         </Button>
       </div>
     )
@@ -100,7 +100,7 @@ export default function GroupDetailsPage() {
             variant="ghost"
             size="icon"
             onClick={() => navigate("/groups")}
-            aria-label="Back to groups"
+            aria-label="Quay lại danh sách nhóm"
             className="rounded-full hover:bg-muted"
           >
             <ArrowLeft className="h-5 w-5" />
@@ -121,7 +121,7 @@ export default function GroupDetailsPage() {
         <div className="flex items-center gap-2 text-xs sm:text-sm font-semibold text-muted-foreground">
           <Users className="h-4 w-4" />
           <span>
-            {members.length} member{members.length === 1 ? "" : "s"}
+            {members.length} thành viên
           </span>
         </div>
       </div>
@@ -138,43 +138,43 @@ export default function GroupDetailsPage() {
               value="general"
               className="rounded-full px-4 sm:px-5 py-2 text-xs sm:text-sm font-semibold transition-all text-muted-foreground hover:text-foreground data-[state=active]:bg-lime-voltage data-[state=active]:text-forest-ink data-[state=active]:font-bold data-[state=active]:shadow-xs whitespace-nowrap shrink-0"
             >
-              General
+              Tổng quan
             </TabsTrigger>
             <TabsTrigger
               value="expenses"
               className="rounded-full px-4 sm:px-5 py-2 text-xs sm:text-sm font-semibold transition-all text-muted-foreground hover:text-foreground data-[state=active]:bg-lime-voltage data-[state=active]:text-forest-ink data-[state=active]:font-bold data-[state=active]:shadow-xs whitespace-nowrap shrink-0"
             >
-              Expenses
+              Khoản chi
             </TabsTrigger>
             <TabsTrigger
               value="settlements"
               className="rounded-full px-4 sm:px-5 py-2 text-xs sm:text-sm font-semibold transition-all text-muted-foreground hover:text-foreground data-[state=active]:bg-lime-voltage data-[state=active]:text-forest-ink data-[state=active]:font-bold data-[state=active]:shadow-xs whitespace-nowrap shrink-0"
             >
-              Settlements
+              Quyết toán &amp; Nợ
             </TabsTrigger>
             <TabsTrigger
               value="members"
               className="rounded-full px-4 sm:px-5 py-2 text-xs sm:text-sm font-semibold transition-all text-muted-foreground hover:text-foreground data-[state=active]:bg-lime-voltage data-[state=active]:text-forest-ink data-[state=active]:font-bold data-[state=active]:shadow-xs whitespace-nowrap shrink-0"
             >
-              Members
+              Thành viên
             </TabsTrigger>
             <TabsTrigger
               value="travel"
               className="rounded-full px-4 sm:px-5 py-2 text-xs sm:text-sm font-semibold transition-all text-muted-foreground hover:text-foreground data-[state=active]:bg-lime-voltage data-[state=active]:text-forest-ink data-[state=active]:font-bold data-[state=active]:shadow-xs whitespace-nowrap shrink-0"
             >
-              ✈️ Du Lịch / Plan
+              ✈️ Lịch trình du lịch
             </TabsTrigger>
             <TabsTrigger
               value="tasks"
               className="rounded-full px-4 sm:px-5 py-2 text-xs sm:text-sm font-semibold transition-all text-muted-foreground hover:text-foreground data-[state=active]:bg-lime-voltage data-[state=active]:text-forest-ink data-[state=active]:font-bold data-[state=active]:shadow-xs whitespace-nowrap shrink-0"
             >
-              Tasks
+              Công việc
             </TabsTrigger>
             <TabsTrigger
               value="events"
               className="rounded-full px-4 sm:px-5 py-2 text-xs sm:text-sm font-semibold transition-all text-muted-foreground hover:text-foreground data-[state=active]:bg-lime-voltage data-[state=active]:text-forest-ink data-[state=active]:font-bold data-[state=active]:shadow-xs whitespace-nowrap shrink-0"
             >
-              Events
+              Sự kiện
             </TabsTrigger>
           </TabsList>
         </div>

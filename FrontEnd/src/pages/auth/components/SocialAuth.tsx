@@ -34,7 +34,7 @@ export default function SocialAuth({ itemVariants }: SocialAuthProps) {
         className="my-6 flex items-center gap-4"
       >
         <div className="h-px flex-1 bg-slate-300" />
-        <span className="text-xs text-slate-500">OR</span>
+        <span className="text-xs text-slate-500 font-semibold">HOẶC</span>
         <div className="h-px flex-1 bg-slate-300" />
       </motion.div>
 
@@ -55,13 +55,13 @@ export default function SocialAuth({ itemVariants }: SocialAuthProps) {
         variants={itemVariants}
         className="text-center text-xs text-slate-600"
       >
-        By signing in, you agree to our{" "}
+        Bằng việc đăng nhập, bạn đồng ý với{" "}
         <button className="text-primary transition-colors hover:text-primary/80">
-          Terms of Service
+          Điều khoản dịch vụ
         </button>{" "}
-        and{" "}
+        và{" "}
         <button className="text-primary transition-colors hover:text-primary/80">
-          Privacy Policy
+          Chính sách bảo mật
         </button>
         .
       </motion.p>

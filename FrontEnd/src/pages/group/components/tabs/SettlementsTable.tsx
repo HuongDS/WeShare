@@ -140,16 +140,16 @@ export default function SettlementsTable({
     if (!payerId) return
     onViewDetails({
       payerId,
-      memberName: item.member?.fullName || "Member",
+      memberName: item.member?.fullName || "Thành viên",
     })
   }
 
   return (
     <Card className="border border-border/70 bg-white">
       <CardHeader>
-        <CardTitle>Settlements</CardTitle>
+        <CardTitle>Quyết toán &amp; Công nợ</CardTitle>
         <CardDescription>
-          Track what you owe and what others owe you in this group.
+          Theo dõi các khoản bạn đang nợ và các khoản người khác nợ bạn trong nhóm.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -158,7 +158,7 @@ export default function SettlementsTable({
           <Input
             value={searchQuery}
             onChange={(event) => setSearchQuery(event.target.value)}
-            placeholder="Search members..."
+            placeholder="Tìm kiếm thành viên..."
             className="pl-9"
           />
         </div>
@@ -168,10 +168,10 @@ export default function SettlementsTable({
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Member</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead className="text-right">Amount</TableHead>
-                  <TableHead className="text-right">Action</TableHead>
+                  <TableHead>Thành viên</TableHead>
+                  <TableHead>Trạng thái</TableHead>
+                  <TableHead className="text-right">Số tiền</TableHead>
+                  <TableHead className="text-right">Thao tác</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -198,7 +198,7 @@ export default function SettlementsTable({
                 ) : filteredDebts.length === 0 ? (
                   <TableRow>
                     <TableCell colSpan={4} className="py-8 text-center">
-                      No members found
+                      Không có công nợ nào
                     </TableCell>
                   </TableRow>
                 ) : (
@@ -216,16 +216,16 @@ export default function SettlementsTable({
                             </AvatarFallback>
                           </Avatar>
                           <span className="font-medium text-foreground">
-                            {item.member?.fullName || "Unknown member"}
+                            {item.member?.fullName || "Thành viên"}
                           </span>
                         </div>
                       </TableCell>
                       <TableCell>
                         {item.variant === "owed" ? (
-                          <Badge variant="destructive">You Owe</Badge>
+                          <Badge variant="destructive">Bạn nợ</Badge>
                         ) : (
                           <Badge className="bg-emerald-100 text-emerald-800">
-                            Owes You
+                            Nợ bạn
                           </Badge>
                         )}
                       </TableCell>
@@ -244,7 +244,7 @@ export default function SettlementsTable({
                                   <CreditCard className="h-4 w-4" />
                                 </Button>
                               </TooltipTrigger>
-                              <TooltipContent>Settle Up</TooltipContent>
+                              <TooltipContent>Quyết toán ngay</TooltipContent>
                             </Tooltip>
                           ) : (
                             <Tooltip>
@@ -282,7 +282,7 @@ export default function SettlementsTable({
                                 <Eye className="h-4 w-4 text-muted-foreground" />
                               </Button>
                             </TooltipTrigger>
-                            <TooltipContent>View Details</TooltipContent>
+                            <TooltipContent>Xem chi tiết công nợ</TooltipContent>
                           </Tooltip>
                         </div>
                       </TableCell>

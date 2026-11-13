@@ -11,7 +11,7 @@ interface MemberListItemProps {
 }
 
 const formatRole = (role: GroupRoleEnum) =>
-  role === "Leader" ? "Admin" : "Member"
+  role === "Leader" ? "Trưởng nhóm" : "Thành viên"
 
 export default function MemberListItem({
   userId,
@@ -36,7 +36,7 @@ export default function MemberListItem({
   return (
     <div className="flex items-center gap-3 rounded-2xl border border-border/60 p-3">
       <Avatar size="lg">
-        <AvatarImage src={member?.avatar} alt={member?.fullName || "User"} />
+        <AvatarImage src={member?.avatar} alt={member?.fullName || "Người dùng"} />
         <AvatarFallback>
           {(member?.fullName || "U").charAt(0).toUpperCase()}
         </AvatarFallback>
@@ -44,7 +44,7 @@ export default function MemberListItem({
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
           <p className="truncate text-sm font-semibold text-foreground">
-            {member?.fullName || "Unknown user"}
+            {member?.fullName || "Người dùng"}
           </p>
           <div className="ml-auto flex items-center gap-2">
             <Badge
@@ -62,7 +62,7 @@ export default function MemberListItem({
           </div>
         </div>
         <p className="truncate text-xs text-muted-foreground">
-          {member?.email || "No email"}
+          {member?.email || "Chưa có email"}
         </p>
       </div>
     </div>

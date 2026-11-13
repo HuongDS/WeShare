@@ -41,16 +41,16 @@ export default function ResetPasswordPage() {
         <Card className="max-w-md w-full rounded-3xl border border-border/80 bg-card p-6 text-center shadow-xl">
           <AlertCircle className="mx-auto mb-4 h-12 w-12 text-alarm-red" />
           <h2 className="mb-2 text-xl font-bold text-foreground">
-            Invalid Access
+            Truy cập không hợp lệ
           </h2>
           <p className="mb-6 text-xs sm:text-sm text-muted-foreground">
-            Please request a password reset to access this page.
+            Vui lòng yêu cầu đặt lại mật khẩu để truy cập trang này.
           </p>
           <Button
             onClick={() => navigate("/forgot-password")}
             className="w-full rounded-full bg-lime-voltage hover:bg-lime-voltage/90 text-forest-ink font-bold shadow-xs py-5"
           >
-            Go to Forgot Password
+            Đến trang Quên mật khẩu
           </Button>
         </Card>
       </div>
@@ -85,18 +85,18 @@ export default function ResetPasswordPage() {
     const newErrors: typeof errors = {}
 
     if (!otp.trim()) {
-      newErrors.otp = "OTP is required."
+      newErrors.otp = "Vui lòng nhập mã OTP."
     }
 
     if (!newPassword.trim()) {
-      newErrors.newPassword = "Password is required."
+      newErrors.newPassword = "Vui lòng nhập mật khẩu mới."
     } else if (!PASSWORD_REGEX.test(newPassword)) {
       newErrors.newPassword =
-        "Password must have at least 8 characters, 1 number, and 1 special character."
+        "Mật khẩu phải tối thiểu 8 ký tự, có 1 chữ số và 1 ký tự đặc biệt."
     }
 
     if (newPassword !== confirmPassword) {
-      newErrors.confirmPassword = "Passwords do not match."
+      newErrors.confirmPassword = "Mật khẩu xác nhận không khớp."
     }
 
     setErrors(newErrors)
@@ -142,10 +142,10 @@ export default function ResetPasswordPage() {
           </motion.div>
 
           <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-foreground">
-            Reset Password
+            Đặt lại mật khẩu
           </h2>
           <p className="text-xs sm:text-sm text-muted-foreground">
-            Enter the OTP and create a new secure password.
+            Nhập mã OTP đã nhận và tạo mật khẩu mới an toàn.
           </p>
         </motion.div>
 
@@ -156,14 +156,14 @@ export default function ResetPasswordPage() {
               {/* OTP Field */}
               <div className="space-y-1.5">
                 <Label htmlFor="otp" className="text-xs font-semibold text-foreground">
-                  One-Time Password (OTP)
+                  Mã xác thực (OTP)
                 </Label>
                 <div className="relative">
                   <Unlock className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                   <Input
                     id="otp"
                     type="text"
-                    placeholder="Enter OTP"
+                    placeholder="Nhập mã OTP"
                     className={`rounded-xl border-input bg-background py-5 pl-10 text-foreground placeholder:text-muted-foreground focus:border-forest-ink dark:focus:border-lime-voltage ${
                       errors.otp ? "border-alarm-red" : ""
                     }`}
@@ -185,7 +185,7 @@ export default function ResetPasswordPage() {
               {/* New Password Field */}
               <div className="space-y-1.5">
                 <Label htmlFor="new-password" className="text-xs font-semibold text-foreground">
-                  New Password
+                  Mật khẩu mới
                 </Label>
                 <div className="relative">
                   <Lock className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -230,7 +230,7 @@ export default function ResetPasswordPage() {
                   htmlFor="confirm-password"
                   className="text-xs font-semibold text-foreground"
                 >
-                  Confirm Password
+                  Xác nhận mật khẩu mới
                 </Label>
                 <div className="relative">
                   <Lock className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -283,12 +283,12 @@ export default function ResetPasswordPage() {
                 {resetPassword.isPending ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    Resetting...
+                    Đang đặt lại...
                   </>
                 ) : (
                   <>
                     <ShieldCheck className="h-4 w-4 stroke-[2.5]" />
-                    Reset Password
+                    Đặt lại mật khẩu
                   </>
                 )}
               </Button>
@@ -301,7 +301,7 @@ export default function ResetPasswordPage() {
                 className="rounded-full text-xs font-semibold text-muted-foreground hover:text-foreground gap-1.5"
               >
                 <ArrowLeft className="h-4 w-4" />
-                Back to Login
+                Quay lại Đăng nhập
               </Button>
             </div>
           </Card>

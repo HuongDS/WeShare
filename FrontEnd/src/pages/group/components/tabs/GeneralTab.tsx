@@ -46,13 +46,13 @@ const getGroupTypeConfig = (rawType: string | number | undefined | null) => {
     case "1":
     case "club":
       return {
-        label: "Club",
+        label: "Câu lạc bộ",
         badgeClass: "bg-emerald-100 text-emerald-700",
       }
     case "2":
     case "travel":
       return {
-        label: "Travel",
+        label: "Du lịch",
         badgeClass: "bg-blue-100 text-blue-700",
       }
     case "0":
@@ -60,7 +60,7 @@ const getGroupTypeConfig = (rawType: string | number | undefined | null) => {
     case "general":
     default:
       return {
-        label: "General",
+        label: "Thông thường",
         badgeClass: "bg-slate-100 text-slate-700",
       }
   }
@@ -102,7 +102,7 @@ const CompactMemberRow = ({ userId, role }: CompactMemberRowProps) => {
         </p>
       </div>
       <Badge variant="outline" className="text-[10px] uppercase">
-        {role === "Leader" ? "Admin" : "Member"}
+        {role === "Leader" ? "Trưởng nhóm" : "Thành viên"}
       </Badge>
     </div>
   )
@@ -212,19 +212,19 @@ export default function GeneralTab({
     <div className="grid grid-cols-1 gap-6 pt-4 md:grid-cols-3">
       <Card className="md:col-span-2">
         <CardHeader className="flex flex-row items-center justify-between space-y-0">
-          <CardTitle>Group Profile</CardTitle>
+          <CardTitle>Thông tin nhóm</CardTitle>
           {!isEditing && (
             <Button size="sm" onClick={() => setIsEditing(true)}>
-              Edit Group
+              Chỉnh sửa nhóm
             </Button>
           )}
           {isEditing && !isReviewing && (
             <div className="flex items-center gap-2">
               <Button variant="ghost" size="sm" onClick={handleCancelEdit}>
-                Cancel
+                Hủy
               </Button>
               <Button size="sm" onClick={handleReviewChanges}>
-                Review Changes
+                Kiểm tra thay đổi
               </Button>
             </div>
           )}
@@ -235,14 +235,14 @@ export default function GeneralTab({
                 size="sm"
                 onClick={() => setIsReviewing(false)}
               >
-                Back to Edit
+                Quay lại chỉnh sửa
               </Button>
               <Button
                 size="sm"
                 disabled={!hasChanges || updateGroup.isPending}
                 onClick={handleConfirmUpdate}
               >
-                {updateGroup.isPending ? "Updating..." : "Confirm Update"}
+                {updateGroup.isPending ? "Đang cập nhật..." : "Xác nhận cập nhật"}
               </Button>
             </div>
           )}
@@ -253,7 +253,7 @@ export default function GeneralTab({
               <div className="space-y-1.5">
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   <Info className="h-4 w-4" />
-                  Group Name
+                  Tên nhóm
                 </div>
                 <p className="text-sm font-semibold text-foreground">
                   {groupData.name}
@@ -263,7 +263,7 @@ export default function GeneralTab({
               <div className="space-y-1.5">
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   <Tag className="h-4 w-4" />
-                  Type
+                  Phân loại nhóm
                 </div>
                 <p className="text-sm leading-relaxed text-foreground">
                   {config.label}
@@ -273,10 +273,10 @@ export default function GeneralTab({
               <div className="space-y-1.5">
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   <Info className="h-4 w-4" />
-                  Description
+                  Mô tả
                 </div>
                 <p className="text-sm leading-relaxed text-foreground">
-                  {groupData.description?.trim() || "No description provided"}
+                  {groupData.description?.trim() || "Chưa có mô tả"}
                 </p>
               </div>
             </>
@@ -285,14 +285,14 @@ export default function GeneralTab({
           {isEditing && !isReviewing && (
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="group-name">Group Name</Label>
+                <Label htmlFor="group-name">Tên nhóm</Label>
                 <Input
                   id="group-name"
                   {...register("name", {
-                    required: "Group name is required",
+                    required: "Tên nhóm là bắt buộc",
                     maxLength: {
                       value: 50,
-                      message: "Name must be 50 characters or fewer",
+                      message: "Tên nhóm tối đa 50 ký tự",
                     },
                   })}
                 />
@@ -304,13 +304,13 @@ export default function GeneralTab({
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="group-description">Description</Label>
+                <Label htmlFor="group-description">Mô tả</Label>
                 <Input
                   id="group-description"
                   {...register("description", {
                     maxLength: {
                       value: 200,
-                      message: "Description must be 200 characters or fewer",
+                      message: "Mô tả tối đa 200 ký tự",
                     },
                   })}
                 />
@@ -322,7 +322,7 @@ export default function GeneralTab({
               </div>
 
               <div className="space-y-2">
-                <Label>Type</Label>
+                <Label>Phân loại nhóm</Label>
                 <Select
                   value={watchedType}
                   onValueChange={(value) =>
@@ -332,12 +332,12 @@ export default function GeneralTab({
                   }
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Select group type" />
+                    <SelectValue placeholder="Chọn loại nhóm" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="None">General</SelectItem>
-                    <SelectItem value="Club">Club</SelectItem>
-                    <SelectItem value="Travel">Travel</SelectItem>
+                    <SelectItem value="None">Thông thường</SelectItem>
+                    <SelectItem value="Club">Câu lạc bộ</SelectItem>
+                    <SelectItem value="Travel">Du lịch</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -348,13 +348,13 @@ export default function GeneralTab({
             <div className="space-y-4">
               {!hasChanges && (
                 <p className="text-sm text-muted-foreground">
-                  No changes detected. Go back and update at least one field.
+                  Không phát hiện thay đổi nào. Vui lòng cập nhật ít nhất một trường thông tin.
                 </p>
               )}
 
               {changedFields.name && (
                 <div className="space-y-1">
-                  <p className="text-xs text-muted-foreground">Group Name</p>
+                  <p className="text-xs text-muted-foreground">Tên nhóm</p>
                   <div className="text-sm">
                     <span className="text-muted-foreground line-through">
                       {originalValues.name}
@@ -369,16 +369,16 @@ export default function GeneralTab({
 
               {changedFields.type && (
                 <div className="space-y-1">
-                  <p className="text-xs text-muted-foreground">Type</p>
+                  <p className="text-xs text-muted-foreground">Phân loại nhóm</p>
                   <div className="text-sm">
                     <span className="text-muted-foreground line-through">
                       {originalValues.type === "None"
-                        ? "General"
-                        : originalValues.type}
+                        ? "Thông thường"
+                        : originalValues.type === "Club" ? "Câu lạc bộ" : "Du lịch"}
                     </span>
                     <span className="mx-2 text-muted-foreground">-&gt;</span>
                     <span className="font-medium text-emerald-600">
-                      {watchedType === "None" ? "General" : watchedType}
+                      {watchedType === "None" ? "Thông thường" : watchedType === "Club" ? "Câu lạc bộ" : "Du lịch"}
                     </span>
                   </div>
                 </div>
@@ -386,14 +386,14 @@ export default function GeneralTab({
 
               {changedFields.description && (
                 <div className="space-y-1">
-                  <p className="text-xs text-muted-foreground">Description</p>
+                  <p className="text-xs text-muted-foreground">Mô tả</p>
                   <div className="text-sm">
                     <span className="text-muted-foreground line-through">
-                      {originalValues.description || "No description provided"}
+                      {originalValues.description || "Chưa có mô tả"}
                     </span>
                     <span className="mx-2 text-muted-foreground">-&gt;</span>
                     <span className="font-medium text-emerald-600">
-                      {watchedDescription || "No description provided"}
+                      {watchedDescription || "Chưa có mô tả"}
                     </span>
                   </div>
                 </div>
@@ -405,7 +405,7 @@ export default function GeneralTab({
 
       <Card className="col-span-1">
         <CardHeader>
-          <CardTitle className="text-lg">Members Overview</CardTitle>
+          <CardTitle className="text-lg">Tổng quan thành viên</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
@@ -422,7 +422,7 @@ export default function GeneralTab({
             className="mt-4 w-full"
             onClick={onOpenMembersTab}
           >
-            View All Members
+            Xem tất cả thành viên
           </Button>
         </CardContent>
       </Card>

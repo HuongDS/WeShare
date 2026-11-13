@@ -130,9 +130,9 @@ export default function AddMemberModal({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-3xl">
         <DialogHeader>
-          <DialogTitle>Add Member</DialogTitle>
+          <DialogTitle>Thêm thành viên</DialogTitle>
           <DialogDescription>
-            Search users, stage selections, then confirm bulk addition.
+            Tìm kiếm người dùng, chọn danh sách và xác nhận thêm vào nhóm.
           </DialogDescription>
         </DialogHeader>
 
@@ -144,28 +144,28 @@ export default function AddMemberModal({
                 value={searchQuery}
                 onChange={(event) => setSearchQuery(event.target.value)}
                 className="pl-9"
-                placeholder="Search by name or email"
+                placeholder="Tìm theo họ tên hoặc email..."
               />
             </div>
 
             <div className="rounded-lg border border-border/60 p-3">
               <p className="mb-2 text-xs font-semibold text-muted-foreground uppercase">
-                Search Results
+                Kết quả tìm kiếm
               </p>
               {!searchQuery.trim() ? (
                 <p className="text-sm text-muted-foreground">
-                  Enter a keyword to find users.
+                  Nhập từ khóa để tìm kiếm người dùng.
                 </p>
               ) : searchUsers.isFetching ? (
                 <p className="text-sm text-muted-foreground">
-                  Searching users...
+                  Đang tìm kiếm người dùng...
                 </p>
               ) : searchResults.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No users found.</p>
+                <p className="text-sm text-muted-foreground">Không tìm thấy người dùng phù hợp.</p>
               ) : (
                 <div className="max-h-80 space-y-2 overflow-y-auto">
                   {searchResults.map((user) => {
-                    const fullName = user.fullName || "Unknown user"
+                    const fullName = user.fullName || "Người dùng"
                     const initials = fullName
                       .split(" ")
                       .map((part) => part[0])
@@ -188,7 +188,7 @@ export default function AddMemberModal({
                               {fullName}
                             </p>
                             <p className="truncate text-xs text-muted-foreground">
-                              {user.email || "No email"}
+                              {user.email || "Chưa có email"}
                             </p>
                           </div>
                         </div>
@@ -212,17 +212,17 @@ export default function AddMemberModal({
           <div className="space-y-3">
             <div className="rounded-lg border border-border/60 p-3">
               <p className="mb-2 text-xs font-semibold text-muted-foreground uppercase">
-                Staged for Addition ({stagedUsers.length})
+                Danh sách chuẩn bị thêm ({stagedUsers.length})
               </p>
 
               {stagedUsers.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
-                  No users staged yet.
+                  Chưa chọn thành viên nào.
                 </p>
               ) : (
                 <div className="max-h-80 space-y-2 overflow-y-auto">
                   {stagedUsers.map((user) => {
-                    const fullName = user.fullName || "Unknown user"
+                    const fullName = user.fullName || "Người dùng"
                     const initials = fullName
                       .split(" ")
                       .map((part) => part[0])
@@ -245,7 +245,7 @@ export default function AddMemberModal({
                               {fullName}
                             </p>
                             <p className="truncate text-xs text-muted-foreground">
-                              {user.email || "No email"}
+                              {user.email || "Chưa có email"}
                             </p>
                           </div>
                         </div>
@@ -271,7 +271,7 @@ export default function AddMemberModal({
               onClick={() => setIsConfirmOpen(true)}
             >
               <UserPlus className="h-4 w-4" />
-              Review & Add ({stagedUsers.length})
+              Xem lại &amp; Thêm ({stagedUsers.length})
             </Button>
           </div>
         </div>
@@ -279,21 +279,20 @@ export default function AddMemberModal({
         <AlertDialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Confirm Addition</AlertDialogTitle>
+              <AlertDialogTitle>Xác nhận thêm thành viên</AlertDialogTitle>
               <AlertDialogDescription>
-                You are about to add {stagedUsers.length} users to the group.
-                Proceed?
+                Bạn sắp thêm {stagedUsers.length} thành viên vào nhóm. Bạn có chắc chắn muốn tiếp tục?
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel disabled={addMembers.isPending}>
-                Cancel
+                Hủy
               </AlertDialogCancel>
               <AlertDialogAction
                 onClick={handleConfirmAdd}
                 disabled={addMembers.isPending || stagedUsers.length === 0}
               >
-                {addMembers.isPending ? "Adding..." : "Confirm"}
+                {addMembers.isPending ? "Đang thêm..." : "Xác nhận"}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>

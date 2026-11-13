@@ -112,7 +112,7 @@ export default function UserProfilePage() {
       <div className="flex h-96 items-center justify-center">
         <div className="text-center">
           <Loader2 className="mx-auto mb-4 h-8 w-8 animate-spin text-lime-voltage" />
-          <p className="text-sm text-muted-foreground">Loading profile...</p>
+          <p className="text-sm text-muted-foreground">Đang tải hồ sơ...</p>
         </div>
       </div>
     )
@@ -128,10 +128,10 @@ export default function UserProfilePage() {
           className="space-y-1"
         >
           <h1 className="text-2xl sm:text-3xl font-black tracking-tight text-foreground">
-            Profile Settings
+            Cài đặt hồ sơ cá nhân
           </h1>
           <p className="text-sm text-muted-foreground">
-            Manage your personal identity, avatar, and payment preferences.
+            Quản lý thông tin định danh, ảnh đại diện và thông tin tài khoản thanh toán của bạn.
           </p>
         </motion.div>
 
@@ -156,12 +156,12 @@ export default function UserProfilePage() {
         <ReviewChangesDialog
           open={showGeneralReview}
           onOpenChange={setShowGeneralReview}
-          title="Review Changes"
+          title="Xác nhận thay đổi"
           isPending={updateUserProfile.isPending}
           onConfirm={confirmGeneralChanges}
         >
           <DiffDisplay
-            label="Full Name"
+            label="Họ và tên"
             oldValue={userData?.fullName}
             newValue={pendingGeneralData?.userName}
           />
@@ -171,19 +171,19 @@ export default function UserProfilePage() {
         <ReviewChangesDialog
           open={showPaymentReview}
           onOpenChange={setShowPaymentReview}
-          title="Review Changes"
+          title="Xác nhận thay đổi"
           isPending={updateUserPaymentProfile.isPending}
           onConfirm={confirmPaymentChanges}
         >
           <div className="space-y-3">
             <DiffDisplay
-              label="Bank"
+              label="Ngân hàng"
               oldValue={
                 getBanks.data?.data?.find(
                   (bank) => bank.name === userData?.bankName
-                )?.name || "N/A"
+                )?.name || "Chưa có"
               }
-              newValue={selectedBank?.name || "N/A"}
+              newValue={selectedBank?.name || "Chưa có"}
               icon={
                 selectedBank?.logo ? (
                   <img
@@ -195,15 +195,15 @@ export default function UserProfilePage() {
               }
             />
             <DiffDisplay
-              label="Account Number"
+              label="Số tài khoản"
               oldValue={
                 <span className="font-mono">
-                  {userData?.defaultBankAccount || "N/A"}
+                  {userData?.defaultBankAccount || "Chưa có"}
                 </span>
               }
               newValue={
                 <span className="font-mono">
-                  {pendingPaymentData?.bankAccountNumber || "N/A"}
+                  {pendingPaymentData?.bankAccountNumber || "Chưa có"}
                 </span>
               }
             />

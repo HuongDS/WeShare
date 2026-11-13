@@ -72,7 +72,7 @@ export default function GlobalSearchModal({
         className="max-w-2xl p-0 overflow-hidden rounded-3xl border-border bg-card shadow-2xl top-[20%] translate-y-0"
         showCloseButton={false}
       >
-        <DialogTitle className="sr-only">Global Spotlight Search</DialogTitle>
+        <DialogTitle className="sr-only">Tìm kiếm tổng thể</DialogTitle>
 
         {/* Search Input Bar */}
         <div className="flex items-center gap-3 border-b border-border px-4 py-3.5">
@@ -81,7 +81,7 @@ export default function GlobalSearchModal({
             type="text"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search groups, events, tasks, expenses, members..."
+            placeholder="Tìm kiếm nhóm, sự kiện, công việc, chi tiêu, thành viên..."
             autoFocus
             className="flex-1 bg-transparent text-sm sm:text-base text-foreground placeholder:text-muted-foreground outline-none"
           />
@@ -108,7 +108,7 @@ export default function GlobalSearchModal({
           {!debouncedQuery && (
             <div className="space-y-2 p-2">
               <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-                Quick Navigation
+                Điều hướng nhanh
               </p>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                 <button
@@ -120,8 +120,8 @@ export default function GlobalSearchModal({
                     <Home className="h-4 w-4" />
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-foreground">Dashboard</p>
-                    <p className="text-[10px] text-muted-foreground">Overview</p>
+                    <p className="text-xs font-bold text-foreground">Bảng điều khiển</p>
+                    <p className="text-[10px] text-muted-foreground">Tổng quan tài chính</p>
                   </div>
                 </button>
 
@@ -134,8 +134,8 @@ export default function GlobalSearchModal({
                     <Users className="h-4 w-4" />
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-foreground">Groups &amp; Hubs</p>
-                    <p className="text-[10px] text-muted-foreground">All your spaces</p>
+                    <p className="text-xs font-bold text-foreground">Nhóm &amp; Dự án</p>
+                    <p className="text-[10px] text-muted-foreground">Các nhóm tham gia</p>
                   </div>
                 </button>
 
@@ -148,8 +148,8 @@ export default function GlobalSearchModal({
                     <Settings className="h-4 w-4" />
                   </div>
                   <div>
-                    <p className="text-xs font-bold text-foreground">Settings</p>
-                    <p className="text-[10px] text-muted-foreground">Profile &amp; Bank</p>
+                    <p className="text-xs font-bold text-foreground">Cài đặt</p>
+                    <p className="text-[10px] text-muted-foreground">Hồ sơ &amp; Ngân hàng</p>
                   </div>
                 </button>
               </div>
@@ -160,10 +160,10 @@ export default function GlobalSearchModal({
           {debouncedQuery && !isLoading && !hasAnyResults && (
             <div className="py-12 text-center">
               <p className="text-sm font-bold text-foreground">
-                No matching results found
+                Không tìm thấy kết quả phù hợp
               </p>
               <p className="text-xs text-muted-foreground mt-1">
-                We couldn&apos;t find anything matching &quot;{debouncedQuery}&quot;. Try searching with another keyword.
+                Không tìm thấy dữ liệu nào khớp với &quot;{debouncedQuery}&quot;. Vui lòng thử từ khóa khác.
               </p>
             </div>
           )}
@@ -172,7 +172,7 @@ export default function GlobalSearchModal({
           {hasGroups && (
             <div className="space-y-1">
               <p className="px-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-                Groups &amp; Hubs
+                Nhóm &amp; Không gian
               </p>
               <div className="space-y-1">
                 {results!.groups.map((group) => (
@@ -191,7 +191,7 @@ export default function GlobalSearchModal({
                           {group.name}
                         </p>
                         <p className="text-[11px] text-muted-foreground">
-                          {group.type} Group • {group.memberCount} members
+                          Nhóm {group.type} • {group.memberCount} thành viên
                         </p>
                       </div>
                     </div>
@@ -206,7 +206,7 @@ export default function GlobalSearchModal({
           {hasEvents && (
             <div className="space-y-1">
               <p className="px-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-                Events
+                Sự kiện
               </p>
               <div className="space-y-1">
                 {results!.events.map((event) => (
@@ -225,7 +225,7 @@ export default function GlobalSearchModal({
                           {event.name}
                         </p>
                         <p className="text-[11px] text-muted-foreground truncate">
-                          in {event.groupName} {event.location ? `• ${event.location}` : ""}
+                          thuộc {event.groupName} {event.location ? `• ${event.location}` : ""}
                         </p>
                       </div>
                     </div>
@@ -240,7 +240,7 @@ export default function GlobalSearchModal({
           {hasTasks && (
             <div className="space-y-1">
               <p className="px-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-                Tasks
+                Công việc
               </p>
               <div className="space-y-1">
                 {results!.tasks.map((task) => (
@@ -259,7 +259,7 @@ export default function GlobalSearchModal({
                           {task.title}
                         </p>
                         <p className="text-[11px] text-muted-foreground truncate">
-                          in {task.groupName} • Status: {task.status}
+                          thuộc {task.groupName} • Trạng thái: {task.status}
                         </p>
                       </div>
                     </div>
@@ -274,7 +274,7 @@ export default function GlobalSearchModal({
           {hasExpenses && (
             <div className="space-y-1">
               <p className="px-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-                Expenses &amp; Transactions
+                Khoản chi &amp; Giao dịch
               </p>
               <div className="space-y-1">
                 {results!.expenses.map((expense) => (
@@ -293,7 +293,7 @@ export default function GlobalSearchModal({
                           {expense.description}
                         </p>
                         <p className="text-[11px] text-muted-foreground truncate">
-                          {formatCurrency(expense.amount)} • Paid by {expense.payerName} in {expense.groupName}
+                          {formatCurrency(expense.amount)} • Thanh toán bởi {expense.payerName} trong {expense.groupName}
                         </p>
                       </div>
                     </div>
@@ -308,7 +308,7 @@ export default function GlobalSearchModal({
           {hasMembers && (
             <div className="space-y-1">
               <p className="px-2 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
-                Members
+                Thành viên
               </p>
               <div className="space-y-1">
                 {results!.members.map((member) => (
@@ -335,7 +335,7 @@ export default function GlobalSearchModal({
                           {member.fullName}
                         </p>
                         <p className="text-[11px] text-muted-foreground truncate">
-                          Member in {member.groupName}
+                          Thành viên trong {member.groupName}
                         </p>
                       </div>
                     </div>
@@ -349,8 +349,8 @@ export default function GlobalSearchModal({
 
         {/* Footer info */}
         <div className="flex items-center justify-between border-t border-border px-4 py-2.5 text-[11px] text-muted-foreground bg-muted/20">
-          <span>Tip: Press <kbd className="font-semibold text-foreground">ESC</kbd> to exit</span>
-          <span className="font-medium">WeShare Global Hub</span>
+          <span>Mẹo: Nhấn <kbd className="font-semibold text-foreground">ESC</kbd> để đóng</span>
+          <span className="font-medium">WeShare Tìm kiếm</span>
         </div>
       </DialogContent>
     </Dialog>

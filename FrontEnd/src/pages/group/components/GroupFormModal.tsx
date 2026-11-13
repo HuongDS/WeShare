@@ -42,12 +42,12 @@ const groupFormSchema = z.object({
   name: z
     .string()
     .trim()
-    .min(1, "Name is required")
-    .max(50, "Name must be 50 characters or fewer"),
+    .min(1, "Tên nhóm là bắt buộc")
+    .max(50, "Tên nhóm tối đa 50 ký tự"),
   description: z
     .string()
     .trim()
-    .max(200, "Description must be 200 characters or fewer")
+    .max(200, "Mô tả tối đa 200 ký tự")
     .optional(),
   type: z.enum(["None", "Club", "Travel"]),
 })
@@ -69,19 +69,19 @@ const groupTypeOptions: Array<{
 }> = [
   {
     value: "None",
-    label: "General",
+    label: "Thông thường",
     dotClass: "bg-slate-400",
     badgeClass: "bg-slate-100 text-slate-700",
   },
   {
     value: "Club",
-    label: "Club",
+    label: "Câu lạc bộ",
     dotClass: "bg-emerald-500",
     badgeClass: "bg-emerald-100 text-emerald-700",
   },
   {
     value: "Travel",
-    label: "Travel",
+    label: "Du lịch",
     dotClass: "bg-blue-500",
     badgeClass: "bg-blue-100 text-blue-700",
   },
@@ -105,11 +105,11 @@ const ReviewMemberName = ({ userId, className }: ReviewMemberNameProps) => {
 
   if (getOtherUserProfile.isLoading) {
     return (
-      <span className={cn("text-muted-foreground", className)}>Loading...</span>
+      <span className={cn("text-muted-foreground", className)}>Đang tải...</span>
     )
   }
 
-  return <span className={className}>{name || `User #${userId}`}</span>
+  return <span className={className}>{name || `Thành viên #${userId}`}</span>
 }
 
 export default function GroupFormModal({
@@ -369,17 +369,17 @@ export default function GroupFormModal({
     const previousDescription = ""
     return [
       {
-        label: "Name",
+        label: "Tên nhóm",
         oldValue: initialData.name,
         newValue: currentName?.trim() || "",
       },
       {
-        label: "Description",
+        label: "Mô tả",
         oldValue: previousDescription,
         newValue: currentDescription?.trim() || "",
       },
       {
-        label: "Type",
+        label: "Loại nhóm",
         oldValue: initialData.type,
         newValue: selectedType,
       },
@@ -412,12 +412,12 @@ export default function GroupFormModal({
       <DialogContent className="max-h-[90vh] sm:max-w-[900px]">
         <DialogHeader>
           <DialogTitle>
-            {mode === "create" ? "Create Group" : "Edit Group"}
+            {mode === "create" ? "Tạo nhóm mới" : "Chỉnh sửa thông tin nhóm"}
           </DialogTitle>
           <DialogDescription>
             {mode === "create"
-              ? "Start a new group and invite members to join."
-              : "Update the group details and keep everyone in sync."}
+              ? "Khởi tạo nhóm mới và mời bạn bè cùng tham gia."
+              : "Cập nhật thông tin nhóm và đồng bộ với các thành viên."}
           </DialogDescription>
         </DialogHeader>
 
@@ -426,16 +426,16 @@ export default function GroupFormModal({
             {step === 1 && (
               <Tabs defaultValue="general" className="space-y-4">
                 <TabsList className="bg-card">
-                  <TabsTrigger value="general">General</TabsTrigger>
-                  <TabsTrigger value="members">Members</TabsTrigger>
+                  <TabsTrigger value="general">Thông tin chung</TabsTrigger>
+                  <TabsTrigger value="members">Thành viên</TabsTrigger>
                 </TabsList>
 
                 <TabsContent value="general" className="space-y-5">
                   <div className="space-y-2">
-                    <Label htmlFor="name">Group name</Label>
+                    <Label htmlFor="name">Tên nhóm</Label>
                     <Input
                       id="name"
-                      placeholder="Weekend trip"
+                      placeholder="Ví dụ: Chuyến đi Đà Lạt, Tiền phòng trọ..."
                       {...register("name")}
                     />
                     {errors.name && (
@@ -446,10 +446,10 @@ export default function GroupFormModal({
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="description">Description</Label>
+                    <Label htmlFor="description">Mô tả</Label>
                     <Input
                       id="description"
-                      placeholder="Optional short summary"
+                      placeholder="Mô tả ngắn gọn về nhóm (không bắt buộc)"
                       {...register("description")}
                     />
                     {errors.description && (
@@ -460,7 +460,7 @@ export default function GroupFormModal({
                   </div>
 
                   <div className="space-y-2">
-                    <Label>Group type</Label>
+                    <Label>Phân loại nhóm</Label>
                     <Select
                       value={selectedType}
                       onValueChange={(value) =>
@@ -471,7 +471,7 @@ export default function GroupFormModal({
                       }
                     >
                       <SelectTrigger>
-                        <SelectValue placeholder="Select group type" />
+                        <SelectValue placeholder="Chọn loại nhóm" />
                       </SelectTrigger>
                       <SelectContent>
                         {groupTypeOptions.map((option) => (
@@ -497,17 +497,17 @@ export default function GroupFormModal({
                 <TabsContent value="members" className="space-y-5">
                   {mode !== "edit" || !initialData ? (
                     <div className="rounded-3xl border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
-                      Save the group first to manage members.
+                      Vui lòng lưu nhóm trước khi quản lý thành viên.
                     </div>
                   ) : (
                     <div className="max-h-[55vh] space-y-6 overflow-y-auto pr-2 pb-4">
                       <div className="space-y-3">
                         <div className="flex items-center justify-between">
                           <p className="text-sm font-semibold text-foreground">
-                            Current group members
+                            Thành viên hiện tại
                           </p>
                           <Badge variant="outline">
-                            {activeMembers.length + addedMembers.length} total
+                            {activeMembers.length + addedMembers.length} thành viên
                           </Badge>
                         </div>
                         <div className="grid gap-3 lg:grid-cols-2">
@@ -558,7 +558,7 @@ export default function GroupFormModal({
                                   {member.fullName}
                                 </p>
                                 <p className="truncate text-xs text-muted-foreground">
-                                  {member.email || "No email"}
+                                  {member.email || "Chưa có email"}
                                 </p>
                               </div>
                               <Button
@@ -567,21 +567,21 @@ export default function GroupFormModal({
                                 variant="secondary"
                                 onClick={() => undoAddUser(Number(member.id))}
                               >
-                                Undo
+                                Hoàn tác
                               </Button>
                             </div>
                           ))}
                           {activeMembers.length === 0 &&
                             addedMembers.length === 0 && (
                               <div className="rounded-2xl border border-dashed border-border p-4 text-sm text-muted-foreground">
-                                No active members.
+                                Chưa có thành viên nào.
                               </div>
                             )}
                         </div>
                         {removedMembers.length > 0 && (
                           <div className="space-y-2">
                             <p className="text-xs font-semibold text-muted-foreground">
-                              Pending removals
+                              Danh sách chờ xóa
                             </p>
                             <div className="grid gap-3 lg:grid-cols-2">
                               {removedMembers.map((member) => (
@@ -604,7 +604,7 @@ export default function GroupFormModal({
                                         toggleMemberToRemove(member.userId)
                                       }
                                     >
-                                      Undo
+                                      Hoàn tác
                                     </Button>
                                   )}
                                 </div>
@@ -617,10 +617,10 @@ export default function GroupFormModal({
                       <div className="space-y-4 rounded-3xl border border-border bg-muted/20 p-4">
                         <div className="space-y-1">
                           <p className="text-sm font-semibold text-foreground">
-                            Search & add
+                            Tìm kiếm &amp; thêm
                           </p>
                           <p className="text-xs text-muted-foreground">
-                            Find new members to invite.
+                            Tìm thành viên mới để thêm vào nhóm.
                           </p>
                         </div>
 
@@ -632,7 +632,7 @@ export default function GroupFormModal({
                               setSearchKey(event.target.value)
                               setSearchPageIndex(1)
                             }}
-                            placeholder="Search users by name or email"
+                            placeholder="Tìm kiếm người dùng theo tên hoặc email"
                             className="pl-9"
                           />
                         </div>
@@ -640,7 +640,7 @@ export default function GroupFormModal({
                         <div className="space-y-3">
                           {searchKey.trim().length === 0 && (
                             <p className="text-xs text-muted-foreground">
-                              Type a name or email to search for users.
+                              Nhập tên hoặc email để tìm kiếm người dùng.
                             </p>
                           )}
                           {searchKey.trim().length > 0 &&
@@ -654,7 +654,7 @@ export default function GroupFormModal({
                                     {user.fullName}
                                   </p>
                                   <p className="truncate text-xs text-muted-foreground">
-                                    {user.email || "No email"}
+                                    {user.email || "Chưa có email"}
                                   </p>
                                 </div>
                                 {membersToAddSet.has(Number(user.id)) ? (
@@ -664,7 +664,7 @@ export default function GroupFormModal({
                                     variant="secondary"
                                     onClick={() => undoAddUser(Number(user.id))}
                                   >
-                                    Undo
+                                    Hoàn tác
                                   </Button>
                                 ) : (
                                   <Button
@@ -673,7 +673,7 @@ export default function GroupFormModal({
                                     variant="outline"
                                     onClick={() => addUserToMembers(user)}
                                   >
-                                    Add
+                                    Thêm
                                   </Button>
                                 )}
                               </div>
@@ -682,7 +682,7 @@ export default function GroupFormModal({
                             !searchUsers.isFetching &&
                             searchResults.length === 0 && (
                               <p className="text-xs text-muted-foreground">
-                                No results found.
+                                Không tìm thấy kết quả phù hợp.
                               </p>
                             )}
                         </div>
@@ -690,7 +690,7 @@ export default function GroupFormModal({
                         {searchKey.trim().length > 0 && (
                           <div className="flex items-center justify-between border-t border-border pt-3 text-xs text-muted-foreground">
                             <span>
-                              Page {searchPageIndex} of{" "}
+                              Trang {searchPageIndex} /{" "}
                               {searchUsers.data?.data?.totalPages || 1}
                             </span>
                             <div className="flex gap-2">
@@ -705,7 +705,7 @@ export default function GroupFormModal({
                                   )
                                 }
                               >
-                                Previous
+                                Trước
                               </Button>
                               <Button
                                 type="button"
@@ -719,7 +719,7 @@ export default function GroupFormModal({
                                   setSearchPageIndex((prev) => prev + 1)
                                 }
                               >
-                                Next
+                                Sau
                               </Button>
                             </div>
                           </div>
@@ -735,31 +735,31 @@ export default function GroupFormModal({
               <div className="space-y-4 rounded-3xl border border-border bg-muted/30 p-4">
                 <div className="space-y-1">
                   <p className="text-sm font-semibold text-foreground">
-                    {mode === "create" ? "Review details" : "Review changes"}
+                    {mode === "create" ? "Xác nhận thông tin" : "Kiểm tra thay đổi"}
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    Confirm everything looks right before saving.
+                    Kiểm tra lại toàn bộ chi tiết trước khi lưu.
                   </p>
                 </div>
 
                 {mode === "create" && (
                   <div className="space-y-3 text-sm">
                     <div>
-                      <p className="text-xs text-muted-foreground">Name</p>
+                      <p className="text-xs text-muted-foreground">Tên nhóm</p>
                       <p className="font-medium text-foreground">
                         {currentName?.trim() || "-"}
                       </p>
                     </div>
                     <div>
                       <p className="text-xs text-muted-foreground">
-                        Description
+                        Mô tả
                       </p>
                       <p className="font-medium text-foreground">
-                        {currentDescription?.trim() || "No description"}
+                        {currentDescription?.trim() || "Chưa có mô tả"}
                       </p>
                     </div>
                     <div>
-                      <p className="text-xs text-muted-foreground">Type</p>
+                      <p className="text-xs text-muted-foreground">Phân loại</p>
                       <div className="mt-1 flex items-center gap-2">
                         <span
                           className={cn(
@@ -768,7 +768,7 @@ export default function GroupFormModal({
                           )}
                         />
                         <Badge className={typeOption?.badgeClass}>
-                          {typeOption?.label || "General"}
+                          {typeOption?.label || "Thông thường"}
                         </Badge>
                       </div>
                     </div>
@@ -780,7 +780,7 @@ export default function GroupFormModal({
                     <div className="space-y-3">
                       {reviewRows.length === 0 ? (
                         <p className="text-sm text-muted-foreground">
-                          No changes detected.
+                          Không có thay đổi nào.
                         </p>
                       ) : (
                         reviewRows.map((row) => (
@@ -804,12 +804,12 @@ export default function GroupFormModal({
 
                     <div className="space-y-2 rounded-3xl border border-border bg-muted/20 p-4">
                       <p className="text-xs font-semibold text-muted-foreground">
-                        Member changes
+                        Thay đổi thành viên
                       </p>
                       {membersToAdd.length === 0 &&
                       membersToRemove.length === 0 ? (
                         <p className="text-sm text-muted-foreground">
-                          No member changes.
+                          Không có thay đổi thành viên nào.
                         </p>
                       ) : (
                         <div className="space-y-2">
@@ -853,7 +853,7 @@ export default function GroupFormModal({
                 variant="outline"
                 onClick={() => setStep(1)}
               >
-                Back
+                Quay lại
               </Button>
             ) : (
               <Button
@@ -861,7 +861,7 @@ export default function GroupFormModal({
                 variant="outline"
                 onClick={() => onOpenChange(false)}
               >
-                Cancel
+                Hủy
               </Button>
             )}
             <div className="flex flex-col items-end gap-1">
@@ -873,23 +873,23 @@ export default function GroupFormModal({
                 {isPending ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    Saving
+                    Đang lưu...
                   </>
                 ) : step === 1 ? (
                   mode === "create" ? (
-                    "Review Create"
+                    "Tiếp tục kiểm tra"
                   ) : (
-                    "Review Update"
+                    "Xem thay đổi"
                   )
                 ) : mode === "create" ? (
-                  "Confirm Create"
+                  "Xác nhận tạo nhóm"
                 ) : (
-                  "Confirm Update"
+                  "Lưu thay đổi"
                 )}
               </Button>
               {mode === "edit" && !hasChanges && (
                 <span className="text-xs text-muted-foreground">
-                  No changes detected to update.
+                  Chưa có thay đổi nào để cập nhật.
                 </span>
               )}
             </div>

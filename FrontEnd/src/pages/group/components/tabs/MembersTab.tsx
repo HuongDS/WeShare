@@ -286,7 +286,7 @@ export default function MembersTab({ group }: MembersTabProps) {
             <Input
               value={searchQuery}
               onChange={(event) => setSearchQuery(event.target.value)}
-              placeholder="Search by name or email"
+              placeholder="Tìm theo họ tên hoặc email..."
               className="pl-9"
             />
           </div>
@@ -298,12 +298,12 @@ export default function MembersTab({ group }: MembersTabProps) {
             }
           >
             <SelectTrigger className="sm:w-44">
-              <SelectValue placeholder="All Roles" />
+              <SelectValue placeholder="Tất cả vai trò" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="ALL">All Roles</SelectItem>
-              <SelectItem value="Leader">Leader</SelectItem>
-              <SelectItem value="Member">Member</SelectItem>
+              <SelectItem value="ALL">Tất cả vai trò</SelectItem>
+              <SelectItem value="Leader">Trưởng nhóm</SelectItem>
+              <SelectItem value="Member">Thành viên</SelectItem>
             </SelectContent>
           </Select>
 
@@ -312,10 +312,10 @@ export default function MembersTab({ group }: MembersTabProps) {
             onValueChange={(value) => setSortBy(value as "name" | "email")}
           >
             <SelectTrigger className="sm:w-40">
-              <SelectValue placeholder="Sort" />
+              <SelectValue placeholder="Sắp xếp" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="name">Name</SelectItem>
+              <SelectItem value="name">Họ và tên</SelectItem>
               <SelectItem value="email">Email</SelectItem>
             </SelectContent>
           </Select>
@@ -325,11 +325,11 @@ export default function MembersTab({ group }: MembersTabProps) {
             onValueChange={(value) => setViewMode(value as "card" | "table")}
           >
             <SelectTrigger className="sm:w-40">
-              <SelectValue placeholder="View" />
+              <SelectValue placeholder="Hiển thị" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="card">Card</SelectItem>
-              <SelectItem value="table">Table</SelectItem>
+              <SelectItem value="card">Dạng thẻ</SelectItem>
+              <SelectItem value="table">Dạng bảng</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -393,7 +393,7 @@ export default function MembersTab({ group }: MembersTabProps) {
       ) : filteredMembers.length === 0 ? (
         <Card>
           <CardContent className="pt-6 text-center text-sm text-muted-foreground">
-            No members found.
+            Không tìm thấy thành viên phù hợp.
           </CardContent>
         </Card>
       ) : (
@@ -435,7 +435,7 @@ export default function MembersTab({ group }: MembersTabProps) {
                             {member.fullName}
                           </p>
                           <p className="truncate text-sm text-muted-foreground">
-                            {member.email || "No email"}
+                            {member.email || "Chưa có email"}
                           </p>
                         </div>
                       </div>
@@ -446,7 +446,7 @@ export default function MembersTab({ group }: MembersTabProps) {
                             member.role === "Leader" ? "default" : "secondary"
                           }
                         >
-                          {member.role}
+                          {member.role === "Leader" ? "Trưởng nhóm" : "Thành viên"}
                         </Badge>
 
                         {isLeader && !isMe && (
@@ -497,12 +497,12 @@ export default function MembersTab({ group }: MembersTabProps) {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    {isLeader && <TableHead className="w-12">Select</TableHead>}
-                    <TableHead>Member</TableHead>
+                    {isLeader && <TableHead className="w-12">Chọn</TableHead>}
+                    <TableHead>Thành viên</TableHead>
                     <TableHead>Email</TableHead>
-                    <TableHead>Role</TableHead>
+                    <TableHead>Vai trò</TableHead>
                     {isLeader && (
-                      <TableHead className="w-16">Actions</TableHead>
+                      <TableHead className="w-16">Thao tác</TableHead>
                     )}
                   </TableRow>
                 </TableHeader>
@@ -546,14 +546,14 @@ export default function MembersTab({ group }: MembersTabProps) {
                             </span>
                           </div>
                         </TableCell>
-                        <TableCell>{member.email || "No email"}</TableCell>
+                        <TableCell>{member.email || "Chưa có email"}</TableCell>
                         <TableCell>
                           <Badge
                             variant={
                               member.role === "Leader" ? "default" : "secondary"
                             }
                           >
-                            {member.role}
+                            {member.role === "Leader" ? "Trưởng nhóm" : "Thành viên"}
                           </Badge>
                         </TableCell>
                         {isLeader && (

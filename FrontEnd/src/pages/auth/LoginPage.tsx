@@ -57,10 +57,10 @@ export default function LoginPage() {
           </motion.div>
 
           <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-foreground">
-            Welcome to WeShare
+            Chào mừng đến với WeShare
           </h2>
           <p className="text-xs sm:text-sm text-muted-foreground">
-            Smart bill splitting &amp; shared task management
+            Chia sẻ chi tiêu thông minh &amp; quản lý công việc nhóm
           </p>
         </motion.div>
 
@@ -74,14 +74,14 @@ export default function LoginPage() {
                   value="login"
                   className="rounded-full h-full data-[state=active]:bg-lime-voltage data-[state=active]:text-forest-ink data-[state=active]:font-bold data-[state=active]:shadow-xs px-4 text-xs sm:text-sm font-semibold transition-all flex items-center justify-center cursor-pointer"
                 >
-                  Log In
+                  Đăng nhập
                 </TabsTrigger>
 
                 <TabsTrigger
                   value="register"
                   className="rounded-full h-full data-[state=active]:bg-lime-voltage data-[state=active]:text-forest-ink data-[state=active]:font-bold data-[state=active]:shadow-xs px-4 text-xs sm:text-sm font-semibold transition-all flex items-center justify-center cursor-pointer"
                 >
-                  Register
+                  Đăng ký
                 </TabsTrigger>
               </TabsList>
 

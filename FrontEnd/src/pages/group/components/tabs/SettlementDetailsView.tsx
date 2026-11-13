@@ -74,14 +74,14 @@ export default function SettlementDetailsView({
     <Card className="border border-border/70 bg-white">
       <CardHeader className="flex flex-row items-center justify-between gap-4 space-y-0">
         <div className="flex flex-wrap items-baseline gap-2">
-          <CardTitle>Transactions with {debtData.memberName}</CardTitle>
+          <CardTitle>Giao dịch với {debtData.memberName}</CardTitle>
           <CardDescription>
-            (Recent transactions that contribute to this balance.)
+            (Các khoản chi gần đây cấu thành số dư này)
           </CardDescription>
         </div>
         <Button variant="ghost" onClick={onBack} className="shrink-0 gap-2">
           <ArrowLeft className="h-4 w-4" />
-          Back
+          Quay lại
         </Button>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -100,7 +100,7 @@ export default function SettlementDetailsView({
           </div>
         ) : transactions.length === 0 ? (
           <div className="rounded-lg border border-border/60 p-6 text-center text-sm text-muted-foreground">
-            No transactions found for this member.
+            Không có giao dịch nào với thành viên này.
           </div>
         ) : (
           <div className="space-y-3">
@@ -115,7 +115,7 @@ export default function SettlementDetailsView({
                   </div>
                   <div className="flex flex-col gap-0.5">
                     <span className="text-base leading-none font-semibold">
-                      {transaction.description || "Unknown Transaction"}
+                      {transaction.description || "Khoản chi không tên"}
                     </span>
                     <span className="text-sm text-muted-foreground">
                       {new Date(transaction.createdAt).toLocaleString("vi-VN", {
@@ -134,7 +134,13 @@ export default function SettlementDetailsView({
                     >
                       {mapSplitStrategyToBackend_num_to_string(
                         transaction.splitStrategy
-                      ) || transaction.splitStrategy}
+                      ) === "EQUALLY"
+                        ? "Chia đều"
+                        : mapSplitStrategyToBackend_num_to_string(
+                            transaction.splitStrategy
+                          ) === "EXACTLY"
+                        ? "Số tiền chính xác"
+                        : "Theo phần trăm"}
                     </Badge>
                   )}
                   <span className="text-base font-bold md:text-lg">

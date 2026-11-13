@@ -34,14 +34,14 @@ export function ReviewChangesDialog({
 
         <div className="space-y-4">
           <p className="text-sm text-slate-600">
-            Please review the changes before confirming.
+            Vui lòng xem lại các thay đổi trước khi xác nhận.
           </p>
           {children}
         </div>
 
         <DialogFooter className="gap-2">
           <Button variant="ghost" onClick={() => onOpenChange(false)}>
-            Cancel
+            Hủy
           </Button>
           <Button
             onClick={onConfirm}
@@ -51,12 +51,12 @@ export function ReviewChangesDialog({
             {isPending ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Confirming...
+                Đang xác nhận...
               </>
             ) : (
               <>
                 <Check className="mr-2 h-4 w-4" />
-                Confirm & Save
+                Xác nhận &amp; Lưu
               </>
             )}
           </Button>

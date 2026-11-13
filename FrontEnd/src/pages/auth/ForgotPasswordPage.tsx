@@ -47,12 +47,12 @@ export default function ForgotPasswordPage() {
     e.preventDefault()
 
     if (!email.trim()) {
-      toast.error("Please enter your email address.")
+      toast.error("Vui lòng nhập địa chỉ email của bạn.")
       return
     }
 
     if (!validateEmail(email)) {
-      toast.error("Please enter a valid email address.")
+      toast.error("Vui lòng nhập địa chỉ email hợp lệ.")
       return
     }
 
@@ -84,10 +84,10 @@ export default function ForgotPasswordPage() {
           </motion.div>
 
           <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-foreground">
-            Forgot Password?
+            Quên mật khẩu?
           </h2>
           <p className="text-xs sm:text-sm text-muted-foreground">
-            Enter your email address and we&apos;ll send you a code to reset your password.
+            Nhập email của bạn và chúng tôi sẽ gửi mã OTP để đặt lại mật khẩu.
           </p>
         </motion.div>
 
@@ -97,7 +97,7 @@ export default function ForgotPasswordPage() {
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-1.5">
                 <Label htmlFor="email" className="text-xs font-semibold text-foreground">
-                  Email Address
+                  Địa chỉ Email
                 </Label>
                 <div className="relative">
                   <Mail className="absolute top-1/2 left-3.5 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -122,11 +122,11 @@ export default function ForgotPasswordPage() {
                 {forgotPassword.isPending ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
-                    Sending...
+                    Đang gửi mã...
                   </>
                 ) : (
                   <>
-                    Send OTP
+                    Gửi mã xác thực OTP
                     <ArrowRight className="h-4 w-4 stroke-[2.5]" />
                   </>
                 )}
@@ -140,7 +140,7 @@ export default function ForgotPasswordPage() {
                 className="rounded-full text-xs font-semibold text-muted-foreground hover:text-foreground gap-1.5"
               >
                 <ArrowLeft className="h-4 w-4" />
-                Back to Login
+                Quay lại Đăng nhập
               </Button>
             </div>
           </Card>

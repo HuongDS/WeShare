@@ -38,19 +38,19 @@ interface MenuItem {
 const menuItems: MenuItem[] = [
   {
     id: "dashboard",
-    label: "Dashboard",
+    label: "Bảng điều khiển",
     icon: <Home className="h-5 w-5" />,
     href: "/dashboard",
   },
   {
     id: "groups",
-    label: "Groups & Events",
+    label: "Nhóm & Sự kiện",
     icon: <Users className="h-5 w-5" />,
     href: "/groups",
   },
   {
     id: "profile",
-    label: "Settings & Profile",
+    label: "Hồ sơ & Cài đặt",
     icon: <User className="h-5 w-5" />,
     href: "/profile",
   },
@@ -161,7 +161,7 @@ export default function Sidebar({
                   WeShare
                 </span>
                 <span className="text-[10px] uppercase font-bold tracking-widest text-muted-foreground mt-0.5">
-                  Smart Splitter
+                  Chia sẻ chi tiêu
                 </span>
               </div>
             </motion.div>
@@ -182,7 +182,7 @@ export default function Sidebar({
             <button
               onClick={toggleSidebar}
               className="rounded-full p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-              aria-label="Collapse sidebar"
+              aria-label="Thu gọn thanh bên"
               type="button"
             >
               <ChevronLeft className="h-5 w-5" />
@@ -309,7 +309,7 @@ export default function Sidebar({
               {isExpanded && (
                 <div className="flex flex-1 flex-col overflow-hidden">
                   <span className="truncate text-sm font-bold text-foreground">
-                    {user?.userName || "User"}
+                    {user?.userName || "Người dùng"}
                   </span>
                   <span className="truncate text-[11px] text-muted-foreground">
                     ID: {user?.userId || ""}
@@ -326,7 +326,7 @@ export default function Sidebar({
           >
             <div className="px-3 py-2">
               <p className="text-sm font-bold text-foreground truncate">
-                {user?.userName || "User"}
+                {user?.userName || "Người dùng"}
               </p>
               <p className="text-xs text-muted-foreground truncate">
                 {user?.email || ""}
@@ -339,7 +339,7 @@ export default function Sidebar({
               className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-semibold text-foreground hover:bg-muted transition-colors"
             >
               <User className="h-4 w-4 text-muted-foreground" />
-              Profile & Account
+              Hồ sơ & Tài khoản
             </button>
 
             <DropdownMenuSeparator className="my-1" />
@@ -349,7 +349,7 @@ export default function Sidebar({
               className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-semibold text-alarm-red hover:bg-alarm-red/10 transition-colors"
             >
               <LogOut className="h-4 w-4" />
-              Log Out
+              Đăng xuất
             </button>
 
             <button
@@ -357,7 +357,7 @@ export default function Sidebar({
               className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2 text-xs font-semibold text-alarm-red hover:bg-alarm-red/10 transition-colors"
             >
               <ShieldAlert className="h-4 w-4" />
-              Log Out All Devices
+              Đăng xuất tất cả thiết bị
             </button>
           </DropdownMenuContent>
         </DropdownMenu>

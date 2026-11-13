@@ -13,7 +13,7 @@ interface ExpenseCardProps {
 
 const formatDate = (value: Date | string) => {
   const date = value instanceof Date ? value : new Date(value)
-  return new Intl.DateTimeFormat("en-US", {
+  return new Intl.DateTimeFormat("vi-VN", {
     dateStyle: "medium",
     timeStyle: "short",
   }).format(date)
@@ -30,14 +30,14 @@ export default function ExpenseCard({ expense }: ExpenseCardProps) {
   return (
     <Card className="border border-border/70 transition-shadow hover:shadow-md">
       <CardHeader className="gap-1">
-        <p className="text-sm text-muted-foreground">Paid by</p>
+        <p className="text-sm text-muted-foreground">Người thanh toán</p>
         <p className="text-base font-semibold text-foreground">
-          {expense.payer?.fullName || "Unknown payer"}
+          {expense.payer?.fullName || "Không rõ"}
         </p>
       </CardHeader>
       <CardContent className="space-y-3">
         <div className="flex items-center justify-between">
-          <p className="text-sm text-muted-foreground">Total</p>
+          <p className="text-sm text-muted-foreground">Tổng tiền</p>
           <p className="text-lg font-semibold text-foreground">
             {formatCurrency(expense.amount)}
           </p>
@@ -62,21 +62,21 @@ export default function ExpenseCard({ expense }: ExpenseCardProps) {
 
         {proofUrl ? (
           <div className="pt-1">
-            <p className="mb-2 text-xs text-muted-foreground">Receipt</p>
+            <p className="mb-2 text-xs text-muted-foreground">Ảnh hóa đơn</p>
             <Dialog>
               <DialogTrigger asChild>
                 <button
                   type="button"
                   onClick={() => setIsDialogImageLoading(true)}
                   className="relative h-16 w-16 cursor-zoom-in overflow-hidden rounded-md border"
-                  aria-label="View receipt"
+                  aria-label="Xem ảnh hóa đơn"
                 >
                   {isThumbLoading && (
                     <div className="absolute inset-0 animate-pulse bg-muted" />
                   )}
                   <img
                     src={normalizeDriveImageUrl(proofUrl)}
-                    alt="Expense receipt"
+                    alt="Ảnh hóa đơn"
                     className="h-full w-full object-cover"
                     onLoad={() => setIsThumbLoading(false)}
                     onError={() => setIsThumbLoading(false)}
@@ -93,7 +93,7 @@ export default function ExpenseCard({ expense }: ExpenseCardProps) {
                   )}
                   <img
                     src={normalizeDriveImageUrl(proofUrl)}
-                    alt="Expense receipt full preview"
+                    alt="Xem chi tiết ảnh hóa đơn"
                     className="h-auto max-h-[85vh] w-full object-contain"
                     onLoad={() => setIsDialogImageLoading(false)}
                     onError={() => setIsDialogImageLoading(false)}
@@ -124,7 +124,7 @@ export default function ExpenseCard({ expense }: ExpenseCardProps) {
         ) : (
           <div className="flex items-center gap-1 text-xs text-muted-foreground">
             <ImageIcon className="h-3.5 w-3.5" />
-            No receipt
+            Không có ảnh hóa đơn
           </div>
         )}
       </CardContent>

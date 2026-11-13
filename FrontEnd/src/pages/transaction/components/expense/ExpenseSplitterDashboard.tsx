@@ -307,7 +307,7 @@ export default function ExpenseSplitterDashboard({
               ) : (
                 <ArrowUpRight className="h-4 w-4 text-alarm-red" />
               )}
-              Your Net Balance
+              Số dư công nợ ròng
             </span>
             <Badge
               variant="outline"
@@ -320,7 +320,7 @@ export default function ExpenseSplitterDashboard({
                     : "border-border text-muted-foreground"
               )}
             >
-              {netBalance > 0 ? "You Receive" : netBalance < 0 ? "You Owe" : "Balanced"}
+              {netBalance > 0 ? "Bạn được nhận" : netBalance < 0 ? "Bạn cần trả" : "Cân bằng"}
             </Badge>
           </div>
 
@@ -339,16 +339,16 @@ export default function ExpenseSplitterDashboard({
             </p>
             <p className="text-xs text-muted-foreground mt-1 min-h-[36px] flex items-center">
               {netBalance > 0
-                ? "Other members owe you money"
+                ? "Các thành viên khác đang nợ bạn tiền"
                 : netBalance < 0
-                  ? "You have outstanding settlements to pay"
-                  : "You're all squared away!"}
+                  ? "Bạn có khoản cần thanh toán cho các thành viên"
+                  : "Tất cả các khoản nợ đã thanh toán hết!"}
             </p>
           </div>
 
           <div className="flex items-center justify-between text-xs pt-3 border-t border-border/60 min-h-[38px]">
-            <span className="text-muted-foreground">Owed to you: <strong>{formatCurrency(totalOwedToMe)}</strong></span>
-            <span className="text-muted-foreground">You owe: <strong>{formatCurrency(totalIOwe)}</strong></span>
+            <span className="text-muted-foreground">Bạn được nhận: <strong>{formatCurrency(totalOwedToMe)}</strong></span>
+            <span className="text-muted-foreground">Bạn cần trả: <strong>{formatCurrency(totalIOwe)}</strong></span>
           </div>
         </div>
 
@@ -357,14 +357,14 @@ export default function ExpenseSplitterDashboard({
           <div>
             <div className="h-7 flex items-center">
               <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                Instant Splitter Actions
+                Hành động nhanh
               </span>
             </div>
             <h4 className="text-base font-bold text-foreground mt-2">
-              Split, Share &amp; Settle
+              Chia tiền &amp; Quyết toán
             </h4>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Add new receipt or settle debts with Google Drive proof.
+              Thêm hóa đơn chi tiêu mới hoặc thanh toán nợ kèm minh chứng.
             </p>
           </div>
 
@@ -374,7 +374,7 @@ export default function ExpenseSplitterDashboard({
               className="flex-1 rounded-full bg-lime-voltage text-forest-ink hover:bg-lime-400 font-extrabold text-xs h-10 shadow-sm gap-1.5 transition-transform active:scale-95"
             >
               <Plus className="h-4 w-4 stroke-[3]" />
-              Add Expense
+              Thêm khoản chi
             </Button>
 
             {debtsIOwe.length > 0 && (
@@ -385,7 +385,7 @@ export default function ExpenseSplitterDashboard({
                   className="rounded-full border-forest-ink/30 text-foreground hover:bg-muted font-bold text-xs h-10 gap-1.5"
                 >
                   <CreditCard className="h-4 w-4" />
-                  Settle Up
+                  Quyết toán ngay
                 </Button>
               ) : (
                 <DropdownMenu>
@@ -395,7 +395,7 @@ export default function ExpenseSplitterDashboard({
                       className="rounded-full border-forest-ink/30 text-foreground hover:bg-muted font-bold text-xs h-10 gap-1.5"
                     >
                       <CreditCard className="h-4 w-4" />
-                      <span>Settle Up</span>
+                      <span>Quyết toán ngay</span>
                       <Badge className="bg-alarm-red/10 text-alarm-red font-bold text-[10px] px-1.5 py-0 rounded-full ml-0.5">
                         {debtsIOwe.length}
                       </Badge>
@@ -404,7 +404,7 @@ export default function ExpenseSplitterDashboard({
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-64 rounded-2xl p-2 shadow-xl border border-border bg-card">
                     <div className="px-2 py-1.5 text-[10px] font-bold text-muted-foreground uppercase tracking-wider">
-                      Select creditor to pay
+                      Chọn người nhận thanh toán
                     </div>
                     {debtsIOwe.map((debt) => (
                       <DropdownMenuItem
@@ -421,10 +421,10 @@ export default function ExpenseSplitterDashboard({
                           </Avatar>
                           <div className="min-w-0">
                             <p className="text-xs font-semibold text-foreground truncate">
-                              {debt.toUser?.fullName || "Member"}
+                              {debt.toUser?.fullName || "Thành viên"}
                             </p>
                             <p className="text-[10px] text-muted-foreground truncate">
-                              {debt.toUser?.bankName ? `VietQR • ${debt.toUser.bankName}` : "Direct transfer"}
+                              {debt.toUser?.bankName ? `VietQR • ${debt.toUser.bankName}` : "Chuyển khoản trực tiếp"}
                             </p>
                           </div>
                         </div>
@@ -455,10 +455,10 @@ export default function ExpenseSplitterDashboard({
           <div>
             <h3 className="text-lg font-bold text-foreground tracking-tight flex items-center gap-2">
               <Users className="h-5 w-5 text-forest-ink dark:text-lime-voltage" />
-              Settlement Balance Overview
+              Tổng quan cân đối công nợ
             </h3>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Direct debt breakdown — Who owes who and instant settlement options
+              Chi tiết nợ trực tiếp — Ai nợ ai bao nhiêu và thanh toán nhanh
             </p>
           </div>
 
@@ -474,7 +474,7 @@ export default function ExpenseSplitterDashboard({
                   : "text-muted-foreground hover:text-foreground"
               )}
             >
-              <span>All Balances</span>
+              <span>Tất cả nợ</span>
               <Badge
                 className={cn(
                   "rounded-full text-[10px] px-1.5 py-0 font-extrabold h-4 border-none",
@@ -498,7 +498,7 @@ export default function ExpenseSplitterDashboard({
               )}
             >
               <ArrowUpRight className="h-3.5 w-3.5" />
-              <span>You Owe</span>
+              <span>Bạn nợ</span>
               {debtsIOwe.length > 0 && (
                 <Badge
                   className={cn(
@@ -524,7 +524,7 @@ export default function ExpenseSplitterDashboard({
               )}
             >
               <ArrowDownLeft className="h-3.5 w-3.5" />
-              <span>Owed to You</span>
+              <span>Nợ bạn</span>
               {debtsOwedToMe.length > 0 && (
                 <Badge
                   className={cn(
@@ -547,9 +547,9 @@ export default function ExpenseSplitterDashboard({
             <div className="h-14 w-14 rounded-full bg-emerald-100 dark:bg-emerald-950/50 text-emerald-600 dark:text-lime-voltage flex items-center justify-center mb-3 shadow-xs">
               <CheckCircle2 className="h-7 w-7" />
             </div>
-            <h4 className="text-lg font-bold text-foreground">All Debts Settled!</h4>
+            <h4 className="text-lg font-bold text-foreground">Tất cả công nợ đã được quyết toán!</h4>
             <p className="text-xs text-muted-foreground mt-1 max-w-sm">
-              All member expenses are completely balanced. There are no outstanding debts to settle.
+              Toàn bộ chi tiêu của các thành viên đã cân bằng. Không còn khoản nợ nào tồn đọng.
             </p>
           </div>
         ) : (
@@ -567,17 +567,17 @@ export default function ExpenseSplitterDashboard({
                 <div className="flex items-center justify-between pb-1">
                   <span className="text-xs font-black uppercase tracking-wider text-alarm-red flex items-center gap-1.5">
                     <ArrowUpRight className="h-4 w-4 stroke-[2.5]" />
-                    You Owe ({debtsIOwe.length})
+                    Bạn nợ ({debtsIOwe.length})
                   </span>
                   <span className="text-xs font-extrabold text-alarm-red">
-                    Total: {formatCurrency(totalIOwe)}
+                    Tổng: {formatCurrency(totalIOwe)}
                   </span>
                 </div>
 
                 {debtsIOwe.length === 0 ? (
                   <div className="rounded-2xl border border-dashed border-border/80 p-6 text-center text-xs text-muted-foreground bg-muted/20">
                     <CheckCircle2 className="h-6 w-6 text-emerald-500 mx-auto mb-2" />
-                    You have no pending debts to settle in this group.
+                    Bạn không còn khoản nợ nào cần thanh toán trong nhóm này.
                   </div>
                 ) : (
                   <div className="space-y-3">
@@ -589,22 +589,22 @@ export default function ExpenseSplitterDashboard({
                         {/* Top Row: Flow direction & Readiness Pill */}
                         <div className="flex items-center justify-between gap-2 pb-2 border-b border-border/50">
                           <div className="flex items-center gap-1.5 text-xs">
-                            <span className="font-extrabold text-foreground">You</span>
+                            <span className="font-extrabold text-foreground">Bạn</span>
                             <ArrowRight className="h-3.5 w-3.5 text-alarm-red shrink-0" />
-                            <span className="font-medium text-muted-foreground">Owe</span>
+                            <span className="font-medium text-muted-foreground">nợ</span>
                             <span className="font-bold text-foreground truncate max-w-[130px] sm:max-w-[170px]">
-                              {debt.toUser?.fullName || "Member"}
+                              {debt.toUser?.fullName || "Thành viên"}
                             </span>
                           </div>
 
                           {debt.toUser?.bankName && debt.toUser?.defaultBankAccount ? (
                             <Badge className="bg-linen-mist text-forest-ink dark:bg-emerald-950/40 dark:text-lime-voltage dark:border dark:border-lime-voltage/30 rounded-full px-2.5 py-0.5 text-[10px] font-bold flex items-center gap-1 shadow-none shrink-0">
                               <QrCode className="h-3 w-3" />
-                              <span>VietQR Ready</span>
+                              <span>Sẵn sàng VietQR</span>
                             </Badge>
                           ) : (
                             <Badge variant="outline" className="rounded-full px-2 py-0.5 text-[10px] text-muted-foreground shrink-0 border-border">
-                              Direct / Cash
+                              Chuyển khoản / Tiền mặt
                             </Badge>
                           )}
                         </div>
@@ -620,7 +620,7 @@ export default function ExpenseSplitterDashboard({
                             </Avatar>
                             <div className="min-w-0">
                               <p className="text-sm font-bold text-foreground truncate">
-                                {debt.toUser?.fullName || "Member"}
+                                {debt.toUser?.fullName || "Thành viên"}
                               </p>
                               <p className="text-[11px] text-muted-foreground truncate">
                                 {debt.toUser?.bankName ? (
@@ -629,14 +629,14 @@ export default function ExpenseSplitterDashboard({
                                     <span>{debt.toUser.bankName} • {debt.toUser.defaultBankAccount}</span>
                                   </span>
                                 ) : (
-                                  "No bank account registered"
+                                  "Chưa lưu tài khoản ngân hàng"
                                 )}
                               </p>
                             </div>
                           </div>
 
                           <div className="text-right shrink-0">
-                            <span className="text-[11px] text-muted-foreground block font-medium">Amount Due</span>
+                            <span className="text-[11px] text-muted-foreground block font-medium">Số tiền nợ</span>
                             <span className="text-base sm:text-lg font-black text-alarm-red tracking-tight block">
                               {formatCurrency(Math.abs(debt.amount))}
                             </span>
@@ -647,7 +647,7 @@ export default function ExpenseSplitterDashboard({
                         <div className="pt-2 border-t border-border/50 flex items-center justify-between gap-2">
                           <span className="text-[11px] text-muted-foreground flex items-center gap-1 truncate">
                             <Sparkles className="h-3 w-3 text-lime-voltage shrink-0" />
-                            <span>Instant settle with VietQR</span>
+                            <span>Quyết toán nhanh qua VietQR</span>
                           </span>
 
                           <Button
@@ -656,7 +656,7 @@ export default function ExpenseSplitterDashboard({
                             className="rounded-full bg-forest-ink text-paper hover:bg-forest-ink/90 dark:bg-lime-voltage dark:text-forest-ink text-xs font-bold h-8 px-4 shadow-xs gap-1.5 transition-transform active:scale-95 shrink-0"
                           >
                             <CreditCard className="h-3.5 w-3.5" />
-                            <span>Settle Up</span>
+                            <span>Quyết toán ngay</span>
                           </Button>
                         </div>
                       </div>
@@ -672,17 +672,17 @@ export default function ExpenseSplitterDashboard({
                 <div className="flex items-center justify-between pb-1">
                   <span className="text-xs font-black uppercase tracking-wider text-emerald-700 dark:text-lime-voltage flex items-center gap-1.5">
                     <ArrowDownLeft className="h-4 w-4 stroke-[2.5]" />
-                    Owed to You ({debtsOwedToMe.length})
+                    Nợ bạn ({debtsOwedToMe.length})
                   </span>
                   <span className="text-xs font-extrabold text-emerald-700 dark:text-lime-voltage">
-                    Total: {formatCurrency(totalOwedToMe)}
+                    Tổng: {formatCurrency(totalOwedToMe)}
                   </span>
                 </div>
 
                 {debtsOwedToMe.length === 0 ? (
                   <div className="rounded-2xl border border-dashed border-border/80 p-6 text-center text-xs text-muted-foreground bg-muted/20">
                     <CheckCircle2 className="h-6 w-6 text-emerald-500 mx-auto mb-2" />
-                    No members currently owe you money in this group.
+                    Hiện tại không có thành viên nào nợ bạn tiền trong nhóm này.
                   </div>
                 ) : (
                   <div className="space-y-3">
@@ -695,15 +695,15 @@ export default function ExpenseSplitterDashboard({
                         <div className="flex items-center justify-between gap-2 pb-2 border-b border-border/50">
                           <div className="flex items-center gap-1.5 text-xs">
                             <span className="font-extrabold text-foreground truncate max-w-[130px] sm:max-w-[170px]">
-                              {debt.fromUser?.fullName || "Member"}
+                              {debt.fromUser?.fullName || "Thành viên"}
                             </span>
                             <ArrowRight className="h-3.5 w-3.5 text-emerald-600 dark:text-lime-voltage shrink-0" />
-                            <span className="font-medium text-muted-foreground">Owes</span>
-                            <span className="font-extrabold text-foreground">You</span>
+                            <span className="font-medium text-muted-foreground">nợ</span>
+                            <span className="font-extrabold text-foreground">Bạn</span>
                           </div>
 
                           <Badge className="bg-linen-mist text-forest-ink dark:bg-card dark:text-lime-voltage dark:border dark:border-lime-voltage/30 rounded-full px-2.5 py-0.5 text-[10px] font-bold shrink-0 shadow-none">
-                            Pending Reimbursement
+                            Chờ thanh toán lại
                           </Badge>
                         </div>
 
@@ -718,16 +718,16 @@ export default function ExpenseSplitterDashboard({
                             </Avatar>
                             <div className="min-w-0">
                               <p className="text-sm font-bold text-foreground truncate">
-                                {debt.fromUser?.fullName || "Member"}
+                                {debt.fromUser?.fullName || "Thành viên"}
                               </p>
                               <p className="text-[11px] text-muted-foreground truncate">
-                                {debt.fromUser?.email || "Group participant"}
+                                {debt.fromUser?.email || "Thành viên nhóm"}
                               </p>
                             </div>
                           </div>
 
                           <div className="text-right shrink-0">
-                            <span className="text-[11px] text-muted-foreground block font-medium">To Receive</span>
+                            <span className="text-[11px] text-muted-foreground block font-medium">Cần nhận</span>
                             <span className="text-base sm:text-lg font-black text-forest-ink dark:text-lime-voltage tracking-tight block">
                               {formatCurrency(Math.abs(debt.amount))}
                             </span>
@@ -737,7 +737,7 @@ export default function ExpenseSplitterDashboard({
                         {/* Bottom Row: Remind Action */}
                         <div className="pt-2 border-t border-border/50 flex items-center justify-between gap-2">
                           <span className="text-[11px] text-muted-foreground truncate">
-                            Waiting for member settlement
+                            Đang chờ thành viên quyết toán
                           </span>
 
                           <Button
@@ -784,10 +784,10 @@ export default function ExpenseSplitterDashboard({
           <div>
             <h3 className="text-lg font-bold text-foreground tracking-tight flex items-center gap-2">
               <Receipt className="h-5 w-5 text-forest-ink dark:text-lime-voltage" />
-              Expense Ledger &amp; Breakdown
+              Sổ chi tiêu &amp; Chi tiết chia tiền
             </h3>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Review all group purchases and inspect exact split proportions
+              Xem lại toàn bộ các khoản chi của nhóm và tỷ lệ chia tiền
             </p>
           </div>
 
@@ -800,7 +800,7 @@ export default function ExpenseSplitterDashboard({
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search expense..."
+                placeholder="Tìm kiếm khoản chi..."
                 className="rounded-full pl-8 h-9 text-xs bg-background"
               />
             </div>
@@ -812,25 +812,25 @@ export default function ExpenseSplitterDashboard({
                   value="ALL"
                   className="rounded-full text-xs font-semibold px-3 data-[state=active]:bg-forest-ink data-[state=active]:text-lime-voltage dark:data-[state=active]:bg-lime-voltage dark:data-[state=active]:text-forest-ink"
                 >
-                  All
+                  Tất cả
                 </TabsTrigger>
                 <TabsTrigger
                   value="EQUALLY"
                   className="rounded-full text-xs font-semibold px-3 data-[state=active]:bg-forest-ink data-[state=active]:text-lime-voltage dark:data-[state=active]:bg-lime-voltage dark:data-[state=active]:text-forest-ink"
                 >
-                  Equally
+                  Chia đều
                 </TabsTrigger>
                 <TabsTrigger
                   value="PERCENTAGE"
                   className="rounded-full text-xs font-semibold px-3 data-[state=active]:bg-forest-ink data-[state=active]:text-lime-voltage dark:data-[state=active]:bg-lime-voltage dark:data-[state=active]:text-forest-ink"
                 >
-                  %
+                  Theo %
                 </TabsTrigger>
                 <TabsTrigger
                   value="EXACTLY"
                   className="rounded-full text-xs font-semibold px-3 data-[state=active]:bg-forest-ink data-[state=active]:text-lime-voltage dark:data-[state=active]:bg-lime-voltage dark:data-[state=active]:text-forest-ink"
                 >
-                  Exact
+                  Chính xác
                 </TabsTrigger>
               </TabsList>
             </Tabs>
@@ -940,18 +940,18 @@ export default function ExpenseSplitterDashboard({
         ) : filteredTransactions.length === 0 ? (
           <div className="py-12 text-center rounded-2xl border border-dashed border-border bg-muted/10 space-y-3">
             <Receipt className="h-10 w-10 text-muted-foreground mx-auto" />
-            <h4 className="text-base font-bold text-foreground">No Transactions Found</h4>
+            <h4 className="text-base font-bold text-foreground">Không tìm thấy khoản chi nào</h4>
             <p className="text-xs text-muted-foreground max-w-sm mx-auto">
               {searchQuery
-                ? `No transactions matching "${searchQuery}"`
-                : "No expenses logged in this group yet. Click below to add the first one!"}
+                ? `Không có khoản chi nào khớp với "${searchQuery}"`
+                : "Chưa có khoản chi nào trong nhóm này. Hãy bấm bên dưới để thêm khoản đầu tiên!"}
             </p>
             <Button
               onClick={() => setIsAddExpenseOpen(true)}
               className="rounded-full bg-lime-voltage text-forest-ink hover:bg-lime-400 font-bold text-xs"
             >
               <Plus className="h-4 w-4 mr-1.5" />
-              Add First Expense
+              Thêm khoản chi đầu tiên
             </Button>
           </div>
         ) : (
@@ -979,7 +979,7 @@ export default function ExpenseSplitterDashboard({
                       <div className="min-w-0 space-y-1">
                         <div className="flex flex-wrap items-center gap-2">
                           <h4 className="text-base font-bold text-foreground tracking-tight truncate">
-                            {tx.description || "Expense Transaction"}
+                            {tx.description || "Giao dịch chi tiêu"}
                           </h4>
                           {/* Split Strategy Badge */}
                           <Badge
@@ -990,19 +990,19 @@ export default function ExpenseSplitterDashboard({
                               strategy === "EXACTLY" && "bg-amber-100 text-amber-900 dark:bg-card dark:text-amber-400 dark:border dark:border-amber-500/40"
                             )}
                           >
-                            {strategy}
+                            {strategy === "EQUALLY" ? "Chia đều" : strategy === "PERCENTAGE" ? "Theo %" : "Chính xác"}
                           </Badge>
 
                           {tx.task && (
                             <Badge variant="outline" className="rounded-full text-[10px] border-border text-muted-foreground">
-                              Task: {tx.task.title}
+                              Công việc: {tx.task.title}
                             </Badge>
                           )}
                         </div>
 
                         <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
                           <span>
-                            Paid by <strong className="text-foreground">{isPayer ? "You" : tx.payer?.fullName}</strong>
+                            Thanh toán bởi <strong className="text-foreground">{isPayer ? "Bạn" : tx.payer?.fullName}</strong>
                           </span>
                           <span>•</span>
                           <span className="flex items-center gap-1">
@@ -1022,7 +1022,7 @@ export default function ExpenseSplitterDashboard({
                                 className="text-forest-ink dark:text-lime-voltage font-semibold hover:underline flex items-center gap-1"
                               >
                                 <FileText className="h-3 w-3" />
-                                View Receipt
+                                Xem hóa đơn
                               </button>
                             </>
                           )}
@@ -1037,7 +1037,7 @@ export default function ExpenseSplitterDashboard({
                           {formatCurrency(tx.amount)}
                         </span>
                         <span className="text-[11px] text-muted-foreground">
-                          Split among {splits.length} member{splits.length === 1 ? "" : "s"}
+                          Chia cho {splits.length} thành viên
                         </span>
                       </div>
 
@@ -1059,7 +1059,7 @@ export default function ExpenseSplitterDashboard({
                               className="rounded-xl cursor-pointer text-xs gap-2 py-2"
                             >
                               <Eye className="h-3.5 w-3.5" />
-                              View Receipt
+                              Xem hóa đơn
                             </DropdownMenuItem>
                           )}
                           <DropdownMenuItem
@@ -1067,7 +1067,7 @@ export default function ExpenseSplitterDashboard({
                             className="rounded-xl cursor-pointer text-xs gap-2 py-2 text-destructive focus:text-destructive"
                           >
                             <Trash2 className="h-3.5 w-3.5" />
-                            Delete Expense
+                            Xóa khoản chi
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -1078,7 +1078,7 @@ export default function ExpenseSplitterDashboard({
                   {splits.length > 0 && (
                     <div className="mt-3.5 pt-3 border-t border-border/40 flex flex-wrap items-center gap-2">
                       <span className="text-[11px] font-semibold text-muted-foreground mr-1">
-                        Splits:
+                        Phần chia:
                       </span>
                       {splits.map((s, idx) => (
                         <div
@@ -1086,7 +1086,7 @@ export default function ExpenseSplitterDashboard({
                           className="flex items-center gap-1.5 rounded-full bg-muted/60 px-2.5 py-1 text-[11px] border border-border/50"
                         >
                           <span className="font-semibold text-foreground">
-                            {s.debtor?.fullName || "Member"}:
+                            {s.debtor?.fullName || "Thành viên"}:
                           </span>
                           <span className="font-bold text-forest-ink dark:text-lime-voltage">
                             {formatCurrency(s.owedAmount)}
@@ -1111,10 +1111,10 @@ export default function ExpenseSplitterDashboard({
               onClick={() => setPage((p) => Math.max(1, p - 1))}
               className="rounded-full text-xs font-semibold px-4"
             >
-              Previous
+              Trước
             </Button>
             <span className="text-xs text-muted-foreground font-medium">
-              Page {page} of {totalPages}
+              Trang {page} / {totalPages}
             </span>
             <Button
               variant="outline"
@@ -1123,7 +1123,7 @@ export default function ExpenseSplitterDashboard({
               onClick={() => setPage((p) => p + 1)}
               className="rounded-full text-xs font-semibold px-4"
             >
-              Next
+              Sau
             </Button>
           </div>
         )}

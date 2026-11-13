@@ -42,14 +42,14 @@ export default function ExpenseList({
         </div>
         <div className="space-y-1">
           <h3 className="text-lg font-semibold text-foreground">
-            No expenses yet
+            Chưa có khoản chi nào
           </h3>
           <p className="text-sm text-muted-foreground">
-            Create your first expense to get started.
+            Thêm khoản chi đầu tiên để bắt đầu theo dõi cùng nhóm.
           </p>
         </div>
         <Button size="sm" className="mt-2" onClick={onCreate}>
-          Add Expense
+          Thêm khoản chi
         </Button>
       </div>
     )

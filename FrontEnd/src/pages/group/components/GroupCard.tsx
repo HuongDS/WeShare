@@ -83,7 +83,7 @@ export default function GroupCard({ group, onEdit }: GroupCardProps) {
               getBadgeStyle(group.type)
             )}
           >
-            {group.type === "None" ? "General Group" : group.type}
+            {group.type === "None" ? "Nhóm thông thường" : group.type === "Club" ? "Câu lạc bộ" : group.type === "Travel" ? "Du lịch" : group.type}
           </Badge>
 
           {isAdmin && (
@@ -107,7 +107,7 @@ export default function GroupCard({ group, onEdit }: GroupCardProps) {
                   className="rounded-xl text-xs gap-2 py-2 cursor-pointer"
                 >
                   <Pencil className="h-3.5 w-3.5" />
-                  Edit Group
+                  Chỉnh sửa nhóm
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={(e) => {
@@ -117,7 +117,7 @@ export default function GroupCard({ group, onEdit }: GroupCardProps) {
                   className="rounded-xl text-xs gap-2 py-2 text-destructive focus:text-destructive cursor-pointer"
                 >
                   <Trash2 className="h-3.5 w-3.5" />
-                  Delete
+                  Xóa nhóm
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -130,7 +130,7 @@ export default function GroupCard({ group, onEdit }: GroupCardProps) {
             {group.name}
           </h3>
           <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
-            {group.description || "Smart expense sharing and task coordination hub."}
+            {group.description || "Chia sẻ chi tiêu và phối hợp công việc nhóm hiệu quả."}
           </p>
         </div>
       </div>
@@ -154,7 +154,7 @@ export default function GroupCard({ group, onEdit }: GroupCardProps) {
             )}
           </div>
           <span className="text-xs font-semibold text-muted-foreground ml-1">
-            {memberCount} member{memberCount === 1 ? "" : "s"}
+            {memberCount} thành viên
           </span>
         </div>
 
@@ -168,14 +168,14 @@ export default function GroupCard({ group, onEdit }: GroupCardProps) {
       <AlertDialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
         <AlertDialogContent className="rounded-3xl p-6">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-lg font-bold">Delete this group?</AlertDialogTitle>
+            <AlertDialogTitle className="text-lg font-bold">Xóa nhóm này?</AlertDialogTitle>
             <AlertDialogDescription className="text-xs text-muted-foreground">
-              This action cannot be undone. All expense logs and task records in this group will be permanently removed.
+              Hành động này không thể hoàn tác. Toàn bộ lịch sử chi tiêu và công việc của nhóm này sẽ bị xóa vĩnh viễn.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="gap-2 mt-4">
             <AlertDialogCancel disabled={deleteGroup.isPending} className="rounded-full text-xs">
-              Cancel
+              Hủy
             </AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
@@ -185,10 +185,10 @@ export default function GroupCard({ group, onEdit }: GroupCardProps) {
               {deleteGroup.isPending ? (
                 <>
                   <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" />
-                  Deleting...
+                  Đang xóa...
                 </>
               ) : (
-                "Delete Group"
+                "Xóa nhóm"
               )}
             </AlertDialogAction>
           </AlertDialogFooter>

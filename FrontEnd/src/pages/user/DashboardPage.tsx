@@ -28,12 +28,12 @@ function formatTimeAgo(dateStr: string) {
     const now = new Date()
     const diffMs = now.getTime() - date.getTime()
     const diffMins = Math.floor(diffMs / (1000 * 60))
-    if (diffMins < 1) return "Just now"
-    if (diffMins < 60) return `${diffMins}m ago`
+    if (diffMins < 1) return "Vừa xong"
+    if (diffMins < 60) return `${diffMins} phút trước`
     const diffHours = Math.floor(diffMins / 60)
-    if (diffHours < 24) return `${diffHours}h ago`
+    if (diffHours < 24) return `${diffHours} giờ trước`
     const diffDays = Math.floor(diffHours / 24)
-    if (diffDays < 7) return `${diffDays}d ago`
+    if (diffDays < 7) return `${diffDays} ngày trước`
     return date.toLocaleDateString("vi-VN", { month: "short", day: "numeric" })
   } catch {
     return dateStr
@@ -76,6 +76,20 @@ export default function DashboardPage() {
         damping: 14,
       },
     },
+  }
+
+  const getActivityCategoryLabel = (category: string) => {
+    switch (category?.toLowerCase()) {
+      case "settlement":
+      case "payment":
+        return "Quyết toán"
+      case "expense":
+        return "Khoản chi"
+      case "group":
+        return "Nhóm"
+      default:
+        return category || "Giao dịch"
+    }
   }
 
   const getActivityBadgeClass = (category: string) => {
@@ -121,10 +135,10 @@ export default function DashboardPage() {
         >
           <div>
             <h2 className="text-2xl sm:text-3xl font-black tracking-tight text-foreground">
-              Welcome back, {user?.userName || "User"}!
+              Chào mừng trở lại, {user?.userName || "bạn"}!
             </h2>
             <p className="text-sm text-muted-foreground mt-1">
-              Here&apos;s your personal financial snapshot and recent activity.
+              Dưới đây là tổng quan tài chính cá nhân và hoạt động gần đây của bạn.
             </p>
           </div>
 
@@ -132,7 +146,7 @@ export default function DashboardPage() {
             onClick={() => navigate("/groups")}
             className="rounded-full bg-lime-voltage hover:bg-lime-voltage/90 text-forest-ink font-bold shadow-xs px-5 py-2.5 self-start sm:self-auto gap-2"
           >
-            <span>Groups &amp; Events</span>
+            <span>Nhóm &amp; Sự kiện</span>
             <ArrowRight className="h-4 w-4 stroke-[2.5]" />
           </Button>
         </motion.div>
@@ -143,7 +157,7 @@ export default function DashboardPage() {
             <div className="flex items-center gap-2.5 min-w-0">
               <AlertCircle className="h-4 w-4 shrink-0 text-alarm-red" />
               <span>
-                Could not connect to backend server ({import.meta.env.VITE_API_URL || "http://localhost:5111/api"}). Please ensure the backend is running.
+                Không thể kết nối đến máy chủ backend ({import.meta.env.VITE_API_URL || "http://localhost:5111/api"}). Vui lòng đảm bảo backend đang hoạt động.
               </span>
             </div>
             <Button
@@ -153,7 +167,7 @@ export default function DashboardPage() {
               className="rounded-full text-xs font-bold border-alarm-red/40 hover:bg-red-100 dark:hover:bg-red-900/40 text-alarm-red h-8 px-4 gap-1.5 self-start sm:self-auto shrink-0"
             >
               <RefreshCw className="h-3.5 w-3.5" />
-              <span>Retry</span>
+              <span>Thử lại</span>
             </Button>
           </div>
         )}
@@ -163,7 +177,7 @@ export default function DashboardPage() {
           <div className="flex h-48 items-center justify-center rounded-3xl border border-border/80 bg-card">
             <div className="flex items-center gap-3 text-muted-foreground">
               <Loader2 className="h-6 w-6 animate-spin text-lime-voltage" />
-              <span className="text-sm font-semibold">Updating financial snapshot...</span>
+              <span className="text-sm font-semibold">Đang cập nhật tổng quan tài chính...</span>
             </div>
           </div>
         )}
@@ -180,10 +194,10 @@ export default function DashboardPage() {
                 <div className="flex items-center justify-between z-10 h-7">
                   <span className="text-xs font-bold uppercase tracking-wider text-linen-mist/80 dark:text-muted-foreground flex items-center gap-1.5">
                     <TrendingUp className="h-4 w-4 text-lime-voltage" />
-                    Total Spent
+                    Tổng đã chi
                   </span>
                   <Badge className="bg-lime-voltage text-forest-ink font-bold rounded-full px-2.5 py-0.5 text-[11px] shadow-none">
-                    {totalGroups} {totalGroups === 1 ? "Hub" : "Hubs"}
+                    {totalGroups} nhóm
                   </Badge>
                 </div>
 
@@ -192,13 +206,13 @@ export default function DashboardPage() {
                     {formatCurrency(totalSpent)}
                   </p>
                   <p className="text-xs text-linen-mist/70 dark:text-muted-foreground mt-1 min-h-[36px] flex items-center">
-                    Total expenses paid across all your groups
+                    Tổng các khoản chi đã thanh toán trên mọi nhóm
                   </p>
                 </div>
 
                 <div className="z-10 flex items-center gap-1.5 text-xs font-semibold text-lime-voltage pt-3 border-t border-linen-mist/10 min-h-[38px]">
                   <Sparkles className="h-3.5 w-3.5" />
-                  <span>Real-time financial tracking</span>
+                  <span>Theo dõi tài chính trực quan</span>
                 </div>
 
                 {/* Background Glow */}
@@ -212,10 +226,10 @@ export default function DashboardPage() {
                 <div className="flex items-center justify-between h-7">
                   <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
                     <ArrowUpRight className="h-4 w-4 text-alarm-red" />
-                    You Owe
+                    Bạn cần trả
                   </span>
                   <Badge className="bg-red-100 text-alarm-red dark:bg-red-950/40 dark:text-red-300 font-bold rounded-full px-2.5 py-0.5 text-[11px] shadow-none">
-                    To Settle
+                    Cần thanh toán
                   </Badge>
                 </div>
 
@@ -224,13 +238,13 @@ export default function DashboardPage() {
                     {formatCurrency(totalOwe)}
                   </p>
                   <p className="text-xs text-muted-foreground mt-1 min-h-[36px] flex items-center">
-                    Total pending debt to friends &amp; members
+                    Tổng số nợ chờ trả cho bạn bè &amp; thành viên
                   </p>
                 </div>
 
                 <div className="text-xs font-medium text-muted-foreground pt-3 border-t border-border/60 min-h-[38px] flex items-center gap-1.5">
                   <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 dark:text-lime-voltage" />
-                  <span>{totalOwe === 0 ? "You have no outstanding debts" : "Select a group to settle up"}</span>
+                  <span>{totalOwe === 0 ? "Bạn không có khoản nợ nào cần trả" : "Chọn một nhóm để quyết toán công nợ"}</span>
                 </div>
               </div>
             </motion.div>
@@ -241,10 +255,10 @@ export default function DashboardPage() {
                 <div className="flex items-center justify-between h-7">
                   <span className="text-xs font-bold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
                     <ArrowDownLeft className="h-4 w-4 text-emerald-600 dark:text-lime-voltage" />
-                    Others Owe You
+                    Bạn được nhận
                   </span>
                   <Badge className="bg-linen-mist text-forest-ink dark:bg-emerald-950/40 dark:text-lime-voltage font-bold rounded-full px-2.5 py-0.5 text-[11px] shadow-none">
-                    Receivable
+                    Cần thu về
                   </Badge>
                 </div>
 
@@ -253,7 +267,7 @@ export default function DashboardPage() {
                     {formatCurrency(totalOwedToYou)}
                   </p>
                   <p className="text-xs text-muted-foreground mt-1 min-h-[36px] flex items-center">
-                    Waiting for group members to reimburse
+                    Chờ các thành viên trong nhóm hoàn trả
                   </p>
                 </div>
 
@@ -261,8 +275,8 @@ export default function DashboardPage() {
                   <CheckCircle2 className="h-3.5 w-3.5 text-emerald-600 dark:text-lime-voltage" />
                   <span>
                     {pendingTasksCount > 0
-                      ? `${pendingTasksCount} pending assigned task${pendingTasksCount === 1 ? "" : "s"}`
-                      : "All settled or up-to-date"}
+                      ? `${pendingTasksCount} công việc đang chờ xử lý`
+                      : "Đã hoàn tất hoặc cập nhật mới nhất"}
                   </span>
                 </div>
               </div>
@@ -274,10 +288,10 @@ export default function DashboardPage() {
         <motion.div variants={itemVariants} className="space-y-3">
           <div className="flex items-center justify-between">
             <h3 className="text-xl font-bold tracking-tight text-foreground">
-              Recent Activities
+              Hoạt động gần đây
             </h3>
             <span className="text-xs text-muted-foreground font-medium">
-              Live from your groups
+              Trực tiếp từ các nhóm của bạn
             </span>
           </div>
 
@@ -287,15 +301,15 @@ export default function DashboardPage() {
                 <div className="flex h-12 w-12 items-center justify-center rounded-full bg-muted text-muted-foreground mb-3">
                   <FolderOpen className="h-6 w-6" />
                 </div>
-                <p className="text-sm font-bold text-foreground">No activities recorded yet</p>
+                <p className="text-sm font-bold text-foreground">Chưa có hoạt động nào được ghi nhận</p>
                 <p className="text-xs text-muted-foreground mt-1 max-w-sm">
-                  Create a new group or add an expense to see your recent transactions and timeline updates here.
+                  Tạo nhóm mới hoặc thêm khoản chi để theo dõi các giao dịch và cập nhật gần đây tại đây.
                 </p>
                 <Button
                   onClick={() => navigate("/groups")}
                   className="mt-4 rounded-full bg-lime-voltage hover:bg-lime-voltage/90 text-forest-ink font-bold shadow-xs px-5 text-xs"
                 >
-                  Explore Groups
+                  Khám phá các nhóm
                 </Button>
               </div>
             ) : (
@@ -329,7 +343,7 @@ export default function DashboardPage() {
                                 badgeClass
                               )}
                             >
-                              {activity.category}
+                              {getActivityCategoryLabel(activity.category)}
                             </span>
                             <span className="truncate">{activity.description}</span>
                           </div>

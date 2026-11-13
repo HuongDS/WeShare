@@ -17,11 +17,11 @@ import { useAuth } from "@/hooks/auth/useAuth"
 import GlobalSearchModal from "@/components/GlobalSearchModal"
 
 const routeTitles: Record<string, string> = {
-  "/dashboard": "Dashboard",
-  "/expenses": "Expenses",
-  "/groups": "Groups",
-  "/settlements": "Settlements",
-  "/profile": "My Profile",
+  "/dashboard": "Bảng điều khiển",
+  "/expenses": "Chi tiêu",
+  "/groups": "Quản lý nhóm",
+  "/settlements": "Quyết toán & Công nợ",
+  "/profile": "Hồ sơ của tôi",
 }
 
 interface HeaderProps {
@@ -49,8 +49,8 @@ export default function Header({ onMobileMenuOpen }: HeaderProps) {
   }, [])
 
   const pageTitle = location.pathname.startsWith("/groups/")
-    ? "Group Hub"
-    : routeTitles[location.pathname] || "Dashboard"
+    ? "Chi tiết nhóm"
+    : routeTitles[location.pathname] || "Bảng điều khiển"
 
   const toggleTheme = () => {
     setTheme(theme === "dark" ? "light" : "dark")
@@ -73,7 +73,7 @@ export default function Header({ onMobileMenuOpen }: HeaderProps) {
               size="icon"
               onClick={onMobileMenuOpen}
               className="h-9 w-9 rounded-full hover:bg-muted lg:hidden"
-              aria-label="Open menu"
+              aria-label="Mở menu"
             >
               <Menu className="h-5 w-5 text-foreground" />
             </Button>
@@ -93,7 +93,7 @@ export default function Header({ onMobileMenuOpen }: HeaderProps) {
               className="group relative w-full flex items-center justify-between rounded-full border border-border/70 bg-muted/40 py-2 pl-9 pr-3 text-xs sm:text-sm text-muted-foreground hover:border-forest-ink/40 dark:hover:border-lime-voltage/40 hover:bg-muted/70 transition-all duration-200 text-left outline-none"
             >
               <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground group-hover:text-foreground transition-colors" />
-              <span>Search groups, expenses, members...</span>
+              <span>Tìm kiếm nhóm, khoản chi, thành viên...</span>
               <span className="rounded border border-border/70 bg-background px-1.5 py-0.5 text-[10px] font-semibold text-muted-foreground shadow-xs">
                 ⌘K
               </span>
@@ -108,7 +108,7 @@ export default function Header({ onMobileMenuOpen }: HeaderProps) {
               size="icon"
               onClick={() => setIsSearchOpen(true)}
               className="h-9 w-9 rounded-full hover:bg-muted text-foreground md:hidden"
-              aria-label="Search"
+              aria-label="Tìm kiếm"
             >
               <Search className="h-4 w-4" />
             </Button>
@@ -119,8 +119,8 @@ export default function Header({ onMobileMenuOpen }: HeaderProps) {
               size="icon"
               onClick={toggleTheme}
               className="h-9 w-9 rounded-full hover:bg-muted text-foreground transition-transform active:scale-95"
-              aria-label="Toggle theme"
-              title={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+              aria-label="Đổi giao diện"
+              title={theme === "dark" ? "Chuyển sang chế độ sáng" : "Chuyển sang chế độ tối"}
             >
               {theme === "dark" ? (
                 <Sun className="h-4 w-4 text-lime-voltage transition-all" />
@@ -134,7 +134,7 @@ export default function Header({ onMobileMenuOpen }: HeaderProps) {
               variant="ghost"
               size="icon"
               className="relative h-9 w-9 rounded-full hover:bg-muted text-foreground"
-              aria-label="Notifications"
+              aria-label="Thông báo"
             >
               <Bell className="h-4 w-4" />
               <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-alarm-red ring-2 ring-background" />
@@ -146,7 +146,7 @@ export default function Header({ onMobileMenuOpen }: HeaderProps) {
                 <button
                   type="button"
                   className="group flex items-center gap-2 rounded-full p-0.5 outline-none hover:ring-2 hover:ring-forest-ink/30 dark:hover:ring-lime-voltage/30 transition-all"
-                  aria-label="User account"
+                  aria-label="Tài khoản người dùng"
                 >
                   <Avatar className="h-8 w-8 sm:h-9 sm:w-9 border border-border/60">
                     <AvatarImage src={user?.avatar || undefined} alt={user?.userName} />
@@ -164,7 +164,7 @@ export default function Header({ onMobileMenuOpen }: HeaderProps) {
                 <DropdownMenuLabel className="font-normal px-2.5 py-2">
                   <div className="flex flex-col space-y-1">
                     <p className="text-sm font-bold leading-none text-foreground">
-                      {user?.userName || "User"}
+                      {user?.userName || "Người dùng"}
                     </p>
                     <p className="text-xs leading-none text-muted-foreground truncate">
                       {user?.email || `ID: ${user?.userId || ""}`}
@@ -178,7 +178,7 @@ export default function Header({ onMobileMenuOpen }: HeaderProps) {
                   className="flex items-center gap-2 rounded-xl px-2.5 py-2 text-xs font-semibold cursor-pointer"
                 >
                   <UserIcon className="h-4 w-4 text-muted-foreground" />
-                  <span>My Profile</span>
+                  <span>Hồ sơ của tôi</span>
                 </DropdownMenuItem>
 
                 <DropdownMenuItem
@@ -186,7 +186,7 @@ export default function Header({ onMobileMenuOpen }: HeaderProps) {
                   className="flex items-center gap-2 rounded-xl px-2.5 py-2 text-xs font-semibold cursor-pointer"
                 >
                   <Settings className="h-4 w-4 text-muted-foreground" />
-                  <span>Manage Groups</span>
+                  <span>Quản lý nhóm</span>
                 </DropdownMenuItem>
 
                 <DropdownMenuSeparator className="my-1" />
@@ -196,7 +196,7 @@ export default function Header({ onMobileMenuOpen }: HeaderProps) {
                   className="flex items-center gap-2 rounded-xl px-2.5 py-2 text-xs font-semibold text-alarm-red hover:bg-alarm-red/10 cursor-pointer"
                 >
                   <LogOut className="h-4 w-4" />
-                  <span>Log out</span>
+                  <span>Đăng xuất</span>
                 </DropdownMenuItem>
 
                 <DropdownMenuItem
@@ -204,7 +204,7 @@ export default function Header({ onMobileMenuOpen }: HeaderProps) {
                   className="flex items-center gap-2 rounded-xl px-2.5 py-2 text-xs font-semibold text-alarm-red hover:bg-alarm-red/10 cursor-pointer"
                 >
                   <ShieldAlert className="h-4 w-4" />
-                  <span>Log out all devices</span>
+                  <span>Đăng xuất tất cả thiết bị</span>
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

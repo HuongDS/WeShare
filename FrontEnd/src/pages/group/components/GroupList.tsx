@@ -47,14 +47,14 @@ export default function GroupList({
         </div>
         <div className="space-y-1">
           <h3 className="text-lg font-semibold text-foreground">
-            No groups yet
+            Chưa có nhóm nào
           </h3>
           <p className="text-sm text-muted-foreground">
-            Create your first group to start collaborating.
+            Tạo nhóm đầu tiên của bạn để bắt đầu chia sẻ chi tiêu.
           </p>
         </div>
         <Button size="sm" className="mt-2" onClick={onCreate}>
-          Create your first group
+          Tạo nhóm đầu tiên
         </Button>
       </Card>
     )
