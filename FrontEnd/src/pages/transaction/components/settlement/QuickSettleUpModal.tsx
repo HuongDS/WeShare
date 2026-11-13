@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react"
+import { useState, useEffect } from "react"
 import {
   Dialog,
   DialogContent,
@@ -14,15 +14,20 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
-  QrCode,
   Banknote,
   Copy,
   Check,
   Upload,
   Loader2,
-  AlertCircle,
+  Link2,
+  Image as ImageIcon,
+  ExternalLink,
 } from "lucide-react"
 import { formatCurrency } from "@/lib/utils"
+import {
+  normalizeDriveImageUrl,
+  getDriveViewerUrl,
+} from "@/lib/driveUrl"
 import { transactionApi } from "@/api/transactionApi"
 import { handleAxiosError } from "@/utils/HandleAxiosError"
 import { useAppSelector } from "@/store/hooks"
@@ -47,30 +52,29 @@ export default function QuickSettleUpModal({
   onSuccess,
 }: QuickSettleUpModalProps) {
   const currentUserId = useAppSelector((state) => state.auth.user?.userId)
-  const [method, setMethod] = useState<"vietqr" | "cash">("vietqr")
+  const [method, setMethod] = useState<"drive_proof" | "cash">("drive_proof")
   const [settleAmount, setSettleAmount] = useState<number>(debtAmount)
   const [copiedAccount, setCopiedAccount] = useState(false)
   const [copiedAmount, setCopiedAmount] = useState(false)
   const [proofFile, setProofFile] = useState<File | null>(null)
   const [proofPreview, setProofPreview] = useState<string | null>(null)
+  const [driveLinkInput, setDriveLinkInput] = useState<string>("")
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  // Sync initial debt amount when modal opens or debtAmount changes
-  useState(() => {
-    setSettleAmount(debtAmount)
-  })
+  useEffect(() => {
+    if (isOpen) {
+      setSettleAmount(debtAmount)
+    }
+  }, [debtAmount, isOpen])
 
   const bankName = recipient?.bankName || ""
   const bankAccount = recipient?.defaultBankAccount || ""
 
-  // Generate VietQR URL if bank info exists
-  const vietQrUrl = useMemo(() => {
-    if (!bankName || !bankAccount || settleAmount <= 0) return null
-    const cleanBank = encodeURIComponent(bankName.trim())
-    const cleanAcc = encodeURIComponent(bankAccount.trim())
-    const memo = encodeURIComponent(`WeShare Settle Group ${groupId}`)
-    return `https://img.vietqr.io/image/${cleanBank}-${cleanAcc}-compact2.png?amount=${settleAmount}&addInfo=${memo}&accountName=${encodeURIComponent(recipient?.fullName || "")}`
-  }, [bankName, bankAccount, settleAmount, groupId, recipient?.fullName])
+  const normalizedDrivePreview = driveLinkInput.trim()
+    ? normalizeDriveImageUrl(driveLinkInput)
+    : null
+
+  const activePreviewUrl = proofPreview || normalizedDrivePreview
 
   const copyToClipboard = async (text: string, type: "account" | "amount") => {
     try {
@@ -82,9 +86,9 @@ export default function QuickSettleUpModal({
         setCopiedAmount(true)
         setTimeout(() => setCopiedAmount(false), 2000)
       }
-      toast.success("Copied to clipboard!")
+      toast.success("Đã sao chép vào clipboard!")
     } catch {
-      toast.error("Failed to copy")
+      toast.error("Không thể sao chép")
     }
   }
 
@@ -93,24 +97,47 @@ export default function QuickSettleUpModal({
     if (!file) return
 
     if (!file.type.startsWith("image/")) {
-      toast.error("Please upload an image receipt")
+      toast.error("Vui lòng chọn file định dạng hình ảnh")
       return
     }
 
+    if (proofPreview) URL.revokeObjectURL(proofPreview)
     setProofFile(file)
+    setDriveLinkInput("")
     const preview = URL.createObjectURL(file)
     setProofPreview(preview)
   }
 
+  const handleClearProof = () => {
+    setProofFile(null)
+    if (proofPreview) URL.revokeObjectURL(proofPreview)
+    setProofPreview(null)
+    setDriveLinkInput("")
+  }
+
   const handleSubmit = async () => {
     if (!recipient || settleAmount <= 0) {
-      toast.error("Invalid settlement amount")
+      toast.error("Số tiền thanh toán không hợp lệ")
+      return
+    }
+
+    if (
+      method === "drive_proof" &&
+      !proofFile &&
+      !driveLinkInput.trim()
+    ) {
+      toast.error(
+        "Vui lòng tải ảnh minh chứng lên Google Drive hoặc dán link ảnh Google Drive."
+      )
       return
     }
 
     setIsSubmitting(true)
     try {
-      let uploadedProofUrl = ""
+      let uploadedProofUrl = driveLinkInput.trim()
+        ? normalizeDriveImageUrl(driveLinkInput)
+        : ""
+
       if (proofFile) {
         const uploadRes = await transactionApi.uploadProof(proofFile)
         uploadedProofUrl = uploadRes.data || ""
@@ -121,15 +148,19 @@ export default function QuickSettleUpModal({
         payerId: Number(currentUserId || 0),
         receiverId: Number(recipient.id),
         amount: settleAmount,
-        paymentType: method === "vietqr" ? "QR_CODE" : "CASH",
+        paymentType: method === "drive_proof" ? "QR_CODE" : "CASH",
         proofUrl: uploadedProofUrl || undefined,
       })
 
-      toast.success("Settlement submitted successfully! Waiting for recipient approval.")
-      onOpenChange(false)
+      toast.success(
+        method === "drive_proof"
+          ? "Đã gửi minh chứng thanh toán! Đang chờ người nhận xác nhận."
+          : "Đã ghi nhận thanh toán tiền mặt thành công!"
+      )
+      handleModalClose(false)
       onSuccess?.()
     } catch (err) {
-      handleAxiosError(err as Error, "Settlement failed.")
+      handleAxiosError(err as Error, "Không thể thực hiện quyết toán.")
     } finally {
       setIsSubmitting(false)
     }
@@ -137,9 +168,7 @@ export default function QuickSettleUpModal({
 
   const handleModalClose = (open: boolean) => {
     if (!open) {
-      if (proofPreview) URL.revokeObjectURL(proofPreview)
-      setProofFile(null)
-      setProofPreview(null)
+      handleClearProof()
     }
     onOpenChange(open)
   }
@@ -147,19 +176,19 @@ export default function QuickSettleUpModal({
   return (
     <Dialog open={isOpen} onOpenChange={handleModalClose}>
       <DialogContent className="max-w-lg overflow-hidden rounded-3xl p-0 shadow-2xl border border-border">
-        {/* Header - Forest Ink / High Contrast */}
+        {/* Header */}
         <DialogHeader className="bg-forest-ink text-paper p-6 pb-5 dark:bg-card">
           <div className="flex items-center justify-between">
             <div>
               <DialogTitle className="text-xl font-bold tracking-tight text-white dark:text-lime-voltage">
-                Settle Debt Balance
+                Thanh toán &amp; Quyết toán nợ
               </DialogTitle>
               <DialogDescription className="text-linen-mist/80 dark:text-muted-foreground text-xs mt-1">
-                Fast & transparent settlement with smart QR payment
+                Tải ảnh minh chứng lên Google Drive hoặc xác nhận trả tiền mặt
               </DialogDescription>
             </div>
             <Badge className="bg-lime-voltage text-forest-ink font-bold px-3 py-1 rounded-full text-xs">
-              Quick Settle
+              Drive Proof
             </Badge>
           </div>
         </DialogHeader>
@@ -169,21 +198,28 @@ export default function QuickSettleUpModal({
           <div className="flex items-center justify-between rounded-2xl bg-muted/40 p-4 border border-border/60">
             <div className="flex items-center gap-3">
               <Avatar className="h-12 w-12 border-2 border-forest-ink/20 dark:border-lime-voltage/30">
-                <AvatarImage src={recipient?.avatar} alt={recipient?.fullName} />
+                <AvatarImage
+                  src={recipient?.avatar}
+                  alt={recipient?.fullName}
+                />
                 <AvatarFallback className="bg-forest-ink text-lime-voltage font-bold">
                   {recipient?.fullName?.slice(0, 2).toUpperCase() || "US"}
                 </AvatarFallback>
               </Avatar>
               <div>
-                <p className="text-xs text-muted-foreground font-medium">Paying to</p>
+                <p className="text-xs text-muted-foreground font-medium">
+                  Người nhận thanh toán
+                </p>
                 <h4 className="text-base font-bold text-foreground">
-                  {recipient?.fullName || "Group Member"}
+                  {recipient?.fullName || "Thành viên nhóm"}
                 </h4>
               </div>
             </div>
 
             <div className="text-right">
-              <p className="text-xs text-muted-foreground font-medium">Outstanding Debt</p>
+              <p className="text-xs text-muted-foreground font-medium">
+                Dư nợ hiện tại
+              </p>
               <p className="text-base font-extrabold text-alarm-red">
                 {formatCurrency(debtAmount)}
               </p>
@@ -193,7 +229,7 @@ export default function QuickSettleUpModal({
           {/* Amount to pay input */}
           <div className="space-y-1.5">
             <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Settlement Amount (VND)
+              Số tiền thanh toán (VND)
             </Label>
             <div className="relative">
               <Input
@@ -212,168 +248,185 @@ export default function QuickSettleUpModal({
           {/* Payment Method Tabs */}
           <div className="space-y-3">
             <Label className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Payment Method
+              Hình thức quyết toán
             </Label>
-            <Tabs value={method} onValueChange={(v) => setMethod(v as "vietqr" | "cash")}>
+            <Tabs
+              value={method}
+              onValueChange={(v) => setMethod(v as "drive_proof" | "cash")}
+            >
               <TabsList className="grid grid-cols-2 rounded-full p-1 bg-muted">
                 <TabsTrigger
-                  value="vietqr"
+                  value="drive_proof"
                   className="rounded-full gap-2 text-xs font-semibold data-[state=active]:bg-forest-ink data-[state=active]:text-lime-voltage dark:data-[state=active]:bg-lime-voltage dark:data-[state=active]:text-forest-ink"
                 >
-                  <QrCode className="h-4 w-4" />
-                  VietQR Transfer
+                  <ImageIcon className="h-4 w-4" />
+                  Ảnh minh chứng (Drive)
                 </TabsTrigger>
                 <TabsTrigger
                   value="cash"
                   className="rounded-full gap-2 text-xs font-semibold data-[state=active]:bg-forest-ink data-[state=active]:text-lime-voltage dark:data-[state=active]:bg-lime-voltage dark:data-[state=active]:text-forest-ink"
                 >
                   <Banknote className="h-4 w-4" />
-                  Cash / Direct Settle
+                  Tiền mặt trực tiếp
                 </TabsTrigger>
               </TabsList>
             </Tabs>
           </div>
 
-          {/* Method Content */}
-          {method === "vietqr" ? (
+          {/* Method Details */}
+          {method === "drive_proof" ? (
             <div className="space-y-4 rounded-2xl border border-border p-4 bg-background">
-              {bankName && bankAccount ? (
-                <>
-                  {/* QR Image Display */}
-                  {vietQrUrl && (
-                    <div className="flex flex-col items-center justify-center p-3 bg-white rounded-xl shadow-inner border border-border/50">
-                      <img
-                        src={vietQrUrl}
-                        alt="VietQR Payment Code"
-                        className="max-h-56 object-contain rounded-lg"
-                      />
-                      <p className="text-[11px] text-slate-500 font-medium mt-2 flex items-center gap-1">
-                        Scan with your Mobile Banking App (Napas247)
-                      </p>
-                    </div>
-                  )}
-
-                  {/* Bank Info Details with Copy Buttons */}
-                  <div className="space-y-2 pt-2 text-xs">
-                    <div className="flex items-center justify-between py-1.5 border-b border-border/60">
-                      <span className="text-muted-foreground">Beneficiary Bank:</span>
-                      <span className="font-bold text-foreground">{bankName}</span>
-                    </div>
-
-                    <div className="flex items-center justify-between py-1.5 border-b border-border/60">
-                      <span className="text-muted-foreground">Account Number:</span>
-                      <div className="flex items-center gap-2">
-                        <span className="font-bold tracking-wider text-foreground">
-                          {bankAccount}
-                        </span>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => copyToClipboard(bankAccount, "account")}
-                          className="h-6 w-6 rounded-full hover:bg-muted"
-                          title="Copy account number"
-                        >
-                          {copiedAccount ? (
-                            <Check className="h-3.5 w-3.5 text-lime-600" />
-                          ) : (
-                            <Copy className="h-3.5 w-3.5 text-muted-foreground" />
-                          )}
-                        </Button>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-between py-1.5">
-                      <span className="text-muted-foreground">Transfer Amount:</span>
-                      <div className="flex items-center gap-2">
-                        <span className="font-extrabold text-foreground">
-                          {formatCurrency(settleAmount)}
-                        </span>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => copyToClipboard(settleAmount.toString(), "amount")}
-                          className="h-6 w-6 rounded-full hover:bg-muted"
-                          title="Copy amount"
-                        >
-                          {copiedAmount ? (
-                            <Check className="h-3.5 w-3.5 text-lime-600" />
-                          ) : (
-                            <Copy className="h-3.5 w-3.5 text-muted-foreground" />
-                          )}
-                        </Button>
-                      </div>
+              {bankName && bankAccount && (
+                <div className="space-y-2 pb-3 border-b border-border/60 text-xs">
+                  <div className="flex items-center justify-between py-1">
+                    <span className="text-muted-foreground">Ngân hàng nhận:</span>
+                    <span className="font-bold text-foreground">{bankName}</span>
+                  </div>
+                  <div className="flex items-center justify-between py-1">
+                    <span className="text-muted-foreground">Số tài khoản:</span>
+                    <div className="flex items-center gap-2">
+                      <span className="font-bold tracking-wider text-foreground">
+                        {bankAccount}
+                      </span>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => copyToClipboard(bankAccount, "account")}
+                        className="h-6 w-6 rounded-full hover:bg-muted"
+                        title="Sao chép số tài khoản"
+                      >
+                        {copiedAccount ? (
+                          <Check className="h-3.5 w-3.5 text-lime-600" />
+                        ) : (
+                          <Copy className="h-3.5 w-3.5 text-muted-foreground" />
+                        )}
+                      </Button>
                     </div>
                   </div>
-                </>
-              ) : (
-                <div className="flex flex-col items-center justify-center p-6 text-center space-y-2 text-muted-foreground">
-                  <AlertCircle className="h-8 w-8 text-amber-500" />
-                  <p className="text-sm font-semibold text-foreground">
-                    No bank account linked yet
-                  </p>
-                  <p className="text-xs max-w-xs">
-                    {recipient?.fullName} has not configured their default bank account. You can settle in cash or ask them to update their profile.
-                  </p>
+                  <div className="flex items-center justify-between py-1">
+                    <span className="text-muted-foreground">Số tiền chuyển:</span>
+                    <div className="flex items-center gap-2">
+                      <span className="font-extrabold text-foreground">
+                        {formatCurrency(settleAmount)}
+                      </span>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() =>
+                          copyToClipboard(settleAmount.toString(), "amount")
+                        }
+                        className="h-6 w-6 rounded-full hover:bg-muted"
+                        title="Sao chép số tiền"
+                      >
+                        {copiedAmount ? (
+                          <Check className="h-3.5 w-3.5 text-lime-600" />
+                        ) : (
+                          <Copy className="h-3.5 w-3.5 text-muted-foreground" />
+                        )}
+                      </Button>
+                    </div>
+                  </div>
                 </div>
               )}
+
+              {/* Upload file to Google Drive OR Paste Drive Link */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs font-semibold text-foreground">
+                    Ảnh biên lai / Minh chứng (Lưu trên Google Drive) *
+                  </Label>
+                  {(proofFile || driveLinkInput.trim()) && (
+                    <button
+                      type="button"
+                      onClick={handleClearProof}
+                      className="text-[11px] font-semibold text-destructive hover:underline cursor-pointer"
+                    >
+                      Xóa ảnh
+                    </button>
+                  )}
+                </div>
+
+                {/* Option 1: Upload file from device -> backend uploads to Google Drive */}
+                <label className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border p-4 text-center cursor-pointer hover:bg-muted/30 transition-colors">
+                  <Upload className="h-6 w-6 text-forest-ink dark:text-lime-voltage mb-1" />
+                  <span className="text-xs font-semibold text-foreground">
+                    {proofFile
+                      ? `Đã chọn: ${proofFile.name}`
+                      : "Tải ảnh từ thiết bị (Tự động lưu lên Google Drive)"}
+                  </span>
+                  <span className="text-[10px] text-muted-foreground mt-0.5">
+                    Hỗ trợ PNG, JPG, WEBP tối đa 10MB
+                  </span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    className="hidden"
+                  />
+                </label>
+
+                {/* Option 2: Or paste Google Drive sharing link directly */}
+                <div className="space-y-1.5">
+                  <span className="text-[11px] text-muted-foreground flex items-center gap-1.5 font-medium">
+                    <Link2 className="h-3.5 w-3.5" />
+                    Hoặc dán trực tiếp link ảnh Google Drive:
+                  </span>
+                  <Input
+                    type="url"
+                    value={driveLinkInput}
+                    onChange={(e) => {
+                      setDriveLinkInput(e.target.value)
+                      if (e.target.value.trim()) {
+                        setProofFile(null)
+                        if (proofPreview) URL.revokeObjectURL(proofPreview)
+                        setProofPreview(null)
+                      }
+                    }}
+                    placeholder="https://drive.google.com/file/d/.../view?usp=sharing"
+                    className="rounded-xl text-xs h-9"
+                  />
+                </div>
+
+                {/* Preview */}
+                {activePreviewUrl && (
+                  <div className="space-y-1.5">
+                    <div className="relative rounded-xl overflow-hidden border border-border h-40 bg-muted/40 flex items-center justify-center">
+                      <img
+                        src={activePreviewUrl}
+                        alt="Payment Proof Preview"
+                        className="h-full w-full object-contain"
+                      />
+                    </div>
+                    {driveLinkInput.trim() && (
+                      <a
+                        href={getDriveViewerUrl(driveLinkInput)}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 dark:text-lime-voltage hover:underline"
+                      >
+                        <ExternalLink className="h-3 w-3" />
+                        Kiểm tra ảnh trên Google Drive
+                      </a>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           ) : (
-            <div className="rounded-2xl border border-dashed border-border p-5 text-center bg-muted/20 space-y-2">
+            <div className="rounded-2xl border border-dashed border-border p-5 text-center bg-muted/20 space-y-3">
               <Banknote className="h-10 w-10 text-forest-ink dark:text-lime-voltage mx-auto" />
-              <h5 className="font-bold text-sm text-foreground">Cash Settlement</h5>
+              <h5 className="font-bold text-sm text-foreground">
+                Thanh toán tiền mặt trực tiếp
+              </h5>
               <p className="text-xs text-muted-foreground max-w-sm mx-auto">
-                Confirm that you have paid {formatCurrency(settleAmount)} directly in cash or through another offline agreement.
+                Xác nhận bạn đã trả trực tiếp{" "}
+                <strong>{formatCurrency(settleAmount)}</strong> bằng tiền mặt cho{" "}
+                <strong>{recipient?.fullName}</strong>.
               </p>
             </div>
           )}
-
-          {/* Proof Upload */}
-          <div className="space-y-2">
-            <Label className="text-xs font-semibold text-muted-foreground flex items-center justify-between">
-              <span>Payment Receipt / Proof (Optional)</span>
-              {proofFile && (
-                <button
-                  type="button"
-                  onClick={() => {
-                    setProofFile(null)
-                    if (proofPreview) URL.revokeObjectURL(proofPreview)
-                    setProofPreview(null)
-                  }}
-                  className="text-[11px] text-destructive hover:underline"
-                >
-                  Remove
-                </button>
-              )}
-            </Label>
-
-            {proofPreview ? (
-              <div className="relative rounded-xl overflow-hidden border border-border h-32 bg-muted flex items-center justify-center">
-                <img
-                  src={proofPreview}
-                  alt="Payment Proof"
-                  className="h-full w-full object-cover"
-                />
-              </div>
-            ) : (
-              <label className="flex flex-col items-center justify-center rounded-xl border border-dashed border-border p-4 text-center cursor-pointer hover:bg-muted/30 transition-colors">
-                <Upload className="h-6 w-6 text-muted-foreground mb-1" />
-                <span className="text-xs font-semibold text-foreground">
-                  Click to attach transfer slip
-                </span>
-                <span className="text-[10px] text-muted-foreground">
-                  PNG, JPG or JPEG up to 5MB
-                </span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                  className="hidden"
-                />
-              </label>
-            )}
-          </div>
         </div>
 
         {/* Footer Actions */}
@@ -381,10 +434,10 @@ export default function QuickSettleUpModal({
           <Button
             type="button"
             variant="outline"
-            onClick={() => onOpenChange(false)}
+            onClick={() => handleModalClose(false)}
             className="rounded-full px-5 text-xs font-semibold"
           >
-            Cancel
+            Hủy
           </Button>
 
           <Button
@@ -396,10 +449,10 @@ export default function QuickSettleUpModal({
             {isSubmitting ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Sending...
+                Đang tải &amp; xử lý...
               </>
             ) : (
-              "Confirm Settlement"
+              "Xác nhận thanh toán"
             )}
           </Button>
         </DialogFooter>

@@ -1,10 +1,11 @@
 import { useState } from "react"
-import { CalendarClock, CheckSquare, Download, ImageIcon } from "lucide-react"
+import { CalendarClock, CheckSquare, ExternalLink, ImageIcon } from "lucide-react"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
 import type { TransactionViewDto } from "@/types/transaction/TransactionViewDto"
 import { formatCurrency } from "@/lib/utils"
+import { normalizeDriveImageUrl, getDriveViewerUrl } from "@/lib/driveUrl"
 
 interface ExpenseCardProps {
   expense: TransactionViewDto
@@ -74,7 +75,7 @@ export default function ExpenseCard({ expense }: ExpenseCardProps) {
                     <div className="absolute inset-0 animate-pulse bg-muted" />
                   )}
                   <img
-                    src={proofUrl}
+                    src={normalizeDriveImageUrl(proofUrl)}
                     alt="Expense receipt"
                     className="h-full w-full object-cover"
                     onLoad={() => setIsThumbLoading(false)}
@@ -91,30 +92,31 @@ export default function ExpenseCard({ expense }: ExpenseCardProps) {
                     </div>
                   )}
                   <img
-                    src={proofUrl}
+                    src={normalizeDriveImageUrl(proofUrl)}
                     alt="Expense receipt full preview"
                     className="h-auto max-h-[85vh] w-full object-contain"
                     onLoad={() => setIsDialogImageLoading(false)}
                     onError={() => setIsDialogImageLoading(false)}
                   />
-                  <div className="absolute right-4 bottom-4">
-                    <Button
-                      asChild
-                      size="sm"
-                      variant="secondary"
-                      className="gap-1.5"
-                    >
-                      <a
-                        href={proofUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        download
+                  {!proofUrl.startsWith("data:") && (
+                    <div className="absolute right-4 bottom-4">
+                      <Button
+                        asChild
+                        size="sm"
+                        variant="secondary"
+                        className="gap-1.5"
                       >
-                        <Download className="h-4 w-4" />
-                        Download
-                      </a>
-                    </Button>
-                  </div>
+                        <a
+                          href={getDriveViewerUrl(proofUrl)}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          <ExternalLink className="h-4 w-4" />
+                          Mở trên Google Drive
+                        </a>
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </DialogContent>
             </Dialog>

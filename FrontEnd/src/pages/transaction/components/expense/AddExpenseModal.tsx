@@ -25,13 +25,14 @@ import {
 } from "@/hooks/transaction/useTransaction"
 import { useAppSelector } from "@/store/hooks"
 import { useQueryClient } from "@tanstack/react-query"
-import { ImageIcon, Loader2, Paperclip, X } from "lucide-react"
+import { ImageIcon, Link2, Loader2, Paperclip, X } from "lucide-react"
 import {
   mapSplitStrategyToBackend,
   type SplitStrategyEnum,
 } from "@/constants/SplitStrategyEnum"
 import { mapTransactionTypeToBackend } from "@/constants/TransactionTypeEnum"
 import { formatCurrency } from "@/lib/utils"
+import { normalizeDriveImageUrl } from "@/lib/driveUrl"
 import { toast } from "sonner"
 
 interface AddExpenseModalProps {
@@ -275,7 +276,9 @@ export default function AddExpenseModal({
           )
         : null
 
-    let uploadedReceiptUrl: string | undefined = values.receiptUrl || undefined
+    let uploadedReceiptUrl: string | undefined = values.receiptUrl
+      ? normalizeDriveImageUrl(values.receiptUrl)
+      : undefined
 
     if (selectedFile) {
       setIsUploading(true)
@@ -312,6 +315,7 @@ export default function AddExpenseModal({
 
     queryClient.invalidateQueries({ queryKey: ["transactionsByGroupId"] })
     queryClient.invalidateQueries({ queryKey: ["myTransactions"] })
+    queryClient.invalidateQueries({ queryKey: ["groupAnalytics"] })
     if (previewUrl) {
       URL.revokeObjectURL(previewUrl)
     }
@@ -541,10 +545,10 @@ export default function AddExpenseModal({
               <div className="flex items-center justify-between gap-3">
                 <div>
                   <p className="text-sm font-semibold text-foreground">
-                    Receipt (Optional)
+                    Ảnh hóa đơn / Minh chứng (Google Drive)
                   </p>
                   <p className="text-xs text-muted-foreground">
-                    Upload an image as proof for this expense.
+                    Tải ảnh lên Google Drive hoặc dán link ảnh Google Drive.
                   </p>
                 </div>
                 <Button type="button" variant="outline" asChild>
@@ -553,7 +557,7 @@ export default function AddExpenseModal({
                     className="flex cursor-pointer items-center gap-2"
                   >
                     <Paperclip className="h-4 w-4" />
-                    Upload Receipt
+                    Tải ảnh lên Drive
                   </label>
                 </Button>
               </div>
@@ -565,6 +569,30 @@ export default function AddExpenseModal({
                 className="hidden"
                 onChange={handleReceiptSelected}
               />
+
+              {!selectedFile && (
+                <div className="space-y-1.5">
+                  <span className="text-[11px] text-muted-foreground flex items-center gap-1.5 font-medium">
+                    <Link2 className="h-3.5 w-3.5" />
+                    Hoặc dán link ảnh Google Drive:
+                  </span>
+                  <Input
+                    type="url"
+                    placeholder="https://drive.google.com/file/d/.../view?usp=sharing"
+                    {...register("receiptUrl")}
+                    onChange={(e) => {
+                      const val = e.target.value
+                      setValue("receiptUrl", val, { shouldDirty: true })
+                      if (val.trim()) {
+                        setPreviewUrl(normalizeDriveImageUrl(val))
+                      } else {
+                        setPreviewUrl(null)
+                      }
+                    }}
+                    className="h-9 text-xs"
+                  />
+                </div>
+              )}
 
               {previewUrl && (
                 <div className="relative flex items-start gap-3 rounded-lg border bg-background p-3">

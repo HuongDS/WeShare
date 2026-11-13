@@ -7,9 +7,11 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Avatar } from "@/components/ui/avatar"
 import { cn } from "@/lib/utils"
-import { Upload, Loader2, Check, ChevronDown, HelpCircle } from "lucide-react"
+import { Upload, Loader2, Check, ChevronDown, HelpCircle, Link as LinkIcon, ExternalLink, X } from "lucide-react"
 import { useAppSelector } from "@/store/hooks"
 import { useTransactionSettlement } from "@/hooks/transaction/useTransaction"
+import { transactionApi } from "@/api/transactionApi"
+import { normalizeDriveImageUrl, getDriveViewerUrl } from "@/lib/driveUrl"
 import type { CreateSettlementDto } from "@/types/transaction/CreateSettlementDto"
 import type { TransactionPaymentTypeEnum } from "@/constants/TransactionPaymentTypeEnum"
 import type { DebtItem } from "@/types/transaction/DebtItem"
@@ -46,7 +48,8 @@ export default function SettlementForm({
   const currentUser = useAppSelector((state) => state.auth.user)
   const { addSettlement } = useTransactionSettlement()
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
-  const [uploadProgress, setUploadProgress] = useState(0)
+  const [isUploadingProof, setIsUploadingProof] = useState(false)
+  const [driveLinkInput, setDriveLinkInput] = useState("")
   const [showPaymentDropdown, setShowPaymentDropdown] = useState(false)
   const dropdownRef = useRef<HTMLDivElement>(null)
 
@@ -70,6 +73,7 @@ export default function SettlementForm({
   })
 
   const paymentType = useWatch({ control, name: "paymentType" })
+  const proofUrl = useWatch({ control, name: "proofUrl" })
 
   // Golden Rule: isEditable = selectedDebtItems.length === 1
   const isEditable = selectedDebtItems.length === 1
@@ -149,29 +153,49 @@ export default function SettlementForm({
     }
   }, [isEditable, totalAmount, setValue])
 
-  // Handle file upload
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  // Handle file upload to Google Drive
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
-    if (file) {
-      if (!file.type.startsWith("image/")) {
-        toast.error("Please upload an image file")
-        return
-      }
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error("File size must be less than 5MB")
-        return
-      }
-      setSelectedFile(file)
-      const timer = setInterval(() => {
-        setUploadProgress((prev) => {
-          if (prev >= 100) {
-            clearInterval(timer)
-            return 100
-          }
-          return prev + 10
-        })
-      }, 100)
+    if (!file) return
+
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please upload an image file")
+      return
     }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("File size must be less than 5MB")
+      return
+    }
+
+    setSelectedFile(file)
+    setIsUploadingProof(true)
+    try {
+      const response = await transactionApi.uploadProof(file)
+      const uploadedUrl = response.data
+      if (uploadedUrl) {
+        setValue("proofUrl", uploadedUrl)
+        setDriveLinkInput(uploadedUrl.startsWith("data:") ? "" : uploadedUrl)
+        toast.success("Đã tải ảnh minh chứng lên Google Drive!")
+      } else {
+        toast.error("Không thể tải ảnh minh chứng lên.")
+      }
+    } catch {
+      toast.error("Lỗi khi tải ảnh minh chứng lên Google Drive.")
+      setSelectedFile(null)
+    } finally {
+      setIsUploadingProof(false)
+    }
+  }
+
+  const handleApplyDriveLink = () => {
+    const trimmed = driveLinkInput.trim()
+    if (!trimmed) {
+      toast.error("Vui lòng nhập link Google Drive hoặc URL ảnh.")
+      return
+    }
+    setValue("proofUrl", trimmed)
+    setSelectedFile(null)
+    toast.success("Đã gắn link ảnh minh chứng Google Drive!")
   }
 
   const onSubmit = async (data: SettlementFormData) => {
@@ -207,7 +231,7 @@ export default function SettlementForm({
         })
         reset()
         setSelectedFile(null)
-        setUploadProgress(0)
+        setDriveLinkInput("")
         onSuccess?.()
       },
     })
@@ -357,7 +381,7 @@ export default function SettlementForm({
                     ? "Cash"
                     : paymentType === "BANK_TRANSFER"
                       ? "Bank Transfer"
-                      : "QR Code"}
+                      : "Ảnh minh chứng (Google Drive)"}
                 </span>
                 <ChevronDown
                   className={cn(
@@ -416,7 +440,7 @@ export default function SettlementForm({
                         "bg-blue-50 font-medium text-blue-700"
                     )}
                   >
-                    QR Code
+                    Ảnh minh chứng (Google Drive)
                     {paymentType === "QR_CODE" && (
                       <Check className="ml-auto h-4 w-4 text-blue-600" />
                     )}
@@ -438,12 +462,35 @@ export default function SettlementForm({
             />
           </div>
 
-          {/* Proof of Payment */}
+          {/* Proof of Payment (Google Drive) */}
           {paymentType === "QR_CODE" && (
             <div className="space-y-3">
               <Label className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-                Proof of Payment
+                Ảnh minh chứng thanh toán (Google Drive)
               </Label>
+
+              <div className="flex gap-2">
+                <div className="relative flex-1">
+                  <LinkIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                  <Input
+                    type="url"
+                    placeholder="Dán link chia sẻ Google Drive (https://drive.google.com/file/d/...)"
+                    value={driveLinkInput}
+                    onChange={(e) => setDriveLinkInput(e.target.value)}
+                    className="pl-8 text-xs h-9"
+                  />
+                </div>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  onClick={handleApplyDriveLink}
+                  className="h-9 text-xs font-semibold shrink-0"
+                >
+                  Gắn link
+                </Button>
+              </div>
+
               <div className="rounded-lg border-2 border-dashed border-gray-300 p-4 text-center transition-colors hover:border-gray-400">
                 <input
                   type="file"
@@ -451,34 +498,65 @@ export default function SettlementForm({
                   onChange={handleFileChange}
                   className="hidden"
                   id="proof-upload"
+                  disabled={isUploadingProof}
                 />
                 <label htmlFor="proof-upload" className="cursor-pointer">
                   <div className="flex flex-col items-center gap-2">
-                    <Upload className="h-6 w-6 text-muted-foreground" />
+                    {isUploadingProof ? (
+                      <Loader2 className="h-6 w-6 animate-spin text-blue-600" />
+                    ) : (
+                      <Upload className="h-6 w-6 text-muted-foreground" />
+                    )}
                     <div>
                       <p className="text-xs font-medium text-foreground">
-                        Click to upload
+                        {isUploadingProof
+                          ? "Đang tải ảnh lên Google Drive..."
+                          : selectedFile
+                            ? selectedFile.name
+                            : "Hoặc tải ảnh từ thiết bị lên Google Drive"}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        PNG, JPG up to 5MB
+                        PNG, JPG tối đa 5MB
                       </p>
                     </div>
                   </div>
                 </label>
               </div>
-              {selectedFile && (
-                <div className="flex items-center justify-between rounded-lg bg-green-50 p-3">
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium text-green-900">
-                      {selectedFile.name}
-                    </p>
-                    <div className="mt-1 h-2 w-full overflow-hidden rounded-full bg-green-200">
-                      <div
-                        className="h-full bg-green-600 transition-all duration-300"
-                        style={{ width: `${uploadProgress}%` }}
-                      />
-                    </div>
+
+              {proofUrl && (
+                <div className="relative rounded-lg border border-border bg-muted/20 p-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setValue("proofUrl", "")
+                      setSelectedFile(null)
+                      setDriveLinkInput("")
+                    }}
+                    className="absolute top-2 right-2 h-6 w-6 rounded-full bg-background/90 border border-border flex items-center justify-center text-muted-foreground hover:text-destructive"
+                  >
+                    <X className="h-3.5 w-3.5" />
+                  </button>
+                  <div className="flex items-center justify-center max-h-44 overflow-hidden rounded">
+                    <img
+                      src={normalizeDriveImageUrl(proofUrl)}
+                      alt="Proof preview"
+                      className="max-h-40 w-auto object-contain"
+                    />
                   </div>
+                  {!proofUrl.startsWith("data:") && (
+                    <div className="mt-1.5 flex items-center justify-between text-[11px] text-muted-foreground px-1">
+                      <span className="truncate max-w-[240px]">{proofUrl}</span>
+                      <a
+                        href={getDriveViewerUrl(proofUrl)}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-1 text-blue-600 font-semibold hover:underline shrink-0"
+                      >
+                        <ExternalLink className="h-3 w-3" />
+                        Mở Drive
+                      </a>
+                    </div>
+                  )}
                 </div>
               )}
             </div>

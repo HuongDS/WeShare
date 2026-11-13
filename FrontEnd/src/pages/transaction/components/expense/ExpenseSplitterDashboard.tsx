@@ -22,7 +22,9 @@ import {
   Loader2,
   Filter,
   RotateCcw,
+  ExternalLink,
 } from "lucide-react"
+import { useQueryClient } from "@tanstack/react-query"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
@@ -52,8 +54,10 @@ import { useGetMyGroupDebts, useGetGroupDebtThatIAmOwed } from "@/hooks/groupDeb
 import { useGetGroupMembers } from "@/hooks/group/useGroup"
 import { useAppSelector } from "@/store/hooks"
 import { formatCurrency, cn } from "@/lib/utils"
+import { normalizeDriveImageUrl, getDriveViewerUrl } from "@/lib/driveUrl"
 import AddExpenseModal from "@/pages/transaction/components/expense/AddExpenseModal"
 import QuickSettleUpModal from "@/pages/transaction/components/settlement/QuickSettleUpModal"
+import GroupExpenseAnalyticsSection from "@/pages/transaction/components/expense/GroupExpenseAnalyticsSection"
 import type { TransactionViewDto } from "@/types/transaction/TransactionViewDto"
 import type { UserViewDto } from "@/types/user/UserViewDto"
 import { groupDebtApi } from "@/api/groupDebtApi"
@@ -69,6 +73,7 @@ export default function ExpenseSplitterDashboard({
   groupId,
   groupName,
 }: ExpenseSplitterDashboardProps) {
+  const queryClient = useQueryClient()
   const currentUserId = useAppSelector((state) => state.auth.user?.userId)
   const [page, setPage] = useState(1)
   const PAGE_SIZE = 10
@@ -236,6 +241,7 @@ export default function ExpenseSplitterDashboard({
       getTransactionsByGroupId.refetch()
       myGroupDebts.refetch()
       groupDebtThatIAmOwed.refetch()
+      queryClient.invalidateQueries({ queryKey: ["groupAnalytics", groupId] })
     } catch {
       toast.error("Failed to delete expense")
     }
@@ -358,7 +364,7 @@ export default function ExpenseSplitterDashboard({
               Split, Share &amp; Settle
             </h4>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Add new receipt or settle debts with 1-click VietQR.
+              Add new receipt or settle debts with Google Drive proof.
             </p>
           </div>
 
@@ -434,6 +440,11 @@ export default function ExpenseSplitterDashboard({
           </div>
         </div>
       </div>
+
+      {/* =========================================================================
+          SECTION 1.5: ANALYTICS CHARTS & EXCEL/PDF REPORT EXPORT
+          ========================================================================= */}
+      <GroupExpenseAnalyticsSection groupId={groupId} groupName={groupName} />
 
       {/* =========================================================================
           SECTION 2: BALANCES & SETTLEMENT FLOW ("Ai nợ ai bao nhiêu tiền")
@@ -1131,6 +1142,7 @@ export default function ExpenseSplitterDashboard({
           getTransactionsByGroupId.refetch()
           myGroupDebts.refetch()
           groupDebtThatIAmOwed.refetch()
+          queryClient.invalidateQueries({ queryKey: ["groupAnalytics", groupId] })
         }}
       />
 
@@ -1146,19 +1158,31 @@ export default function ExpenseSplitterDashboard({
           myGroupDebts.refetch()
           groupDebtThatIAmOwed.refetch()
           getTransactionsByGroupId.refetch()
+          queryClient.invalidateQueries({ queryKey: ["groupAnalytics", groupId] })
         }}
       />
 
       {/* Receipt Proof Preview Dialog */}
       <Dialog open={!!viewingProofUrl} onOpenChange={(open) => !open && setViewingProofUrl(null)}>
         <DialogContent className="max-w-xl rounded-3xl p-6">
-          <DialogHeader>
-            <DialogTitle className="text-base font-bold">Transaction Receipt Proof</DialogTitle>
+          <DialogHeader className="flex flex-row items-center justify-between pr-6">
+            <DialogTitle className="text-base font-bold">Ảnh minh chứng giao dịch (Google Drive)</DialogTitle>
+            {viewingProofUrl && !viewingProofUrl.startsWith("data:") && (
+              <a
+                href={getDriveViewerUrl(viewingProofUrl)}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1 text-xs font-semibold text-blue-600 hover:underline"
+              >
+                <ExternalLink className="h-3.5 w-3.5" />
+                Mở trên Google Drive
+              </a>
+            )}
           </DialogHeader>
           <div className="mt-2 rounded-2xl overflow-hidden border border-border bg-black/5 flex items-center justify-center max-h-[70vh]">
             {viewingProofUrl && (
               <img
-                src={viewingProofUrl}
+                src={normalizeDriveImageUrl(viewingProofUrl)}
                 alt="Receipt proof"
                 className="max-h-[65vh] w-auto object-contain"
               />

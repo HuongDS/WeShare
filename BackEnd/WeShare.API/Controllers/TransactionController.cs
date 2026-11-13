@@ -20,14 +20,14 @@ namespace WeShare.API.Controllers
     {
         private readonly ITransactionServices _transactionServices;
         private readonly ICurrentUserService _currentUserService;
-        private readonly IFileServices _fileServices;
+        private readonly IDriveStorageServices _driveStorageServices;
 
         public TransactionController(ITransactionServices transactionServices, ICurrentUserService currentUserService,
-            IFileServices fileServices)
+            IDriveStorageServices driveStorageServices)
         {
             _transactionServices = transactionServices;
             _currentUserService = currentUserService;
-            _fileServices = fileServices;
+            _driveStorageServices = driveStorageServices;
         }
         [HttpPost]
         public async Task<IActionResult> AddTransaction([FromBody] CreateTransactionDto data)
@@ -166,14 +166,12 @@ namespace WeShare.API.Controllers
         [HttpPost("upload-proof")]
         public async Task<IActionResult> UploadProof(IFormFile file)
         {
-            var userId = _currentUserService.GetUserId();
-            var res = await _fileServices.UploadImageAsync(file, "WeShare/proof");
-            if (res == null) throw new WeShare.Core.Exceptions.BadRequestException(WeShare.Core.Constants.ErrorMessage.SOME_THING_WENT_WRONG);
+            var url = await _driveStorageServices.UploadImageAsync(file, "proof");
             return Ok(new ResponseDto<string>
             {
                 Status = (int)HttpStatusCode.OK,
                 Message = SuccessMessage.UPLOAD_PROOF_SUCCESSFULLY,
-                Data = res.Url
+                Data = url
             });
         }
         [HttpGet("group/{groupId}/payer/{payerId}")]

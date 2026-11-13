@@ -35,6 +35,8 @@ namespace WeShare.Application
             services.AddScoped<IGroupDebtServices, GroupDebtServices>();
             services.AddScoped<IGroupMemberServices, GroupMemberServices>();
             services.AddScoped<ITravelPlanServices, TravelPlanServices>();
+            services.AddScoped<IDriveStorageServices, DriveStorageServices>();
+            services.AddScoped<IReportServices, ReportServices>();
             return services;
         }
     }
