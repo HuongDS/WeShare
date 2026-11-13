@@ -4,6 +4,7 @@ import { useNavigate, useLocation } from "react-router-dom"
 import { motion } from "framer-motion"
 import {
   ChevronLeft,
+  ChevronRight,
   ChevronDown,
   Home,
   Users,
@@ -140,7 +141,14 @@ export default function Sidebar({
     >
       {/* Header with Logo & Toggle */}
       {(!isMobile || isMobileView) && (
-        <div className="flex h-20 items-center justify-between border-b border-border px-4 pt-1">
+        <div
+          className={cn(
+            "flex h-20 items-center border-b border-border pt-1 transition-all",
+            isExpanded
+              ? "justify-between px-4"
+              : "flex-col justify-center gap-1.5 px-2 py-2"
+          )}
+        >
           {/* Logo */}
           {isExpanded ? (
             <motion.div
@@ -167,25 +175,42 @@ export default function Sidebar({
             </motion.div>
           ) : (
             <div
-              className="flex h-9 w-9 items-center justify-center rounded-full bg-lime-voltage text-forest-ink cursor-pointer mx-auto shadow-xs"
+              className="flex h-8 w-8 items-center justify-center rounded-full bg-lime-voltage text-forest-ink cursor-pointer shadow-xs hover:scale-105 transition-transform"
               onClick={() => {
                 navigate("/dashboard")
                 if (isMobile) onMobileClose?.()
               }}
+              title="WeShare - Bảng điều khiển"
             >
-              <Zap className="h-5 w-5 fill-current" />
+              <Zap className="h-4.5 w-4.5 fill-current" />
             </div>
           )}
 
           {/* Toggle Button */}
-          {!isMobileView && isExpanded && (
+          {!isMobileView && (
             <button
-              onClick={toggleSidebar}
-              className="rounded-full p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-              aria-label="Thu gọn thanh bên"
+              onClick={(e) => {
+                (e.currentTarget as HTMLElement)?.blur()
+                toggleSidebar()
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLElement)?.blur()
+              }}
+              className={cn(
+                "rounded-full text-muted-foreground hover:bg-muted hover:text-foreground transition-colors outline-none",
+                isExpanded
+                  ? "p-1.5"
+                  : "h-7 w-7 flex items-center justify-center bg-muted/60 hover:bg-muted text-foreground shadow-2xs"
+              )}
+              aria-label={isExpanded ? "Thu gọn thanh bên" : "Mở rộng thanh bên"}
+              title={isExpanded ? "Thu gọn thanh bên" : "Mở rộng thanh bên"}
               type="button"
             >
-              <ChevronLeft className="h-5 w-5" />
+              {isExpanded ? (
+                <ChevronLeft className="h-5 w-5" />
+              ) : (
+                <ChevronRight className="h-4 w-4" />
+              )}
             </button>
           )}
         </div>
@@ -205,55 +230,63 @@ export default function Sidebar({
           const hasChildren = item.children && item.children.length > 0
           const isItemActive = active || parentActive
 
+          const buttonNode = (
+            <button
+              onClick={(e) => {
+                (e.currentTarget as HTMLElement)?.blur()
+                if (hasChildren) {
+                  toggleParent(item.id)
+                } else {
+                  handleMenuItemClick(item.href)
+                }
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLElement)?.blur()
+              }}
+              className={cn(
+                "relative flex items-center transition-all duration-200 outline-none",
+                isExpanded
+                  ? "w-full justify-start gap-3.5 px-4 py-2.5 rounded-full"
+                  : "h-11 w-11 justify-center rounded-full mx-auto",
+                isItemActive
+                  ? "bg-lime-voltage text-forest-ink font-bold shadow-xs dark:bg-lime-voltage dark:text-forest-ink"
+                  : "text-foreground/80 hover:bg-muted hover:text-foreground font-medium"
+              )}
+              type="button"
+            >
+              <div className="flex-shrink-0">{item.icon}</div>
+
+              {isExpanded && (
+                <div className="flex flex-1 items-center justify-between min-w-0">
+                  <span className="truncate text-sm tracking-tight">
+                    {item.label}
+                  </span>
+
+                  {hasChildren && (
+                    <ChevronDown
+                      className={cn(
+                        "h-4 w-4 transition-transform text-muted-foreground",
+                        isParentExpanded && "rotate-180"
+                      )}
+                    />
+                  )}
+                </div>
+              )}
+            </button>
+          )
+
           return (
             <div key={item.id} className="w-full">
-              <Tooltip delayDuration={200}>
-                <TooltipTrigger asChild>
-                  <button
-                    onClick={() => {
-                      if (hasChildren) {
-                        toggleParent(item.id)
-                      } else {
-                        handleMenuItemClick(item.href)
-                      }
-                    }}
-                    className={cn(
-                      "relative flex items-center transition-all duration-200 outline-none",
-                      isExpanded
-                        ? "w-full justify-start gap-3.5 px-4 py-2.5 rounded-full"
-                        : "h-11 w-11 justify-center rounded-full mx-auto",
-                      isItemActive
-                        ? "bg-lime-voltage text-forest-ink font-bold shadow-xs dark:bg-lime-voltage dark:text-forest-ink"
-                        : "text-foreground/80 hover:bg-muted hover:text-foreground font-medium"
-                    )}
-                    type="button"
-                  >
-                    <div className="flex-shrink-0">{item.icon}</div>
-
-                    {isExpanded && (
-                      <div className="flex flex-1 items-center justify-between min-w-0">
-                        <span className="truncate text-sm tracking-tight">
-                          {item.label}
-                        </span>
-
-                        {hasChildren && (
-                          <ChevronDown
-                            className={cn(
-                              "h-4 w-4 transition-transform text-muted-foreground",
-                              isParentExpanded && "rotate-180"
-                            )}
-                          />
-                        )}
-                      </div>
-                    )}
-                  </button>
-                </TooltipTrigger>
-                {!isExpanded && !isMobileView && (
-                  <TooltipContent side="right">
+              {isExpanded || isMobileView ? (
+                buttonNode
+              ) : (
+                <Tooltip delayDuration={100} disableHoverableContent>
+                  <TooltipTrigger asChild>{buttonNode}</TooltipTrigger>
+                  <TooltipContent side="right" sideOffset={8} className="pointer-events-none">
                     <p className="font-medium text-xs">{item.label}</p>
                   </TooltipContent>
-                )}
-              </Tooltip>
+                </Tooltip>
+              )}
 
               {/* Sub-menu items (if any) */}
               {hasChildren && isParentExpanded && isExpanded && (
