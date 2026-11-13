@@ -68,7 +68,9 @@ builder.Services.AddAuthentication(opt =>
     });
 
 var redisConnection = builder.Configuration.GetConnectionString("RedisConnection") ?? "localhost:6379";
-builder.Services.AddSingleton<IConnectionMultiplexer>(sp => ConnectionMultiplexer.Connect(redisConnection));
+var redisOptions = ConfigurationOptions.Parse(redisConnection);
+redisOptions.AbortOnConnectFail = false;
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp => ConnectionMultiplexer.Connect(redisOptions));
 builder.Services.AddAppDI();
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 

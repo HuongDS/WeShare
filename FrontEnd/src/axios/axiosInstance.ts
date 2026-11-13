@@ -69,13 +69,17 @@ axiosClient.interceptors.response.use(
           throw new Error("Không tìm thấy token")
         }
 
-        const { data } = await axios.post(API_URL + "/auth/refresh-token", {
-          accessToken: accessToken, // Backend .NET thường yêu cầu gửi cả token cũ
-          refreshToken: refreshToken, // và refresh token
+        const { data } = await axios.post(API_URL + "/auth/refresh", {
+          refreshToken: refreshToken,
         })
 
-        const newAccessToken = data.token // hoặc data.accessToken tùy backend của bạn đặt tên
-        const newRefreshToken = data.refreshToken
+        const authPayload = data?.data || data
+        const newAccessToken = authPayload?.accessToken || authPayload?.token
+        const newRefreshToken = authPayload?.refreshToken
+
+        if (!newAccessToken || !newRefreshToken) {
+          throw new Error("Refresh token response invalid")
+        }
 
         // Lưu lại vào Local Storage
         localStorage.setItem("token", newAccessToken)
@@ -95,9 +99,10 @@ axiosClient.interceptors.response.use(
         // Bắt buộc người dùng phải đăng nhập lại từ đầu
         localStorage.removeItem("token")
         localStorage.removeItem("refreshToken")
+        localStorage.removeItem("user")
 
         // Đá người dùng về trang đăng nhập
-        window.location.href = "/" // Đổi thành link trang Login của bạn
+        window.location.href = "/auth"
 
         return Promise.reject(refreshError)
       } finally {

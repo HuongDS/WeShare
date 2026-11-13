@@ -24,6 +24,7 @@ namespace WeShare.Infrastructure
             services.AddScoped(typeof(IGroupDebtRepository), typeof(GroupDebtRepository));
             services.AddScoped(typeof(IEventRepository), typeof(EventRepository));
             services.AddScoped(typeof(ITaskMemberRepository), typeof(TaskMemberRepository));
+            services.AddScoped(typeof(ITravelPlanRepository), typeof(TravelPlanRepository));
             services.AddScoped(typeof(ITaskServices), typeof(TaskServices));
             return services;
         }

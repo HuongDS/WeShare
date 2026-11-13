@@ -20,15 +20,23 @@ export const useAuth = () => {
         localStorage.setItem("refreshToken", refreshToken)
         toast.success(res.message || "Login successfully!")
 
-        const profileRes = await userApi.getUserProfile()
-        const userProfile = profileRes.data
+        let avatar = ""
+        let email = ""
+        try {
+          const profileRes = await userApi.getUserProfile()
+          const userProfile = profileRes.data
+          avatar = userProfile?.avatar || ""
+          email = userProfile?.email || ""
+        } catch {
+          // Fallback safely if profile fetch fails transiently
+        }
 
         dispatch(
           setAuthUser({
-            userId: userId,
+            userId: String(userId),
             userName: userName,
-            avatar: userProfile.avatar,
-            email: userProfile.email,
+            avatar: avatar,
+            email: email,
           })
         )
       }
@@ -66,15 +74,23 @@ export const useAuth = () => {
         localStorage.setItem("token", accessToken)
         localStorage.setItem("refreshToken", refreshToken)
         toast.success(res.message || "Login successfully!")
-        const profileRes = await userApi.getUserProfile()
-        const userProfile = profileRes.data
+        let avatar = ""
+        let email = ""
+        try {
+          const profileRes = await userApi.getUserProfile()
+          const userProfile = profileRes.data
+          avatar = userProfile?.avatar || ""
+          email = userProfile?.email || ""
+        } catch {
+          // Fallback safely if profile fetch fails transiently
+        }
 
         dispatch(
           setAuthUser({
-            userId: userId,
+            userId: String(userId),
             userName: userName,
-            avatar: userProfile.avatar,
-            email: userProfile.email,
+            avatar: avatar,
+            email: email,
           })
         )
         navigate("/dashboard", { replace: true })

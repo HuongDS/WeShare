@@ -13,22 +13,17 @@ namespace WeShare.Application.Services
     public class TravelPlanServices : ITravelPlanServices
     {
         private readonly IUnitOfWork _unitOfWork;
+        private readonly ITravelPlanRepository _travelPlanRepository;
 
-        public TravelPlanServices(IUnitOfWork unitOfWork)
+        public TravelPlanServices(IUnitOfWork unitOfWork, ITravelPlanRepository travelPlanRepository)
         {
             _unitOfWork = unitOfWork;
+            _travelPlanRepository = travelPlanRepository;
         }
 
         public async Task<TravelPlanViewDto?> GetByGroupIdAsync(int groupId)
         {
-            var planRepo = _unitOfWork.Repository<TravelPlan>();
-            var plans = await planRepo.FindAsync(
-                p => p.GroupId == groupId && !p.IsDeleted,
-                p => p.Hotels,
-                p => p.Places
-            );
-
-            var plan = plans.FirstOrDefault();
+            var plan = await _travelPlanRepository.GetByGroupIdWithDetailsAsync(groupId);
             if (plan == null)
             {
                 return null;
@@ -46,14 +41,7 @@ namespace WeShare.Application.Services
                 throw new NotFoundException($"Group {dto.GroupId} does not exist.");
             }
 
-            var planRepo = _unitOfWork.Repository<TravelPlan>();
-            var existingPlans = await planRepo.FindAsync(
-                p => p.GroupId == dto.GroupId && !p.IsDeleted,
-                p => p.Hotels,
-                p => p.Places
-            );
-
-            var plan = existingPlans.FirstOrDefault();
+            var plan = await _travelPlanRepository.GetByGroupIdWithDetailsAsync(dto.GroupId);
             if (plan == null)
             {
                 plan = new TravelPlan
@@ -65,7 +53,7 @@ namespace WeShare.Application.Services
                     EstimatedBudget = dto.EstimatedBudget,
                     Notes = dto.Notes
                 };
-                await planRepo.AddAsync(plan);
+                await _travelPlanRepository.AddAsync(plan);
             }
             else
             {
@@ -74,7 +62,7 @@ namespace WeShare.Application.Services
                 plan.EndDate = dto.EndDate?.ToUniversalTime();
                 plan.EstimatedBudget = dto.EstimatedBudget;
                 plan.Notes = dto.Notes;
-                planRepo.Update(plan);
+                _travelPlanRepository.Update(plan);
             }
 
             await _unitOfWork.CompleteAsync();
