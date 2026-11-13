@@ -1,11 +1,12 @@
 import { useMemo, useState } from "react"
 import { useNavigate } from "react-router-dom"
-import { MoreHorizontal, Search, UserPlus, Share2, Crown, LogOut, Loader2 } from "lucide-react"
+import { MoreHorizontal, Search, UserPlus, Share2, Crown, LogOut, Loader2, LayoutGrid, List } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Checkbox } from "@/components/ui/checkbox"
+import { cn } from "@/lib/utils"
 import {
   Select,
   SelectContent,
@@ -279,108 +280,148 @@ export default function MembersTab({ group }: MembersTabProps) {
 
   return (
     <>
-      <div className="mb-6 flex flex-col justify-between gap-4 sm:flex-row">
-        <div className="flex flex-1 flex-col gap-3 sm:flex-row">
-          <div className="relative flex-1">
-            <Search className="pointer-events-none absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              value={searchQuery}
-              onChange={(event) => setSearchQuery(event.target.value)}
-              placeholder="Tìm theo họ tên hoặc email..."
-              className="pl-9"
-            />
+      <div className="mb-6 space-y-3.5">
+        {/* Tier 1: Group Action Bar (Title & Batch actions on left, Action buttons & Leave group on right) */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-2.5 border-b border-border/60">
+          <div className="flex items-center gap-2.5 flex-wrap">
+            <h3 className="text-base sm:text-lg font-black tracking-tight text-foreground">
+              Thành viên nhóm ({filteredMembers.length})
+            </h3>
+            {isLeader && (
+              <div className="flex items-center gap-1.5 pl-2 border-l border-border/80">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={toggleSelectAll}
+                  className="rounded-full text-xs font-semibold px-3 h-8 border-border/80"
+                >
+                  {isAllSelected ? "Bỏ chọn tất cả" : "Chọn tất cả"}
+                </Button>
+                {selectedMemberIds.size > 0 && (
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => setIsBulkRemoveConfirmOpen(true)}
+                    disabled={removeMembers.isPending}
+                    className="rounded-full text-xs font-semibold px-3 h-8 shadow-xs"
+                  >
+                    Xóa {selectedMemberIds.size} đã chọn
+                  </Button>
+                )}
+              </div>
+            )}
           </div>
 
-          <Select
-            value={roleFilter}
-            onValueChange={(value) =>
-              setRoleFilter(value as "ALL" | "Leader" | "Member")
-            }
-          >
-            <SelectTrigger className="sm:w-44">
-              <SelectValue placeholder="Tất cả vai trò" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="ALL">Tất cả vai trò</SelectItem>
-              <SelectItem value="Leader">Trưởng nhóm</SelectItem>
-              <SelectItem value="Member">Thành viên</SelectItem>
-            </SelectContent>
-          </Select>
+          {/* Action buttons (Invite, Add member, Leave group) */}
+          <div className="flex items-center gap-2 flex-wrap">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsInviteModalOpen(true)}
+              className="rounded-full border-border/80 text-xs font-semibold px-3.5 h-8 gap-1.5"
+            >
+              <Share2 className="h-3.5 w-3.5 text-lime-voltage dark:text-lime-voltage" />
+              <span>Mời Link / QR</span>
+            </Button>
 
-          <Select
-            value={sortBy}
-            onValueChange={(value) => setSortBy(value as "name" | "email")}
-          >
-            <SelectTrigger className="sm:w-40">
-              <SelectValue placeholder="Sắp xếp" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="name">Họ và tên</SelectItem>
-              <SelectItem value="email">Email</SelectItem>
-            </SelectContent>
-          </Select>
-
-          <Select
-            value={viewMode}
-            onValueChange={(value) => setViewMode(value as "card" | "table")}
-          >
-            <SelectTrigger className="sm:w-40">
-              <SelectValue placeholder="Hiển thị" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="card">Dạng thẻ</SelectItem>
-              <SelectItem value="table">Dạng bảng</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-2">
-          <Button
-            variant="outline"
-            onClick={() => setIsInviteModalOpen(true)}
-            className="rounded-full border-border/80 text-xs font-semibold px-4 h-9 gap-1.5"
-          >
-            <Share2 className="h-3.5 w-3.5 text-lime-voltage dark:text-lime-voltage" />
-            <span>Mời Link / QR</span>
-          </Button>
-
-          {isLeader && (
-            <>
+            {isLeader && (
               <Button
-                variant="outline"
-                onClick={toggleSelectAll}
-                className="rounded-full text-xs font-semibold px-3 h-9"
-              >
-                {isAllSelected ? "Bỏ chọn" : "Chọn tất cả"}
-              </Button>
-              {selectedMemberIds.size > 0 && (
-                <Button
-                  variant="destructive"
-                  onClick={() => setIsBulkRemoveConfirmOpen(true)}
-                  disabled={removeMembers.isPending}
-                  className="rounded-full text-xs font-semibold px-3 h-9"
-                >
-                  Xóa {selectedMemberIds.size} đã chọn
-                </Button>
-              )}
-              <Button
-                className="rounded-full bg-lime-voltage hover:bg-lime-voltage/90 text-forest-ink font-bold text-xs px-4 h-9 gap-1.5 shadow-xs"
+                size="sm"
+                className="rounded-full bg-lime-voltage hover:bg-lime-voltage/90 text-forest-ink font-bold text-xs px-3.5 h-8 gap-1.5 shadow-xs"
                 onClick={() => setIsAddMemberModalOpen(true)}
               >
                 <UserPlus className="h-3.5 w-3.5 stroke-[2.5]" />
                 <span>Thêm thành viên</span>
               </Button>
-            </>
-          )}
+            )}
 
-          <Button
-            variant="ghost"
-            onClick={() => setIsLeaveConfirmOpen(true)}
-            className="rounded-full text-destructive hover:bg-destructive/10 text-xs font-semibold px-3.5 h-9 gap-1.5"
-          >
-            <LogOut className="h-3.5 w-3.5" />
-            <span>Rời nhóm</span>
-          </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsLeaveConfirmOpen(true)}
+              className="rounded-full border-alarm-red/40 text-alarm-red hover:bg-alarm-red/10 text-xs font-semibold px-3.5 h-8 gap-1.5 transition-colors"
+            >
+              <LogOut className="h-3.5 w-3.5" />
+              <span>Rời nhóm</span>
+            </Button>
+          </div>
+        </div>
+
+        {/* Tier 2: Search & Filter Controls Bar */}
+        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+          {/* Search Input with centered magnifying glass icon inside pill */}
+          <div className="relative flex-1 max-w-md h-9">
+            <Search className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground shrink-0" />
+            <Input
+              value={searchQuery}
+              onChange={(event) => setSearchQuery(event.target.value)}
+              placeholder="Tìm theo họ tên hoặc email..."
+              className="pl-10 pr-3 h-9 rounded-full bg-background border-border/80 w-full text-xs placeholder:text-muted-foreground focus-visible:ring-1 shadow-2xs"
+            />
+          </div>
+
+          {/* Filters & View switcher */}
+          <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+            <Select
+              value={roleFilter}
+              onValueChange={(value) =>
+                setRoleFilter(value as "ALL" | "Leader" | "Member")
+              }
+            >
+              <SelectTrigger className="w-36 h-9 rounded-full text-xs border-border/80 bg-background">
+                <SelectValue placeholder="Tất cả vai trò" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ALL">Tất cả vai trò</SelectItem>
+                <SelectItem value="Leader">Trưởng nhóm</SelectItem>
+                <SelectItem value="Member">Thành viên</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select
+              value={sortBy}
+              onValueChange={(value) => setSortBy(value as "name" | "email")}
+            >
+              <SelectTrigger className="w-36 h-9 rounded-full text-xs border-border/80 bg-background">
+                <SelectValue placeholder="Sắp xếp" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="name">Họ và tên</SelectItem>
+                <SelectItem value="email">Email</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <div className="flex items-center rounded-full bg-muted/80 p-0.5 border border-border/70 h-9 shrink-0">
+              <button
+                type="button"
+                onClick={() => setViewMode("card")}
+                className={cn(
+                  "rounded-full px-3 py-1 text-xs font-semibold transition-all flex items-center gap-1",
+                  viewMode === "card"
+                    ? "bg-background text-foreground shadow-2xs font-bold"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+                title="Hiển thị dạng thẻ"
+              >
+                <LayoutGrid className="h-3.5 w-3.5" />
+                <span>Thẻ</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewMode("table")}
+                className={cn(
+                  "rounded-full px-3 py-1 text-xs font-semibold transition-all flex items-center gap-1",
+                  viewMode === "table"
+                    ? "bg-background text-foreground shadow-2xs font-bold"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+                title="Hiển thị dạng bảng"
+              >
+                <List className="h-3.5 w-3.5" />
+                <span>Bảng</span>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
