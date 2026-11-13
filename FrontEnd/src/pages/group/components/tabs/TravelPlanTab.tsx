@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react"
+import React, { useState, useEffect, useMemo, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import {
   Hotel,
@@ -18,6 +18,8 @@ import {
   Wallet,
   AlertTriangle,
   Sparkles,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -33,6 +35,12 @@ import {
   DialogDescription,
 } from "@/components/ui/dialog"
 import { travelApi } from "@/api/travelApi"
+import {
+  extractTikTokUrl,
+  extractTikTokVideoId,
+  combineNotesAndTikTok,
+  getCleanNotesWithoutTikTok,
+} from "@/lib/tiktok"
 import type {
   TravelPlan,
   TravelHotel,
@@ -88,6 +96,14 @@ export default function TravelPlanTab({ groupId, group }: TravelPlanTabProps) {
   const [editingHotel, setEditingHotel] = useState<TravelHotel | null>(null)
   const [editingPlace, setEditingPlace] = useState<TravelPlace | null>(null)
   const [editingBudgetItem, setEditingBudgetItem] = useState<TravelBudgetItem | null>(null)
+
+  // TikTok Quick Paste & Horizontal Reel states
+  const [quickTikTokUrl, setQuickTikTokUrl] = useState<string>("")
+  const [quickTikTokTitle, setQuickTikTokTitle] = useState<string>("")
+  const [quickTikTokCategory, setQuickTikTokCategory] = useState<string>("Ăn uống")
+  const [isAddingTikTok, setIsAddingTikTok] = useState<boolean>(false)
+  const [placeTiktokInput, setPlaceTiktokInput] = useState<string>("")
+  const tiktokReelRef = useRef<HTMLDivElement>(null)
 
   // Form states
   const [planForm, setPlanForm] = useState<TravelPlanCreateOrUpdatePayload>({
@@ -283,10 +299,11 @@ export default function TravelPlanTab({ groupId, group }: TravelPlanTabProps) {
   // Place actions
   const handleOpenAddPlace = () => {
     setEditingPlace(null)
+    setPlaceTiktokInput("")
     setPlaceForm({
       name: "",
       address: "",
-      category: "Ăn uống",
+      category: activeCategoryFilter === "ALL" ? "Ăn uống" : activeCategoryFilter,
       dayNumber: 1,
       visitTime: "",
       estimatedCost: null,
@@ -298,6 +315,8 @@ export default function TravelPlanTab({ groupId, group }: TravelPlanTabProps) {
 
   const handleOpenEditPlace = (place: TravelPlace) => {
     setEditingPlace(place)
+    const existingTikTok = extractTikTokUrl(place.notes)
+    setPlaceTiktokInput(existingTikTok || "")
     setPlaceForm({
       name: place.name,
       address: place.address || "",
@@ -305,7 +324,7 @@ export default function TravelPlanTab({ groupId, group }: TravelPlanTabProps) {
       dayNumber: place.dayNumber ?? 1,
       visitTime: place.visitTime || "",
       estimatedCost: place.estimatedCost,
-      notes: place.notes || "",
+      notes: getCleanNotesWithoutTikTok(place.notes),
       isVisited: place.isVisited,
     })
     setIsPlaceModalOpen(true)
@@ -325,8 +344,14 @@ export default function TravelPlanTab({ groupId, group }: TravelPlanTabProps) {
         setPlan(newPlan)
       }
 
+      const mergedNotes = combineNotesAndTikTok(placeForm.notes, placeTiktokInput)
+      const payload: TravelPlacePayload = {
+        ...placeForm,
+        notes: mergedNotes,
+      }
+
       if (editingPlace) {
-        const updated = await travelApi.updatePlace(editingPlace.id, placeForm)
+        const updated = await travelApi.updatePlace(editingPlace.id, payload)
         setPlan((prev) =>
           prev
             ? {
@@ -335,8 +360,9 @@ export default function TravelPlanTab({ groupId, group }: TravelPlanTabProps) {
               }
             : prev
         )
+        toast.success("Đã cập nhật địa điểm!")
       } else {
-        const created = await travelApi.addPlace(activePlanId, placeForm)
+        const created = await travelApi.addPlace(activePlanId, payload)
         setPlan((prev) =>
           prev
             ? {
@@ -345,10 +371,83 @@ export default function TravelPlanTab({ groupId, group }: TravelPlanTabProps) {
               }
             : prev
         )
+        toast.success("Đã thêm địa điểm mới!")
       }
       setIsPlaceModalOpen(false)
     } catch (err) {
       console.error("Failed to save place:", err)
+      toast.error("Không thể lưu địa điểm.")
+    }
+  }
+
+  // Quick Add TikTok link for current category
+  const handleQuickAddTikTok = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    const rawUrl = quickTikTokUrl.trim()
+    if (!rawUrl) {
+      toast.error("Vui lòng dán link video TikTok.")
+      return
+    }
+
+    const detectedUrl = extractTikTokUrl(rawUrl) || (rawUrl.includes("tiktok.com") ? rawUrl : null)
+    if (!detectedUrl) {
+      toast.error("Link không hợp lệ. Vui lòng dán link video từ TikTok.")
+      return
+    }
+
+    const targetCategory = activeCategoryFilter === "ALL" ? (quickTikTokCategory || "Ăn uống") : activeCategoryFilter
+    const placeName = quickTikTokTitle.trim() || `Review ${targetCategory}`
+
+    setIsAddingTikTok(true)
+    try {
+      let activePlanId = plan?.id
+      if (!activePlanId) {
+        const newPlan = await travelApi.savePlan({
+          ...planForm,
+          groupId,
+          destination: planForm.destination || group?.name || "Chuyến đi mới",
+        })
+        activePlanId = newPlan.id
+        setPlan(newPlan)
+      }
+
+      const payload: TravelPlacePayload = {
+        name: placeName,
+        address: "",
+        category: targetCategory,
+        dayNumber: 1,
+        visitTime: "",
+        estimatedCost: null,
+        notes: detectedUrl,
+        isVisited: false,
+      }
+
+      const created = await travelApi.addPlace(activePlanId, payload)
+      setPlan((prev) =>
+        prev
+          ? {
+              ...prev,
+              places: [...prev.places, created],
+            }
+          : prev
+      )
+
+      setQuickTikTokUrl("")
+      setQuickTikTokTitle("")
+      toast.success(`Đã thêm clip TikTok vào mục "${targetCategory}"!`)
+    } catch (err) {
+      console.error("Failed to add TikTok place:", err)
+      toast.error("Không thể thêm clip TikTok. Vui lòng thử lại.")
+    } finally {
+      setIsAddingTikTok(false)
+    }
+  }
+
+  // Scroll TikTok horizontal reel
+  const scrollTikTokReel = (direction: "left" | "right") => {
+    if (tiktokReelRef.current) {
+      const offset = direction === "left" ? -340 : 340
+      tiktokReelRef.current.scrollBy({ left: offset, behavior: "smooth" })
     }
   }
 
@@ -507,6 +606,11 @@ export default function TravelPlanTab({ groupId, group }: TravelPlanTabProps) {
     if (activeCategoryFilter === "ALL") return plan.places
     return plan.places.filter((p) => p.category === activeCategoryFilter)
   }, [plan?.places, activeCategoryFilter])
+
+  // Places with TikTok review clips for horizontal reel
+  const tiktokPlaces = useMemo(() => {
+    return filteredPlaces.filter((p) => Boolean(extractTikTokUrl(p.notes)))
+  }, [filteredPlaces])
 
   // Places grouped by day for Itinerary
   const itineraryDays = useMemo(() => {
@@ -779,6 +883,221 @@ export default function TravelPlanTab({ groupId, group }: TravelPlanTabProps) {
             })}
           </div>
 
+          {/* Quick TikTok Paste Bar for Category */}
+          <div className="rounded-2xl border border-border/80 bg-card p-3 sm:p-4 shadow-xs">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 mb-2.5">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-bold text-foreground">
+                  Dán link TikTok review {activeCategoryFilter === "ALL" ? "" : `• ${activeCategoryFilter}`}
+                </span>
+                <span className="text-[11px] text-muted-foreground hidden sm:inline">
+                  (Xem và lướt clip trực tiếp sang ngang cùng nhóm)
+                </span>
+              </div>
+            </div>
+
+            <form onSubmit={handleQuickAddTikTok} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
+              {activeCategoryFilter === "ALL" && (
+                <select
+                  value={quickTikTokCategory}
+                  onChange={(e) => setQuickTikTokCategory(e.target.value)}
+                  className="rounded-xl border border-input bg-background px-3 py-2 text-xs font-semibold focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring shrink-0 h-9"
+                >
+                  {CATEGORY_LABELS.map((cat) => (
+                    <option key={cat.key} value={cat.key}>
+                      {cat.label}
+                    </option>
+                  ))}
+                </select>
+              )}
+              <Input
+                className="rounded-xl text-xs flex-1 h-9"
+                placeholder="Dán link TikTok review (ví dụ: https://www.tiktok.com/@.../video/...)"
+                value={quickTikTokUrl}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setQuickTikTokUrl(e.target.value)}
+              />
+              <Input
+                className="rounded-xl text-xs sm:w-52 h-9"
+                placeholder="Tên quán / địa điểm (tuỳ chọn)"
+                value={quickTikTokTitle}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setQuickTikTokTitle(e.target.value)}
+              />
+              <Button
+                type="submit"
+                disabled={isAddingTikTok}
+                className="rounded-xl bg-forest-ink hover:bg-forest-ink/90 text-white font-bold text-xs h-9 shrink-0 px-4"
+              >
+                {isAddingTikTok ? "Đang lưu..." : "+ Lưu Clip TikTok"}
+              </Button>
+            </form>
+          </div>
+
+          {/* Horizontal Reel: Lướt clip TikTok sang ngang */}
+          {tiktokPlaces.length > 0 && (
+            <div className="space-y-3 pt-1">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-black text-foreground">
+                    Clips TikTok Review • {activeCategoryFilter === "ALL" ? "Tất cả" : activeCategoryFilter} ({tiktokPlaces.length})
+                  </span>
+                  <span className="text-[11px] text-muted-foreground hidden md:inline">
+                    Lướt sang ngang để xem nhanh video
+                  </span>
+                </div>
+
+                <div className="flex items-center gap-1.5">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    className="h-7 w-7 rounded-full border-border/80"
+                    onClick={() => scrollTikTokReel("left")}
+                    title="Cuộn sang trái"
+                  >
+                    <ChevronLeft className="h-4 w-4" />
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    className="h-7 w-7 rounded-full border-border/80"
+                    onClick={() => scrollTikTokReel("right")}
+                    title="Cuộn sang phải"
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </Button>
+                </div>
+              </div>
+
+              {/* Horizontal Scroll Reel Container */}
+              <div
+                ref={tiktokReelRef}
+                className="flex items-start gap-4 overflow-x-auto pb-4 pt-1 snap-x snap-mandatory scroll-smooth no-scrollbar"
+              >
+                {tiktokPlaces.map((place) => {
+                  const tiktokUrl = extractTikTokUrl(place.notes)
+                  const videoId = extractTikTokVideoId(tiktokUrl)
+                  const cleanNotes = getCleanNotesWithoutTikTok(place.notes)
+                  const catConfig = CATEGORY_LABELS.find((c) => c.key === place.category) || CATEGORY_LABELS[5]
+
+                  return (
+                    <div
+                      key={place.id}
+                      className="w-[280px] sm:w-[315px] shrink-0 snap-start rounded-2xl border border-border/80 bg-card overflow-hidden shadow-xs hover:shadow-md transition-shadow flex flex-col justify-between"
+                    >
+                      {/* Video Player or Fallback Link Card */}
+                      <div className="w-full bg-black/95 relative flex items-center justify-center overflow-hidden">
+                        {videoId ? (
+                          <iframe
+                            src={`https://www.tiktok.com/player/v1/${videoId}?autoplay=0`}
+                            title={place.name}
+                            className="w-full h-[460px] border-0"
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                            allowFullScreen
+                          />
+                        ) : (
+                          <div className="w-full h-[320px] flex flex-col items-center justify-center p-6 text-center text-white space-y-3 bg-gradient-to-b from-zinc-900 to-black">
+                            <span className="text-sm font-bold">Clip TikTok Review</span>
+                            <p className="text-xs text-white/70 line-clamp-3 break-all">
+                              {tiktokUrl}
+                            </p>
+                            {tiktokUrl && (
+                              <Button
+                                type="button"
+                                size="sm"
+                                className="rounded-full bg-white text-black hover:bg-white/90 font-bold text-xs"
+                                onClick={() => window.open(tiktokUrl, "_blank")}
+                              >
+                                Mở xem trên TikTok <ExternalLink className="h-3.5 w-3.5 ml-1" />
+                              </Button>
+                            )}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Video Card Meta */}
+                      <div className="p-3.5 space-y-2 bg-card">
+                        <div className="flex items-center justify-between gap-2">
+                          <span className={`rounded-full px-2.5 py-0.5 text-[10px] font-bold border ${catConfig.color}`}>
+                            {catConfig.label}
+                          </span>
+                          <div className="flex items-center gap-1.5">
+                            {place.estimatedCost && (
+                              <span className="text-xs font-bold text-foreground">
+                                {formatCurrency(place.estimatedCost)}
+                              </span>
+                            )}
+                            <button
+                              onClick={() => handleToggleVisited(place.id)}
+                              className="text-muted-foreground hover:text-lime-voltage transition-colors"
+                              title={place.isVisited ? "Đã ghé thăm" : "Đánh dấu đã ghé thăm"}
+                            >
+                              {place.isVisited ? (
+                                <CheckCircle2 className="h-4 w-4 text-lime-voltage fill-forest-ink" />
+                              ) : (
+                                <Circle className="h-4 w-4 hover:text-forest-ink" />
+                              )}
+                            </button>
+                          </div>
+                        </div>
+
+                        <div>
+                          <h4 className="font-bold text-sm tracking-tight text-foreground line-clamp-1">
+                            {place.name}
+                          </h4>
+                          {place.address && (
+                            <p className="text-[11px] text-muted-foreground line-clamp-1 mt-0.5">
+                              {place.address}
+                            </p>
+                          )}
+                          {cleanNotes && (
+                            <p className="text-xs text-muted-foreground line-clamp-2 mt-1 italic">
+                              "{cleanNotes}"
+                            </p>
+                          )}
+                        </div>
+
+                        <div className="pt-2 border-t border-border/60 flex items-center justify-between">
+                          {tiktokUrl ? (
+                            <a
+                              href={tiktokUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="text-[11px] font-bold text-foreground hover:text-lime-voltage flex items-center gap-1"
+                            >
+                              Mở TikTok <ExternalLink className="h-3 w-3" />
+                            </a>
+                          ) : (
+                            <span />
+                          )}
+
+                          <div className="flex items-center gap-1">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-6 w-6 rounded-full text-muted-foreground hover:text-foreground"
+                              onClick={() => handleOpenEditPlace(place)}
+                            >
+                              <Edit2 className="h-3 w-3" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-6 w-6 rounded-full text-alarm-red hover:bg-alarm-red/10"
+                              onClick={() => handleDeletePlace(place.id)}
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+
           {/* Places Grid */}
           {filteredPlaces.length === 0 ? (
             <div className="rounded-3xl border border-dashed border-border/80 p-12 text-center bg-card/50">
@@ -864,9 +1183,22 @@ export default function TravelPlanTab({ groupId, group }: TravelPlanTabProps) {
                           </div>
                         )}
 
-                        {place.notes && (
+                        {extractTikTokUrl(place.notes) && (
+                          <div className="mt-2">
+                            <a
+                              href={extractTikTokUrl(place.notes)!}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="inline-flex items-center gap-1 rounded-full bg-forest-ink text-white px-2.5 py-0.5 text-[11px] font-bold hover:bg-forest-ink/90 transition-colors"
+                            >
+                              Clip TikTok <ExternalLink className="h-3 w-3" />
+                            </a>
+                          </div>
+                        )}
+
+                        {getCleanNotesWithoutTikTok(place.notes) && (
                           <p className="text-xs text-muted-foreground/90 mt-2 bg-muted/40 p-2 rounded-xl italic">
-                            "{place.notes}"
+                            "{getCleanNotesWithoutTikTok(place.notes)}"
                           </p>
                         )}
                       </div>
@@ -1773,6 +2105,17 @@ export default function TravelPlanTab({ groupId, group }: TravelPlanTabProps) {
                     estimatedCost: e.target.value ? Number(e.target.value) : null,
                   })
                 }
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-xs font-bold">Link video TikTok review (tuỳ chọn)</Label>
+              <Input
+                type="url"
+                className="rounded-xl"
+                placeholder="https://www.tiktok.com/@.../video/..."
+                value={placeTiktokInput}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setPlaceTiktokInput(e.target.value)}
               />
             </div>
 
