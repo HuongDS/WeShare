@@ -14,5 +14,8 @@ namespace WeShare.Application.Interfaces
         Task<TravelPlaceDto> UpdatePlaceAsync(int placeId, TravelPlaceCreateOrUpdateDto dto);
         Task<bool> TogglePlaceVisitedAsync(int placeId);
         Task<bool> DeletePlaceAsync(int placeId);
+        Task<TravelBudgetItemDto> AddBudgetItemAsync(int travelPlanId, TravelBudgetItemCreateOrUpdateDto dto);
+        Task<TravelBudgetItemDto> UpdateBudgetItemAsync(int itemId, TravelBudgetItemCreateOrUpdateDto dto);
+        Task<bool> DeleteBudgetItemAsync(int itemId);
     }
 }

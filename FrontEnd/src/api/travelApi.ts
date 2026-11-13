@@ -6,6 +6,8 @@ import type {
   TravelHotelPayload,
   TravelPlace,
   TravelPlacePayload,
+  TravelBudgetItem,
+  TravelBudgetItemPayload,
 } from "@/types/travel/TravelPlan"
 
 export const travelApi = {
@@ -51,6 +53,21 @@ export const travelApi = {
 
   deletePlace: async (placeId: number): Promise<boolean> => {
     const res = await axiosClient.delete(`/TravelPlan/places/${placeId}`)
+    return res.data?.data ?? true
+  },
+
+  addBudgetItem: async (travelPlanId: number, payload: TravelBudgetItemPayload): Promise<TravelBudgetItem> => {
+    const res = await axiosClient.post(`/TravelPlan/${travelPlanId}/budget-items`, payload)
+    return res.data.data
+  },
+
+  updateBudgetItem: async (itemId: number, payload: TravelBudgetItemPayload): Promise<TravelBudgetItem> => {
+    const res = await axiosClient.put(`/TravelPlan/budget-items/${itemId}`, payload)
+    return res.data.data
+  },
+
+  deleteBudgetItem: async (itemId: number): Promise<boolean> => {
+    const res = await axiosClient.delete(`/TravelPlan/budget-items/${itemId}`)
     return res.data?.data ?? true
   },
 }

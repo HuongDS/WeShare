@@ -14,6 +14,7 @@ namespace WeShare.Application.Dtos.Travel
         public string? Notes { get; set; }
         public List<TravelHotelDto> Hotels { get; set; } = new();
         public List<TravelPlaceDto> Places { get; set; } = new();
+        public List<TravelBudgetItemDto> BudgetItems { get; set; } = new();
     }
 
     public class TravelPlanCreateOrUpdateDto
@@ -76,5 +77,26 @@ namespace WeShare.Application.Dtos.Travel
         public decimal? EstimatedCost { get; set; }
         public string? Notes { get; set; }
         public bool IsVisited { get; set; }
+    }
+
+    public class TravelBudgetItemDto
+    {
+        public int Id { get; set; }
+        public int TravelPlanId { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Category { get; set; } = "Di chuyển";
+        public decimal UnitCost { get; set; }
+        public int Quantity { get; set; } = 1;
+        public decimal TotalCost => UnitCost * Quantity;
+        public string? Notes { get; set; }
+    }
+
+    public class TravelBudgetItemCreateOrUpdateDto
+    {
+        public string Name { get; set; } = string.Empty;
+        public string Category { get; set; } = "Di chuyển";
+        public decimal UnitCost { get; set; }
+        public int Quantity { get; set; } = 1;
+        public string? Notes { get; set; }
     }
 }

@@ -127,5 +127,41 @@ namespace WeShare.API.Controllers
                 Data = res
             });
         }
+
+        [HttpPost("{travelPlanId}/budget-items")]
+        public async Task<IActionResult> AddBudgetItemAsync([FromRoute] int travelPlanId, [FromBody] TravelBudgetItemCreateOrUpdateDto dto)
+        {
+            var res = await _travelPlanServices.AddBudgetItemAsync(travelPlanId, dto);
+            return Ok(new ResponseDto<TravelBudgetItemDto>
+            {
+                Status = (int)HttpStatusCode.OK,
+                Message = "Budget item added successfully.",
+                Data = res
+            });
+        }
+
+        [HttpPut("budget-items/{itemId}")]
+        public async Task<IActionResult> UpdateBudgetItemAsync([FromRoute] int itemId, [FromBody] TravelBudgetItemCreateOrUpdateDto dto)
+        {
+            var res = await _travelPlanServices.UpdateBudgetItemAsync(itemId, dto);
+            return Ok(new ResponseDto<TravelBudgetItemDto>
+            {
+                Status = (int)HttpStatusCode.OK,
+                Message = "Budget item updated successfully.",
+                Data = res
+            });
+        }
+
+        [HttpDelete("budget-items/{itemId}")]
+        public async Task<IActionResult> DeleteBudgetItemAsync([FromRoute] int itemId)
+        {
+            var res = await _travelPlanServices.DeleteBudgetItemAsync(itemId);
+            return Ok(new ResponseDto<bool>
+            {
+                Status = (int)HttpStatusCode.OK,
+                Message = "Budget item deleted successfully.",
+                Data = res
+            });
+        }
     }
 }

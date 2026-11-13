@@ -15,5 +15,6 @@ namespace WeShare.Core.Entities
 
         public ICollection<TravelHotel> Hotels { get; set; } = new List<TravelHotel>();
         public ICollection<TravelPlace> Places { get; set; } = new List<TravelPlace>();
+        public ICollection<TravelBudgetItem> BudgetItems { get; set; } = new List<TravelBudgetItem>();
     }
 }

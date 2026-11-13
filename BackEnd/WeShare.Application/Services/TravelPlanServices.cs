@@ -218,6 +218,66 @@ namespace WeShare.Application.Services
             return true;
         }
 
+        public async Task<TravelBudgetItemDto> AddBudgetItemAsync(int travelPlanId, TravelBudgetItemCreateOrUpdateDto dto)
+        {
+            var plan = await _travelPlanRepository.GetByIdAsync(travelPlanId);
+            if (plan == null)
+            {
+                throw new NotFoundException($"TravelPlan {travelPlanId} does not exist.");
+            }
+
+            var item = new TravelBudgetItem
+            {
+                TravelPlanId = travelPlanId,
+                Name = dto.Name,
+                Category = string.IsNullOrWhiteSpace(dto.Category) ? "Di chuyển" : dto.Category,
+                UnitCost = dto.UnitCost,
+                Quantity = dto.Quantity <= 0 ? 1 : dto.Quantity,
+                Notes = dto.Notes
+            };
+
+            var itemRepo = _unitOfWork.Repository<TravelBudgetItem>();
+            await itemRepo.AddAsync(item);
+            await _unitOfWork.CompleteAsync();
+
+            return MapToBudgetItemDto(item);
+        }
+
+        public async Task<TravelBudgetItemDto> UpdateBudgetItemAsync(int itemId, TravelBudgetItemCreateOrUpdateDto dto)
+        {
+            var itemRepo = _unitOfWork.Repository<TravelBudgetItem>();
+            var item = await itemRepo.GetByIdAsync(itemId);
+            if (item == null)
+            {
+                throw new NotFoundException($"BudgetItem {itemId} does not exist.");
+            }
+
+            item.Name = dto.Name;
+            item.Category = string.IsNullOrWhiteSpace(dto.Category) ? "Di chuyển" : dto.Category;
+            item.UnitCost = dto.UnitCost;
+            item.Quantity = dto.Quantity <= 0 ? 1 : dto.Quantity;
+            item.Notes = dto.Notes;
+
+            itemRepo.Update(item);
+            await _unitOfWork.CompleteAsync();
+
+            return MapToBudgetItemDto(item);
+        }
+
+        public async Task<bool> DeleteBudgetItemAsync(int itemId)
+        {
+            var itemRepo = _unitOfWork.Repository<TravelBudgetItem>();
+            var item = await itemRepo.GetByIdAsync(itemId);
+            if (item == null)
+            {
+                return false;
+            }
+
+            await itemRepo.Delete(itemId);
+            await _unitOfWork.CompleteAsync();
+            return true;
+        }
+
         private static TravelPlanViewDto MapToViewDto(TravelPlan plan)
         {
             return new TravelPlanViewDto
@@ -230,7 +290,8 @@ namespace WeShare.Application.Services
                 EstimatedBudget = plan.EstimatedBudget,
                 Notes = plan.Notes,
                 Hotels = plan.Hotels?.Where(h => !h.IsDeleted).Select(MapToHotelDto).OrderBy(h => h.CheckInDate).ToList() ?? new List<TravelHotelDto>(),
-                Places = plan.Places?.Where(p => !p.IsDeleted).Select(MapToPlaceDto).OrderBy(p => p.DayNumber ?? 999).ThenBy(p => p.Id).ToList() ?? new List<TravelPlaceDto>()
+                Places = plan.Places?.Where(p => !p.IsDeleted).Select(MapToPlaceDto).OrderBy(p => p.DayNumber ?? 999).ThenBy(p => p.Id).ToList() ?? new List<TravelPlaceDto>(),
+                BudgetItems = plan.BudgetItems?.Where(b => !b.IsDeleted).Select(MapToBudgetItemDto).OrderBy(b => b.Id).ToList() ?? new List<TravelBudgetItemDto>()
             };
         }
 
@@ -265,6 +326,20 @@ namespace WeShare.Application.Services
                 EstimatedCost = p.EstimatedCost,
                 Notes = p.Notes,
                 IsVisited = p.IsVisited
+            };
+        }
+
+        private static TravelBudgetItemDto MapToBudgetItemDto(TravelBudgetItem b)
+        {
+            return new TravelBudgetItemDto
+            {
+                Id = b.Id,
+                TravelPlanId = b.TravelPlanId,
+                Name = b.Name,
+                Category = b.Category,
+                UnitCost = b.UnitCost,
+                Quantity = b.Quantity,
+                Notes = b.Notes
             };
         }
     }

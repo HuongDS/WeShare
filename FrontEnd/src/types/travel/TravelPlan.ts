@@ -24,6 +24,17 @@ export interface TravelPlace {
   isVisited: boolean
 }
 
+export interface TravelBudgetItem {
+  id: number
+  travelPlanId: number
+  name: string
+  category: string
+  unitCost: number
+  quantity: number
+  totalCost: number
+  notes?: string | null
+}
+
 export interface TravelPlan {
   id: number
   groupId: number
@@ -34,6 +45,7 @@ export interface TravelPlan {
   notes?: string | null
   hotels: TravelHotel[]
   places: TravelPlace[]
+  budgetItems?: TravelBudgetItem[]
 }
 
 export interface TravelPlanCreateOrUpdatePayload {
@@ -65,4 +77,12 @@ export interface TravelPlacePayload {
   estimatedCost?: number | null
   notes?: string | null
   isVisited?: boolean
+}
+
+export interface TravelBudgetItemPayload {
+  name: string
+  category: string
+  unitCost: number
+  quantity: number
+  notes?: string | null
 }

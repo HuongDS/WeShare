@@ -16,6 +16,7 @@ namespace WeShare.Infrastructure.Repositories
             return await _dbSet
                 .Include(p => p.Hotels)
                 .Include(p => p.Places)
+                .Include(p => p.BudgetItems)
                 .FirstOrDefaultAsync(p => p.GroupId == groupId && !p.IsDeleted);
         }
     }

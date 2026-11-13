@@ -25,6 +25,7 @@ namespace WeShare.Infrastructure
         public DbSet<TravelPlan> TravelPlans { get; set; } = null!;
         public DbSet<TravelHotel> TravelHotels { get; set; } = null!;
         public DbSet<TravelPlace> TravelPlaces { get; set; } = null!;
+        public DbSet<TravelBudgetItem> TravelBudgetItems { get; set; } = null!;
 
         public override int SaveChanges(bool acceptAllChangesOnSuccess)
         {
@@ -305,6 +306,20 @@ namespace WeShare.Infrastructure
                 tp.HasQueryFilter(x => !x.IsDeleted);
                 tp.HasIndex(x => x.TravelPlanId);
                 tp.HasIndex(x => new { x.TravelPlanId, x.Category });
+            });
+
+            modelBuilder.Entity<TravelBudgetItem>(tb =>
+            {
+                tb.HasKey(x => x.Id);
+                tb.Property(x => x.Name).IsRequired().HasMaxLength(200);
+                tb.Property(x => x.Category).IsRequired().HasMaxLength(100);
+                tb.Property(x => x.Notes).HasMaxLength(1000);
+                tb.HasOne(x => x.TravelPlan)
+                  .WithMany(plan => plan.BudgetItems)
+                  .HasForeignKey(x => x.TravelPlanId)
+                  .OnDelete(DeleteBehavior.Cascade);
+                tb.HasQueryFilter(x => !x.IsDeleted);
+                tb.HasIndex(x => x.TravelPlanId);
             });
         }
     }

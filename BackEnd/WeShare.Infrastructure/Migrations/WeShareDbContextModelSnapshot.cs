@@ -450,6 +450,56 @@ namespace WeShare.Infrastructure.Migrations
                         });
                 });
 
+            modelBuilder.Entity("WeShare.Core.Entities.TravelBudgetItem", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)");
+
+                    b.Property<string>("Notes")
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("integer");
+
+                    b.Property<int>("TravelPlanId")
+                        .HasColumnType("integer");
+
+                    b.Property<decimal>("UnitCost")
+                        .HasColumnType("numeric");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TravelPlanId");
+
+                    b.ToTable("TravelBudgetItems");
+                });
+
             modelBuilder.Entity("WeShare.Core.Entities.TravelHotel", b =>
                 {
                     b.Property<int>("Id")
@@ -838,6 +888,17 @@ namespace WeShare.Infrastructure.Migrations
                     b.Navigation("Transaction");
                 });
 
+            modelBuilder.Entity("WeShare.Core.Entities.TravelBudgetItem", b =>
+                {
+                    b.HasOne("WeShare.Core.Entities.TravelPlan", "TravelPlan")
+                        .WithMany("BudgetItems")
+                        .HasForeignKey("TravelPlanId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("TravelPlan");
+                });
+
             modelBuilder.Entity("WeShare.Core.Entities.TravelHotel", b =>
                 {
                     b.HasOne("WeShare.Core.Entities.TravelPlan", "TravelPlan")
@@ -904,6 +965,8 @@ namespace WeShare.Infrastructure.Migrations
 
             modelBuilder.Entity("WeShare.Core.Entities.TravelPlan", b =>
                 {
+                    b.Navigation("BudgetItems");
+
                     b.Navigation("Hotels");
 
                     b.Navigation("Places");
