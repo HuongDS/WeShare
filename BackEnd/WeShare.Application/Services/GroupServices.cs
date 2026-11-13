@@ -34,16 +34,30 @@ namespace WeShare.Application.Services
         }
         public async Task<GroupViewDto> CreateGroupAsync(int userId, CreateGroupDto data)
         {
-            var groupRepo = _unitOfWork.Repository<Group>();
-            var newGroup = _mapper.Map<Group>(data);
-            await groupRepo.AddAsync(newGroup);
+            await _unitOfWork.StartTransactionAsync();
+            try
+            {
+                var groupRepo = _unitOfWork.Repository<Group>();
+                var newGroup = _mapper.Map<Group>(data);
+                if (string.IsNullOrWhiteSpace(newGroup.InviteCode))
+                {
+                    newGroup.InviteCode = "WS-" + Guid.NewGuid().ToString("N")[..8].ToUpperInvariant();
+                }
+                await groupRepo.AddAsync(newGroup);
+                await _unitOfWork.CompleteAsync();
 
-            var newGroupMember = await _groupMemberRepository.AddAsync(newGroup.Id, userId);
-            await _unitOfWork.CompleteAsync();
+                var newGroupMember = await _groupMemberRepository.AddAsync(newGroup.Id, userId);
+                await _unitOfWork.CommitTransactionAsync();
 
-            var res = _mapper.Map<GroupViewDto>(newGroup);
-            res.Members = new[] { _mapper.Map<GroupMemberViewDto>(newGroupMember) };
-            return res;
+                var res = _mapper.Map<GroupViewDto>(newGroup);
+                res.Members = new[] { _mapper.Map<GroupMemberViewDto>(newGroupMember) };
+                return res;
+            }
+            catch
+            {
+                await _unitOfWork.RollBackTransactionAsync();
+                throw;
+            }
         }
         public async Task<GroupViewDto> GetByIdAsync(int groupId)
         {
