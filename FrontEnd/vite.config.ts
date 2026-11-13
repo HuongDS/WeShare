@@ -32,6 +32,11 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api\/disify/, ""),
       },
+      "/api": {
+        target: "http://localhost:5111",
+        changeOrigin: true,
+        secure: false,
+      },
     },
   },
 })

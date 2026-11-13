@@ -143,7 +143,7 @@ export default function DashboardPage() {
             <div className="flex items-center gap-2.5 min-w-0">
               <AlertCircle className="h-4 w-4 shrink-0 text-alarm-red" />
               <span>
-                Could not connect to backend server ({import.meta.env.VITE_API_URL || "https://localhost:7133/api"}). Please ensure the backend is running.
+                Could not connect to backend server ({import.meta.env.VITE_API_URL || "http://localhost:5111/api"}). Please ensure the backend is running.
               </span>
             </div>
             <Button

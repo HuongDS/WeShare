@@ -5,7 +5,7 @@ declare module "axios" {
   interface AxiosRequestConfig { localErrors?: boolean }
 }
 
-const API_URL = import.meta.env.VITE_API_URL || "https://localhost:7133/api"
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5111/api"
 
 const axiosClient = axios.create({
   baseURL: API_URL,
